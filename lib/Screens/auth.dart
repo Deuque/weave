@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod/all.dart';
 import 'package:riverpod/riverpod.dart';
+import 'package:weave/Util/colors.dart';
+import 'package:weave/Util/helper_functions.dart';
 
 class Auth extends StatefulWidget {
   @override
@@ -11,27 +13,21 @@ class Auth extends StatefulWidget {
 
 class _AuthState extends State<Auth> {
   TextEditingController passController,
-      emailController,
-      nameController,
-      usernameController;
-  FocusNode enode, nnode, pnode, unode;
+      emailController;
+  FocusNode enode, pnode;
   bool isLogin = true;
   bool loading = false;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  String emailOrUsername, email, username, name, password;
+  String  email, password;
 
   @override
   void initState() {
     super.initState();
     passController = new TextEditingController();
-    nameController = new TextEditingController();
     emailController = new TextEditingController();
-    usernameController = new TextEditingController();
     enode = new FocusNode();
-    nnode = new FocusNode();
     pnode = new FocusNode();
-    unode = new FocusNode();
   }
 
   @override
@@ -42,15 +38,11 @@ class _AuthState extends State<Auth> {
     clearFocus() {
       enode.unfocus();
       pnode.unfocus();
-      nnode.unfocus();
-      unode.unfocus();
     }
 
     clearFields() {
       emailController.clear();
       passController.clear();
-      nameController.clear();
-      usernameController.clear();
     }
 
     // checkForm() async {
@@ -100,9 +92,95 @@ class _AuthState extends State<Auth> {
     //   }
     // }
 
+    spacer()=>SizedBox(height: height*.05,);
+    spacer2()=>SizedBox(height: height*.03,);
+    Widget actionButton(String label, bool active,Function onClick)=>Expanded(
+      flex: active?3:2,
+      child: GestureDetector(
+        onTap: onClick,
+        child: Container(
+          decoration: BoxDecoration(
+              color: active? primary:lightGrey.withOpacity(.2),
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                if(active)
+                  BoxShadow(
+                      offset: Offset(0, 3),
+                      spreadRadius: 1,
+                      blurRadius: 2,
+                      color: Theme.of(context).backgroundColor)
+              ]
+          ),
+          padding: EdgeInsets.all(20),
+          alignment: Alignment.center,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                    color: active?white.withOpacity(.8):lightGrey, fontSize: 13),
+              ),
+              SizedBox(width: 4,),
+              if(active)
+                Icon(Icons.chevron_right_outlined,color: Colors.white.withOpacity(.8),size: 16,)
+            ],
+          ),
+        ),
+      ),
+    );
     return  GestureDetector(
       onTap: clearFocus,
       child: Scaffold(
+          body: Padding(
+          padding:  EdgeInsets.symmetric(horizontal: width * .08,vertical: width*.15),
+          child: Form(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                MyTextField(label: 'Email',hint: 'johnDoe@gmail.com',),
+                spacer2(),
+                MyTextField(label: 'Password',hint: '........',isPassword: true,),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: FlatButton(
+                    onPressed: (){},
+                    child: Text(
+                      'Forgot password',
+                      style: TextStyle(
+                          color: Theme.of(context).secondaryHeaderColor.withOpacity(.7), fontSize: 15),
+                    ),
+                  ),
+                ),
+                spacer2(),
+                Row(
+                  children: [
+                    actionButton(
+                      'LOGIN',
+                       isLogin,
+                       (){
+                        if(!isLogin)setState(() {
+                          isLogin=true;
+                        });
+                      },
+                    ),
+                    SizedBox(width: 10,),
+                    actionButton(
+                      'REGISTER',
+                      !isLogin,
+                          (){
+                        if(isLogin)setState(() {
+                          isLogin=false;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

@@ -8,7 +8,7 @@
 import 'package:flutter/material.dart';
 import 'package:weave/Util/colors.dart';
 
-Widget logo({double size, double spacing}){
+Widget logo({double size, double spacing}) {
   return Text.rich(TextSpan(
       children: [
         TextSpan(
@@ -27,6 +27,89 @@ Widget logo({double size, double spacing}){
           fontWeight: FontWeight.bold,
           fontSize: size)));
 }
+
+class MyTextField extends StatefulWidget {
+  final String label,hint;
+  final ValueChanged<String> onSaved;
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  final bool isPassword;
+
+  const MyTextField(
+      {Key key, this.label, this.hint, this.onSaved, this.controller, this.focusNode, this.isPassword=false})
+      : super(key: key);
+
+  @override
+  _TextFieldState createState() => _TextFieldState();
+}
+
+class _TextFieldState extends State<MyTextField> {
+  bool obscureText = true;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    obscureText = widget.isPassword;
+  }
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).backgroundColor.withOpacity(.1),
+            borderRadius: BorderRadius.circular(15),
+          ),
+          margin: EdgeInsets.only(top: 8),
+          child: TextFormField(
+            obscureText: obscureText,
+            style: TextStyle(
+                color: Theme.of(context).secondaryHeaderColor, fontSize: 14),
+            decoration: InputDecoration(
+                contentPadding: EdgeInsets.all(20), border: InputBorder.none,
+            suffixIcon: widget.isPassword?InkWell(
+              onTap: ()=>setState((){
+                obscureText = !obscureText;
+              }),
+              child: Container(
+                color: Colors.transparent,
+                padding: EdgeInsets.all(5),
+                child: Icon(obscureText? Icons.visibility: Icons.visibility_off,size: 14,),
+              ),
+            ):SizedBox(height: 0,),
+            hintStyle: TextStyle(
+                color: Theme.of(context).secondaryHeaderColor.withOpacity(.8), fontSize: 14),
+            hintText: widget.hint),
+          ),
+        ),
+        Positioned(
+            top: 0,
+            left: 4,
+            child: Material(
+              color: primary,
+              borderRadius: BorderRadius.circular(6),
+              child: Material(
+                color:
+                    Theme.of(context).scaffoldBackgroundColor.withOpacity(.9),
+                borderRadius: BorderRadius.circular(6),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 2, horizontal: 11.0),
+                  child: Text(
+                    widget.label,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: primary,
+                    ),
+                  ),
+                ),
+              ),
+            ))
+      ],
+    );
+  }
+}
+
+
 // void showWelcome(context){
 //   showModalBottomSheet(
 //       context: context,

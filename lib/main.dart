@@ -30,6 +30,7 @@ class MyApp extends StatelessWidget {
             darkTheme: ThemeData(
               brightness: Brightness.dark,
               secondaryHeaderColor: white,
+              backgroundColor: Colors.black.withOpacity(.2),
               primaryColor: primary,
               accentColor: accentColor,
               visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -54,6 +55,7 @@ class MyApp extends StatelessWidget {
             theme: ThemeData(
               brightness: Brightness.light,
               secondaryHeaderColor: dark,
+              backgroundColor: lightGrey.withOpacity(.3),
               primaryColor: primary,
               accentColor: accentColor,
               visualDensity: VisualDensity.adaptivePlatformDensity,

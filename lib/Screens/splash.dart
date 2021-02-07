@@ -8,12 +8,7 @@ class Splash extends StatelessWidget {
     var size = MediaQuery.of(context).size;
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
-            image: DecorationImage(
-                image: AssetImage(
-                  'assets/images/bg.png',
-                ),
-                fit: BoxFit.cover)),
+
         child: TweenAnimationBuilder(
           tween: Tween<double>(begin: 0.1, end: 1),
           duration: Duration(seconds: 1),
@@ -29,14 +24,11 @@ class Splash extends StatelessWidget {
                     'Play words together',
                     style: TextStyle(color: lightGrey, fontSize: 15),
                   ),
-                  SizedBox(
-                    height: size.height * .15,
-                  )
                 ],
               ),
             ),
           ),
-          //onEnd: ()=>Navigator.pushReplacementNamed(context, 'initial'),
+          onEnd: ()=>Future.delayed(Duration(milliseconds: 600),()=>Navigator.pushReplacementNamed(context, 'initial')),
         ),
       ),
     );
