@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod/all.dart';
@@ -12,14 +11,13 @@ class Auth extends StatefulWidget {
 }
 
 class _AuthState extends State<Auth> {
-  TextEditingController passController,
-      emailController;
+  TextEditingController passController, emailController;
   FocusNode enode, pnode;
   bool isLogin = true;
   bool loading = false;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  String  email, password;
+  String email, password;
 
   @override
   void initState() {
@@ -92,92 +90,131 @@ class _AuthState extends State<Auth> {
     //   }
     // }
 
-    spacer()=>SizedBox(height: height*.05,);
-    spacer2()=>SizedBox(height: height*.03,);
-    Widget actionButton(String label, bool active,Function onClick)=>Expanded(
-      flex: active?3:2,
-      child: GestureDetector(
-        onTap: onClick,
-        child: Container(
-          decoration: BoxDecoration(
-              color: active? primary:lightGrey.withOpacity(.2),
-              borderRadius: BorderRadius.circular(15),
-              boxShadow: [
-                if(active)
-                  BoxShadow(
-                      offset: Offset(0, 3),
-                      spreadRadius: 1,
-                      blurRadius: 2,
-                      color: Theme.of(context).backgroundColor)
-              ]
-          ),
-          padding: EdgeInsets.all(20),
-          alignment: Alignment.center,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                    color: active?white.withOpacity(.8):lightGrey, fontSize: 13),
+    spacer() => SizedBox(
+          height: height * .05,
+        );
+    spacer2() => SizedBox(
+          height: height * .03,
+        );
+    Widget actionButton(String label, bool active, Function onClick) =>
+        Expanded(
+          flex: active ? 3 : 2,
+          child: GestureDetector(
+            onTap: onClick,
+            child: Container(
+              decoration: BoxDecoration(
+                  color: active ? primary : lightGrey.withOpacity(.2),
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    if (active)
+                      BoxShadow(
+                          offset: Offset(0, 3),
+                          spreadRadius: 1,
+                          blurRadius: 2,
+                          color: Theme.of(context).backgroundColor)
+                  ]),
+              padding: EdgeInsets.all(20),
+              alignment: Alignment.center,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    label,
+                    style: TextStyle(
+                        color: active ? white.withOpacity(.8) : lightGrey,
+                        fontSize: 13),
+                  ),
+                  SizedBox(
+                    width: 4,
+                  ),
+                  if (active)
+                    Icon(
+                      Icons.chevron_right_outlined,
+                      color: Colors.white.withOpacity(.8),
+                      size: 16,
+                    )
+                ],
               ),
-              SizedBox(width: 4,),
-              if(active)
-                Icon(Icons.chevron_right_outlined,color: Colors.white.withOpacity(.8),size: 16,)
-            ],
+            ),
           ),
-        ),
-      ),
-    );
-    return  GestureDetector(
+        );
+    return GestureDetector(
       onTap: clearFocus,
       child: Scaffold(
-          body: Padding(
-          padding:  EdgeInsets.symmetric(horizontal: width * .08,vertical: width*.15),
+        body: Padding(
+          padding: EdgeInsets.symmetric(
+              horizontal: width * .08, vertical: width * .15),
           child: Form(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                MyTextField(label: 'Email',hint: 'johnDoe@gmail.com',),
-                spacer2(),
-                MyTextField(label: 'Password',hint: '........',isPassword: true,),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: FlatButton(
-                    onPressed: (){},
-                    child: Text(
-                      'Forgot password',
-                      style: TextStyle(
-                          color: Theme.of(context).secondaryHeaderColor.withOpacity(.7), fontSize: 15),
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: ListView(
+                shrinkWrap: true,
+                children: [
+                  Text(
+                    'Hello there,',
+                    style: TextStyle(
+                        color: Theme.of(context).secondaryHeaderColor,
+                        fontSize: 25,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  spacer(),
+                  MyTextField(
+                    label: 'Email',
+                    hint: 'johnDoe@gmail.com',
+                  ),
+                  spacer2(),
+                  MyTextField(
+                    label: 'Password',
+                    hint: '........',
+                    isPassword: true,
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: FlatButton(
+                      onPressed: () {},
+                      child: Text(
+                        'Forgot password',
+                        style: TextStyle(
+                            color: Theme.of(context)
+                                .secondaryHeaderColor
+                                .withOpacity(.7),
+                            fontSize: 15),
+                      ),
                     ),
                   ),
-                ),
-                spacer2(),
-                Row(
-                  children: [
-                    actionButton(
-                      'LOGIN',
-                       isLogin,
-                       (){
-                        if(!isLogin)setState(() {
-                          isLogin=true;
-                        });
-                      },
-                    ),
-                    SizedBox(width: 10,),
-                    actionButton(
-                      'REGISTER',
-                      !isLogin,
-                          (){
-                        if(isLogin)setState(() {
-                          isLogin=false;
-                        });
-                      },
-                    ),
-                  ],
-                ),
-              ],
+                  spacer2(),
+                  Row(
+                    children: [
+                      actionButton(
+                        'LOGIN',
+                        isLogin,
+                        () {
+                          if (!isLogin) {
+                            setState(() {
+                              isLogin = true;
+                            });
+                          } else {
+                            Navigator.pushNamed(context, 'username');
+                          }
+                        },
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      actionButton(
+                        'REGISTER',
+                        !isLogin,
+                        () {
+                          if (isLogin)
+                            setState(() {
+                              isLogin = false;
+                            });
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),

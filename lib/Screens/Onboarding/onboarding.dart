@@ -20,21 +20,21 @@ class _OnboardingState extends State<Onboarding> {
 
     detailItems = [
       {
-        'image': 'assets/images/guess_words.png',
-        'title': 'Guess the answer',
+        'image': 'assets/images/obd1.png',
+        'title': 'Play games together',
         'subtitle':
-            'Have your most difficult words or sentences shuffled for your opponent to put together'
+            'Send invites to friends and have fun with interesting words and board games'
       },
+      // {
+      //   'image': 'assets/images/play_together.png',
+      //   'title': 'Play with anyone',
+      //   'subtitle': 'Send invites to any of your friends and battle it out'
+      // },
       {
-        'image': 'assets/images/play_together.png',
-        'title': 'Play with anyone',
-        'subtitle': 'Send invites to any of your friends and battle it out'
-      },
-      {
-        'image': 'assets/images/chat.png',
+        'image': 'assets/images/obd2.png',
         'title': 'Have fun and Chat',
         'subtitle':
-            'Send teasing messages to your opponent as they sweat over your question'
+            'Send teasing messages to your opponent even as you have fun together'
       },
     ];
   }
@@ -110,6 +110,7 @@ class _OnboardingState extends State<Onboarding> {
             )),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Row(
                   mainAxisSize: MainAxisSize.min,
