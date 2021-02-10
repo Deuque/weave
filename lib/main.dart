@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:weave/Controllers/theme_controller.dart';
-import 'package:weave/Screens/Onboarding/onboarding.dart';
+import 'file:///C:/Users/HP/Desktop/keep/weave_mobile/lib/Screens/onboarding.dart';
 import 'package:weave/Util/colors.dart';
 import 'package:weave/routes.dart';
 
@@ -77,7 +77,7 @@ class MyApp extends StatelessWidget {
                   //Theme.of(context).textTheme,
                   ),
             ),
-            initialRoute: 'splash',
+            initialRoute: 'dash',
             onGenerateRoute: Routes.getRoute,
           );
         });

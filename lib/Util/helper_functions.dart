@@ -23,7 +23,7 @@ Widget logo({double size, double spacing}) {
             ))
       ],
       style: TextStyle(
-          letterSpacing: spacing,
+          letterSpacing: spacing??3,
           fontWeight: FontWeight.bold,
           fontSize: size)));
 }

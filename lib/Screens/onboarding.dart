@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:weave/Screens/Onboarding/detail_item.dart';
 import 'package:weave/Util/colors.dart';
+import 'package:weave/Widgets/onboarding_detail_item.dart';
 
 class Onboarding extends StatefulWidget {
   @override

@@ -2,6 +2,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:weave/Screens/auth.dart';
+import 'package:weave/Screens/dash.dart';
 import 'package:weave/Screens/splash.dart';
 import 'package:weave/Screens/username.dart';
 import 'package:weave/route_decider.dart';
@@ -18,6 +19,9 @@ class Routes {
         return CupertinoPageRoute(builder: (_) => Auth());
       case 'username':
         return CupertinoPageRoute(builder: (_) => ChooseUsername());
+      case 'dash':
+        return CupertinoPageRoute(builder: (_) => Dashboard());
+
     }
   }
 }
