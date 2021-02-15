@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:weave/Controllers/theme_controller.dart';
 import 'file:///C:/Users/HP/Desktop/keep/weave_mobile/lib/Screens/onboarding.dart';
 import 'package:weave/Util/colors.dart';
+import 'package:weave/Widgets/clock_widget.dart';
 import 'package:weave/routes.dart';
 
 void main() {
@@ -77,6 +78,11 @@ class MyApp extends StatelessWidget {
                   //Theme.of(context).textTheme,
                   ),
             ),
+            // home: Scaffold(body: ClockWidget(
+            //   colorOfCircle: Colors.orange,
+            //   size:300,
+            //   items: List.generate(12, (index) => Container(height: 10,width: 10,decoration: BoxDecoration(borderRadius: BorderRadius.circular(5),color: Colors.cyan),)),
+            // ),),
             initialRoute: 'dash',
             onGenerateRoute: Routes.getRoute,
           );

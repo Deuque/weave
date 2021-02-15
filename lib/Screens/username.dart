@@ -172,7 +172,7 @@ class _ChooseUsernameState extends State<ChooseUsername> {
               actionButton(
                 'CONTINUE',
                 textEntered,
-                () {},
+                () =>Navigator.pushNamed(context,'dash'),
               ),
             ],
           ),
