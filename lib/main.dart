@@ -69,7 +69,7 @@ class MyApp extends StatelessWidget {
                   iconTheme: IconThemeData(color: dark)),
               scaffoldBackgroundColor: white,
               cardColor: white,
-              dividerColor: lightGrey.withOpacity(.35),
+              dividerColor: lightGrey.withOpacity(.5),
               bottomAppBarColor: white,
               bottomSheetTheme: BottomSheetThemeData(
                 backgroundColor: white,
@@ -83,7 +83,7 @@ class MyApp extends StatelessWidget {
             //   size:300,
             //   items: List.generate(12, (index) => Container(height: 10,width: 10,decoration: BoxDecoration(borderRadius: BorderRadius.circular(5),color: Colors.cyan),)),
             // ),),
-            initialRoute: 'dash',
+            initialRoute: 'splash',
             onGenerateRoute: Routes.getRoute,
           );
         });

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:weave/Models/activity.dart';
 import 'package:weave/Util/colors.dart';
+import 'package:weave/Util/helper_functions.dart';
 
 class ActivityLayout extends StatelessWidget {
   final Activity activity;
@@ -19,7 +20,7 @@ class ActivityLayout extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           child: Container(
             decoration: BoxDecoration(
-              color: Theme.of(context).backgroundColor,
+              color: Theme.of(context).backgroundColor.withOpacity(.2),
               shape: BoxShape.circle
             ),
             padding: EdgeInsets.all(3),
@@ -37,9 +38,9 @@ class ActivityLayout extends StatelessWidget {
     }
 
     return Container(
-      margin: EdgeInsets.only(bottom: 6),
+      margin: EdgeInsets.only(bottom: 10,right: 6,left: 6),
       decoration: BoxDecoration(
-          color: Theme.of(context).backgroundColor,
+          color: Theme.of(context).backgroundColor.withOpacity(.2),
           borderRadius: BorderRadius.circular(8)),
       child: ListTile(
         leading: Stack(
@@ -67,27 +68,7 @@ class ActivityLayout extends StatelessWidget {
               fontWeight: FontWeight.w500,
               fontSize: size.width*.035),
         ),
-        subtitle: Row(
-          children: [
-            Image.asset(
-              activity.gameType == 0
-                  ? 'assets/images/anagram.png'
-                  : 'assets/images/tictactoe.png',
-              height: size.width*.03,
-              width: size.width*.03,
-            ),
-            SizedBox(
-              width: 4,
-            ),
-            Text(
-              activity.gameType == 1 ? 'Anagram' : 'Tic-Tac-Toe',
-              style: TextStyle(
-                  color: Theme.of(context).secondaryHeaderColor.withOpacity(.6),
-                  fontWeight: FontWeight.w100,
-                  fontSize: size.width*.029),
-            )
-          ],
-        ),
+        subtitle: gameTypeWidget(type: activity.gameType,size: size.width*.03,context: context),
         trailing: Column(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.center,

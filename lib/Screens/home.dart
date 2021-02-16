@@ -61,13 +61,13 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: active
-                    ? Theme.of(context).secondaryHeaderColor.withOpacity(.8)
+                    ? primary
                     : Theme.of(context).secondaryHeaderColor.withOpacity(.3)),
             padding: const EdgeInsets.all(4.0),
             child: Text(
               '$count',
               style: TextStyle(
-                  color: Theme.of(context).scaffoldBackgroundColor,
+                  color: white.withOpacity(.78),
                   fontSize: size.width * .028),
             ),
           ),
@@ -84,8 +84,19 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           toolbarHeight: 70,
           elevation: 0,
           leadingWidth: 150,
-          leading: Center(
-            child: logo(size: size.width * .06),
+          leading: Align(
+            alignment: Alignment.centerLeft,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 17.0),
+              child: Text(
+                'Games',
+                  style: TextStyle(
+                    color: Theme.of(context).secondaryHeaderColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: size.width * .06)
+              ),
+            )
+            //child: logo(size: size.width * .06),
           ),
           actions: [
             Center(
@@ -110,7 +121,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         ),
         body: Padding(
           padding:
-              EdgeInsets.symmetric(vertical: 2, horizontal: size.width * .05),
+              EdgeInsets.symmetric(vertical: 2, horizontal: 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -123,24 +134,26 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 //   });
                 // },
                 controller: _controller,
-                indicatorPadding: EdgeInsets.all(10),
-
-                indicatorSize: TabBarIndicatorSize.label,
+                //indicatorPadding: EdgeInsets.all(10),
                 labelPadding: EdgeInsets.symmetric(
                   horizontal: 10,
                 ),
-                indicator: MD2Indicator(
-                  indicatorSize: MD2IndicatorSize.full,
-                  indicatorHeight: 3.0,
-                  indicatorColor: primary,
-                ),
-                labelColor: Theme.of(context).secondaryHeaderColor,
+                indicatorColor: Colors.transparent,
+                // indicator: MD2Indicator(
+                //   indicatorSize: MD2IndicatorSize.full,
+                //   indicatorHeight: 3.0,
+                //   indicatorColor: primary,
+                // ),
+                // labelColor: Theme.of(context).secondaryHeaderColor,
+                // unselectedLabelColor:
+                //     Theme.of(context).secondaryHeaderColor.withOpacity(.3),
+                labelColor: Theme.of(context).primaryColor,
                 unselectedLabelColor:
-                    Theme.of(context).secondaryHeaderColor.withOpacity(.3),
+                Theme.of(context).secondaryHeaderColor.withOpacity(.3),
                 tabs: [
                   Padding(
                     padding:
-                        const EdgeInsets.only(right: 8.0, bottom: 8, top: 6),
+                        const EdgeInsets.only(right: 5.0, bottom: 8, top: 6),
                     child: Row(
                       children: [
                         Text(
@@ -205,7 +218,7 @@ class TabBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return tabIndex == 0
         ? ListView(
-            padding: EdgeInsets.only(top: 18),
+            padding: EdgeInsets.only(top: 10),
             physics: BouncingScrollPhysics(),
             children: items
                 .map((e) => ActivityLayout(
@@ -214,7 +227,7 @@ class TabBody extends StatelessWidget {
                 .toList(),
           )
         :ListView(
-      padding: EdgeInsets.only(top: 18),
+      padding: EdgeInsets.only(top: 10),
       physics: BouncingScrollPhysics(),
       children: items
           .map((e) => InviteLayout(

@@ -30,8 +30,6 @@ class _ChooseUsernameState extends State<ChooseUsername> {
           textEntered = false;
         });
       }
-
-
     });
   }
 
@@ -74,45 +72,7 @@ class _ChooseUsernameState extends State<ChooseUsername> {
     spacer2() => SizedBox(
           height: height * .03,
         );
-    Widget actionButton(String label, bool active, Function onClick) =>
-        GestureDetector(
-          onTap: onClick,
-          child: Container(
-            decoration: BoxDecoration(
-                color: active ? primary : lightGrey.withOpacity(.2),
-                borderRadius: BorderRadius.circular(15),
-                boxShadow: [
-                  if (active)
-                    BoxShadow(
-                        offset: Offset(0, 3),
-                        spreadRadius: 1,
-                        blurRadius: 2,
-                        color: Theme.of(context).backgroundColor)
-                ]),
-            padding: EdgeInsets.all(20),
-            alignment: Alignment.center,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  label,
-                  style: TextStyle(
-                      color: active ? white.withOpacity(.8) : lightGrey,
-                      fontSize: 13),
-                ),
-                SizedBox(
-                  width: 4,
-                ),
-                if (active)
-                  Icon(
-                    Icons.chevron_right_outlined,
-                    color: Colors.white.withOpacity(.8),
-                    size: 16,
-                  )
-              ],
-            ),
-          ),
-        );
+
     return Scaffold(
       body: Padding(
         padding: EdgeInsets.symmetric(
@@ -141,7 +101,7 @@ class _ChooseUsernameState extends State<ChooseUsername> {
                 label: 'Username',
                 hint: '@johnDoe',
                 controller: usernameController,
-                onEditComplete: ()=> performSearch(usernameController.text),
+                onEditComplete: () => performSearch(usernameController.text),
                 suffix: Padding(
                   padding: const EdgeInsets.all(14.0),
                   child: checkingUsername
@@ -169,11 +129,8 @@ class _ChooseUsernameState extends State<ChooseUsername> {
                 ),
               ),
               spacer2(),
-              actionButton(
-                'CONTINUE',
-                textEntered,
-                () =>Navigator.pushNamed(context,'dash'),
-              ),
+              actionButton('CONTINUE', textEntered,
+                  () => Navigator.pushNamed(context, 'dash'), context),
             ],
           ),
         ),

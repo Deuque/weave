@@ -8,6 +8,7 @@
 import 'package:flutter/material.dart';
 import 'package:weave/Util/colors.dart';
 
+//custom logo
 Widget logo({double size, double spacing}) {
   return Text.rich(TextSpan(
       children: [
@@ -23,11 +24,51 @@ Widget logo({double size, double spacing}) {
             ))
       ],
       style: TextStyle(
-          letterSpacing: spacing??3,
+          letterSpacing: spacing ?? 3,
           fontWeight: FontWeight.bold,
           fontSize: size)));
 }
 
+// custom field identifier
+Widget customFieldIdentifier(
+        {@required child, @required label, @required BuildContext context, bool enablePadding = false, double padding}) =>
+    Stack(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).backgroundColor.withOpacity(.1),
+            borderRadius: BorderRadius.circular(15),
+          ),
+          margin: EdgeInsets.only(top: 8),
+          padding: EdgeInsets.all(enablePadding?padding:0),
+          child: child,
+        ),
+        Positioned(
+            top: 0,
+            left: 4,
+            child: Material(
+              color: primary,
+              borderRadius: BorderRadius.circular(8),
+              child: Material(
+                color:
+                    Theme.of(context).scaffoldBackgroundColor.withOpacity(.9),
+                borderRadius: BorderRadius.circular(8),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 2, horizontal: 11.0),
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: primary,
+                    ),
+                  ),
+                ),
+              ),
+            ))
+      ],
+    );
+
+// custom textfield
 class MyTextField extends StatefulWidget {
   final String label, hint;
   final ValueChanged<String> onSaved;
@@ -44,8 +85,11 @@ class MyTextField extends StatefulWidget {
       this.onSaved,
       this.controller,
       this.focusNode,
-        this.onEditComplete,
-      this.isPassword = false,this.suffix=const SizedBox(height: 0,)})
+      this.onEditComplete,
+      this.isPassword = false,
+      this.suffix = const SizedBox(
+        height: 0,
+      )})
       : super(key: key);
 
   @override
@@ -64,169 +108,100 @@ class _TextFieldState extends State<MyTextField> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).backgroundColor.withOpacity(.1),
-            borderRadius: BorderRadius.circular(15),
-          ),
-          margin: EdgeInsets.only(top: 8),
-          child: TextFormField(
-            controller: widget.controller,
-            obscureText: obscureText,
-            onEditingComplete: widget.onEditComplete,
-            style: TextStyle(
-                color: Theme.of(context).secondaryHeaderColor, fontSize: 14),
-            decoration: InputDecoration(
-                contentPadding: EdgeInsets.all(20),
-                border: InputBorder.none,
-                suffixIcon: widget.isPassword
-                    ? InkWell(
-                        onTap: () => setState(() {
-                          obscureText = !obscureText;
-                        }),
-                        child: Container(
-                          color: Colors.transparent,
-                          padding: EdgeInsets.all(5),
-                          child: Icon(
-                            obscureText
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                            size: 14,
-                          ),
-                        ),
-                      )
-                    : widget.suffix,
-                hintStyle: TextStyle(
-                    color:
-                        Theme.of(context).secondaryHeaderColor.withOpacity(.8),
-                    fontSize: 14),
-                hintText: widget.hint),
-          ),
-        ),
-        Positioned(
-            top: 0,
-            left: 4,
-            child: Material(
-              color: primary,
-              borderRadius: BorderRadius.circular(8),
-              child: Material(
-                color:
-                    Theme.of(context).scaffoldBackgroundColor.withOpacity(.9),
-                borderRadius: BorderRadius.circular(8),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 2, horizontal: 11.0),
-                  child: Text(
-                    widget.label,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: primary,
-                    ),
-                  ),
-                ),
+    return customFieldIdentifier(child: TextFormField(
+      controller: widget.controller,
+      obscureText: obscureText,
+      onEditingComplete: widget.onEditComplete,
+      style: TextStyle(
+          color: Theme.of(context).secondaryHeaderColor, fontSize: 14),
+      decoration: InputDecoration(
+          contentPadding: EdgeInsets.all(20),
+          border: InputBorder.none,
+          suffixIcon: widget.isPassword
+              ? InkWell(
+            onTap: () => setState(() {
+              obscureText = !obscureText;
+            }),
+            child: Container(
+              color: Colors.transparent,
+              padding: EdgeInsets.all(5),
+              child: Icon(
+                obscureText
+                    ? Icons.visibility
+                    : Icons.visibility_off,
+                size: 14,
               ),
-            ))
-      ],
-    );
+            ),
+          )
+              : widget.suffix,
+          hintStyle: TextStyle(
+              color:
+              Theme.of(context).secondaryHeaderColor.withOpacity(.8),
+              fontSize: 14),
+          hintText: widget.hint),
+    ), label: widget.label, context: context);
   }
 }
 
-// void showWelcome(context){
-//   showModalBottomSheet(
-//       context: context,
-//       isScrollControlled: true,
-//       shape: RoundedRectangleBorder(
-//           borderRadius: BorderRadius.vertical(top: Radius.circular(15))
-//       ),
-//       builder: (builder){
-//         return Welcome();
-//       }
-//   ).then((value){
-//     if(value!=null && value) showFundWalletOptions(context);
-//   });
-// }
-// void showFundWalletOptions(context){
-//   showModalBottomSheet(
-//       context: context,
-//       isScrollControlled: true,
-//       shape: RoundedRectangleBorder(
-//           borderRadius: BorderRadius.vertical(top: Radius.circular(15))
-//       ),
-//       builder: (builder){
-//         return FundWalletOptions();
-//       }
-//   ).then((value){
-//     if(value!=null && value=='bank') showBankTransferDetails(context);
-//
-//   });
-// }
-// void showPaymentOptions(context){
-//   showModalBottomSheet(
-//       context: context,
-//       isScrollControlled: true,
-//       shape: RoundedRectangleBorder(
-//           borderRadius: BorderRadius.vertical(top: Radius.circular(15))
-//       ),
-//       builder: (builder){
-//         return PaymentOptions();
-//       }
-//   ).then((value){
-//
-//   });
-// }
-// void showBankTransferDetails(context){
-//   showModalBottomSheet(
-//       context: context,
-//       isScrollControlled: true,
-//       shape: RoundedRectangleBorder(
-//           borderRadius: BorderRadius.vertical(top: Radius.circular(15))
-//       ),
-//       builder: (builder){
-//         return BankTransferDetails();
-//       }
-//   ).then((value){
-//     if(value!=null && value=='back') showFundWalletOptions(context);
-//
-//   });
-// }
-//
-// String formatAmount(String num) {
-//   num = num.replaceAll(',', '');
-//   String newNum = '';
-//   if (num.length < 4) return num;
-//   if (num.length > 6) {
-//     num = num.substring(0, 6);
-//   }
-//   int backCount = 0;
-//   for (int i = num.length - 1; i >= 0; i--) {
-//     backCount++;
-//     if (backCount % 3 == 0 && i != 0) {
-//       newNum = ',' + num.characters.characterAt(i).toString() + newNum;
-//     } else {
-//       newNum = num.characters.characterAt(i).toString() + newNum;
-//     }
-//   }
-//
-//   return newNum;
-// }
-//
-// enum SnackBarType {
-//   error,success,warning
-// }
-// void showSnackBar({@required GlobalKey<ScaffoldState> key,@required SnackBarType type, @required String message, String action, Function onAction}) {
-//   final snackBar = SnackBar(
-//     content: Text(message,style: TextStyle(color: Colors.white.withOpacity(.78))),
-//     backgroundColor: type==SnackBarType.error?Colors.red:type==SnackBarType.success?Colors.green:Colors.orangeAccent,
-//     behavior: SnackBarBehavior.fixed,
-//     shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(8))),
-//     elevation: 1.6,
-//     duration: const Duration(seconds: 3),
-//     action: action==null?null:SnackBarAction(
-//         label: action,
-//         textColor: Colors.white,
-//         onPressed: onAction),
-//   );
-//
-//   key.currentState.showSnackBar(snackBar);
-// }
+// custom button
+Widget actionButton(String label, bool active, Function onClick, context) =>
+    GestureDetector(
+      onTap: onClick,
+      child: Container(
+        decoration: BoxDecoration(
+            color: active ? primary : lightGrey.withOpacity(.2),
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              if (active)
+                BoxShadow(
+                    offset: Offset(0, 3),
+                    spreadRadius: 1,
+                    blurRadius: 2,
+                    color: Theme.of(context).backgroundColor)
+            ]),
+        padding: EdgeInsets.all(20),
+        alignment: Alignment.center,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                  color: active ? white.withOpacity(.8) : lightGrey,
+                  fontSize: 13),
+            ),
+            SizedBox(
+              width: 4,
+            ),
+            if (active)
+              Icon(
+                Icons.chevron_right_outlined,
+                color: Colors.white.withOpacity(.8),
+                size: 16,
+              )
+          ],
+        ),
+      ),
+    );
+
+Widget gameTypeWidget({int type,double size,context})=>Row(
+  children: [
+    Image.asset(
+      type == 1
+          ? 'assets/images/anagram.png'
+          : 'assets/images/tictactoe.png',
+      height: size,
+      width: size,
+    ),
+    SizedBox(
+      width: 4,
+    ),
+    Text(
+      type == 1 ? 'Anagram' : 'Tic-Tac-Toe',
+      style: TextStyle(
+          color: Theme.of(context).secondaryHeaderColor.withOpacity(.6),
+          fontWeight: FontWeight.w100,
+          fontSize: size),
+    )
+  ],
+);
