@@ -31,7 +31,7 @@ Widget logo({double size, double spacing}) {
 
 // custom field identifier
 Widget customFieldIdentifier(
-        {@required child, @required label, @required BuildContext context, bool enablePadding = false, double padding}) =>
+        {@required child, @required label, @required BuildContext context}) =>
     Stack(
       children: [
         Container(
@@ -40,7 +40,6 @@ Widget customFieldIdentifier(
             borderRadius: BorderRadius.circular(15),
           ),
           margin: EdgeInsets.only(top: 8),
-          padding: EdgeInsets.all(enablePadding?padding:0),
           child: child,
         ),
         Positioned(
@@ -108,38 +107,38 @@ class _TextFieldState extends State<MyTextField> {
 
   @override
   Widget build(BuildContext context) {
-    return customFieldIdentifier(child: TextFormField(
-      controller: widget.controller,
-      obscureText: obscureText,
-      onEditingComplete: widget.onEditComplete,
-      style: TextStyle(
-          color: Theme.of(context).secondaryHeaderColor, fontSize: 14),
-      decoration: InputDecoration(
-          contentPadding: EdgeInsets.all(20),
-          border: InputBorder.none,
-          suffixIcon: widget.isPassword
-              ? InkWell(
-            onTap: () => setState(() {
-              obscureText = !obscureText;
-            }),
-            child: Container(
-              color: Colors.transparent,
-              padding: EdgeInsets.all(5),
-              child: Icon(
-                obscureText
-                    ? Icons.visibility
-                    : Icons.visibility_off,
-                size: 14,
-              ),
-            ),
-          )
-              : widget.suffix,
-          hintStyle: TextStyle(
-              color:
-              Theme.of(context).secondaryHeaderColor.withOpacity(.8),
-              fontSize: 14),
-          hintText: widget.hint),
-    ), label: widget.label, context: context);
+    return customFieldIdentifier(
+        child: TextFormField(
+          controller: widget.controller,
+          obscureText: obscureText,
+          onEditingComplete: widget.onEditComplete,
+          style: TextStyle(
+              color: Theme.of(context).secondaryHeaderColor, fontSize: 14),
+          decoration: InputDecoration(
+              contentPadding: EdgeInsets.all(20),
+              border: InputBorder.none,
+              suffixIcon: widget.isPassword
+                  ? InkWell(
+                      onTap: () => setState(() {
+                        obscureText = !obscureText;
+                      }),
+                      child: Container(
+                        color: Colors.transparent,
+                        padding: EdgeInsets.all(5),
+                        child: Icon(
+                          obscureText ? Icons.visibility : Icons.visibility_off,
+                          size: 14,
+                        ),
+                      ),
+                    )
+                  : widget.suffix,
+              hintStyle: TextStyle(
+                  color: Theme.of(context).secondaryHeaderColor.withOpacity(.8),
+                  fontSize: 14),
+              hintText: widget.hint),
+        ),
+        label: widget.label,
+        context: context);
   }
 }
 
@@ -184,24 +183,39 @@ Widget actionButton(String label, bool active, Function onClick, context) =>
       ),
     );
 
-Widget gameTypeWidget({int type,double size,context})=>Row(
-  children: [
-    Image.asset(
-      type == 1
-          ? 'assets/images/anagram.png'
-          : 'assets/images/tictactoe.png',
+Widget gameTypeWidget({int type, double size, context}) => Row(
+      children: [
+        Image.asset(
+          type == 1
+              ? 'assets/images/anagram.png'
+              : 'assets/images/tictactoe.png',
+          height: size,
+          width: size,
+        ),
+        SizedBox(
+          width: 4,
+        ),
+        Text(
+          type == 1 ? 'Anagram' : 'Tic-Tac-Toe',
+          style: TextStyle(
+              color: Theme.of(context).secondaryHeaderColor.withOpacity(.6),
+              fontWeight: FontWeight.w100,
+              fontSize: size),
+        )
+      ],
+    );
+
+Widget emptyWidget({String image, size}) {
+  return Center(
+    child: Image.asset(
+      image,
       height: size,
-      width: size,
+      color: lightGrey.withOpacity(.2),
     ),
-    SizedBox(
-      width: 4,
-    ),
-    Text(
-      type == 1 ? 'Anagram' : 'Tic-Tac-Toe',
-      style: TextStyle(
-          color: Theme.of(context).secondaryHeaderColor.withOpacity(.6),
-          fontWeight: FontWeight.w100,
-          fontSize: size),
-    )
-  ],
+  );
+}
+
+Widget backButton({Function onPressed, Color color})=>IconButton(
+  icon: Image.asset('assets/images/back.png',height: 15,color: color,),
+  onPressed: onPressed,
 );

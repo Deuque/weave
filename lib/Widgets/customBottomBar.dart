@@ -37,12 +37,21 @@ class CustomBottomBar extends StatefulWidget {
 
 class FABBottomAppBarState extends State<CustomBottomBar> {
   int _selectedIndex = 0;
+  int _previousIndex = 0;
 
   _updateIndex(int index) {
     widget.onTabSelected(index);
     setState(() {
       _selectedIndex = index;
     });
+    if(index == 1) {
+      Future.delayed(Duration(milliseconds: 400), () =>
+          setState(() {
+            _selectedIndex = _previousIndex;
+          }));
+    }else{
+      _previousIndex=_selectedIndex;
+    }
   }
 
   @override

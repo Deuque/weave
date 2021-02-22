@@ -21,7 +21,7 @@ class Splash extends StatelessWidget {
                 children: [
                   logo(size: size.width * .1, spacing: 3),
                   Text(
-                    'Play words together',
+                    'Play games together',
                     style: TextStyle(color: lightGrey, fontSize: 15),
                   ),
                 ],

@@ -37,67 +37,71 @@ class ActivityLayout extends StatelessWidget {
       );
     }
 
-    return Container(
-      margin: EdgeInsets.only(bottom: 10,right: 6,left: 6),
-      decoration: BoxDecoration(
-          color: Theme.of(context).backgroundColor.withOpacity(.2),
-          borderRadius: BorderRadius.circular(8)),
-      child: ListTile(
-        leading: Stack(
-          children: [
-            Container(
-              height: size.width * .08,
-              width: size.width * .08,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(7),
-                color: Theme.of(context).scaffoldBackgroundColor,
-                image: DecorationImage(
-                  image: AssetImage(
-                    activity.image,
+    return InkWell(
+      onTap: ()=>Navigator.pushNamed(context, 'playArea', arguments: activity),
+      child: Container(
+        margin: EdgeInsets.only(bottom: 10,right: 6,left: 6),
+        decoration: BoxDecoration(
+            color: Theme.of(context).backgroundColor.withOpacity(.2),
+            borderRadius: BorderRadius.circular(8)),
+        child: ListTile(
+          leading: Stack(
+            children: [
+              Container(
+                height: size.width * .08,
+                width: size.width * .08,
+                decoration: BoxDecoration(
+                  //borderRadius: BorderRadius.circular(15),
+                  shape: BoxShape.circle,
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  image: DecorationImage(
+                    image: AssetImage(
+                      activity.image,
+                    ),
                   ),
                 ),
               ),
-            ),
-            Positioned(bottom:0,right: 0,child: statusIndicator())
-          ],
-        ),
-        title: Text(
-          activity.username,
-          style: TextStyle(
-              color: Theme.of(context).secondaryHeaderColor.withOpacity(.8),
-              fontWeight: FontWeight.w500,
-              fontSize: size.width*.035),
-        ),
-        subtitle: gameTypeWidget(type: activity.gameType,size: size.width*.03,context: context),
-        trailing: Column(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+              Positioned(bottom:0,right: 0,child: statusIndicator())
+            ],
+          ),
+          title: Text(
+            activity.username,
+            style: TextStyle(
+                color: Theme.of(context).secondaryHeaderColor.withOpacity(.8),
+                fontWeight: FontWeight.w500,
+                fontSize: size.width*.035),
+          ),
+          subtitle: gameTypeWidget(type: activity.gameType,size: size.width*.03,context: context),
+          trailing: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
 
-            Text(
-              activity.date,
-              style: TextStyle(
-                  color: Theme.of(context).secondaryHeaderColor.withOpacity(.5),
-                  fontWeight: FontWeight.w300,
-                  fontSize: size.width*.026),
-            ),
-            Visibility(
-              visible: activity.unseenCount>0,
-              child: Container(
-               margin: EdgeInsets.only(top: 4),
-                decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: success),
-                padding: const EdgeInsets.all(5.0),
-                child: Text(
-                  '${activity.unseenCount}',
-                  style: TextStyle(
-                      color: white,
-                      fontSize: size.width * .027),
+              Text(
+                activity.date,
+                style: TextStyle(
+                    color: Theme.of(context).secondaryHeaderColor.withOpacity(.5),
+                    fontWeight: FontWeight.w300,
+                    fontSize: size.width*.026),
+              ),
+              Visibility(
+                visible: activity.unseenCount>0,
+                child: Container(
+                 margin: EdgeInsets.only(top: 4),
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: success),
+                  padding: const EdgeInsets.all(5.0),
+                  child: Text(
+                    '${activity.unseenCount}',
+                    style: TextStyle(
+                        color: Theme.of(context).scaffoldBackgroundColor,
+                        fontSize: size.width * .027),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

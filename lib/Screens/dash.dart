@@ -36,11 +36,11 @@ class _DashboardState extends State<Dashboard> {
               currentTab = Home();
             });
           if (index == 1)
-            showModalBottomSheet(
+            Future.delayed(Duration(milliseconds: 400),()=>showModalBottomSheet(
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10)),
                 context: (context),
-                builder: (_) => NewGame());
+                builder: (_) => NewGame()));
           // if(index==3)currentTab=Account();
         },
       ),

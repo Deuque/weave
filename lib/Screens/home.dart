@@ -67,7 +67,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             child: Text(
               '$count',
               style: TextStyle(
-                  color: white.withOpacity(.78),
+                  color: Theme.of(context).scaffoldBackgroundColor,
                   fontSize: size.width * .028),
             ),
           ),
@@ -216,7 +216,8 @@ class TabBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return tabIndex == 0
+    double width = MediaQuery.of(context).size.width;
+    return items.isEmpty?emptyWidget(image:'assets/images/empty2.png',size: width*.2): tabIndex == 0
         ? ListView(
             padding: EdgeInsets.only(top: 10),
             physics: BouncingScrollPhysics(),
