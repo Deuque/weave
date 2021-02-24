@@ -184,6 +184,7 @@ Widget actionButton(String label, bool active, Function onClick, context) =>
     );
 
 Widget gameTypeWidget({int type, double size, context}) => Row(
+  crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Image.asset(
           type == 1
