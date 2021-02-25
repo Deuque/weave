@@ -3,6 +3,7 @@ import 'package:weave/Models/activity.dart';
 import 'package:weave/Models/user.dart';
 import 'package:weave/Screens/anagram.dart';
 import 'package:weave/Screens/chat.dart';
+import 'package:weave/Screens/tictactoe.dart';
 import 'package:weave/Util/colors.dart';
 import 'package:weave/Util/helper_functions.dart';
 
@@ -15,7 +16,8 @@ class PlayArea extends StatefulWidget {
   _PlayAreaState createState() => _PlayAreaState();
 }
 
-class _PlayAreaState extends State<PlayArea> with SingleTickerProviderStateMixin{
+class _PlayAreaState extends State<PlayArea>
+    with SingleTickerProviderStateMixin {
   int currentTab = 0;
   PageController pageController = new PageController();
   AnimationController controller;
@@ -45,106 +47,113 @@ class _PlayAreaState extends State<PlayArea> with SingleTickerProviderStateMixin
   //   super.dispose();
   // }
 
-
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
 
-    bool showFullscreen = currentTab==1&&fullScreen;
+    bool showFullscreen = currentTab == 1 && fullScreen;
 
     Widget tabControls() => AnimatedContainer(
-      height: !showFullscreen?size.width*.1:0,
-       duration: Duration(milliseconds: 700),
-        curve: Curves.ease,
-      padding: const EdgeInsets.all(1.5),
-      margin: const EdgeInsets.symmetric(horizontal: 15.0,vertical: 7),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(11),
-        color: Theme.of(context).backgroundColor.withOpacity(.3),
-      ),
-      child: Stack(
-        children: [
-          Row(
-
+          height: !showFullscreen ? size.width * .1 : 0,
+          duration: Duration(milliseconds: 700),
+          curve: Curves.ease,
+          padding: const EdgeInsets.all(1.5),
+          margin: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 7),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(11),
+            color: Theme.of(context).backgroundColor.withOpacity(.3),
+          ),
+          child: Stack(
             children: [
-              {
-                'title': 'Chat',
-                'active': currentTab==0,
-                'onPressed': (){
-                 // setState(() => currentTab = 0);
-                  pageController.animateToPage(0,  curve: Curves.easeInOutCirc,
-                    duration: Duration(milliseconds: 400),);
-                }
-              },
-              {
-                'title': 'Game',
-                'active': currentTab==1,
-                'onPressed': (){
-                  //setState(() => currentTab = 1);
-                  pageController.animateToPage(1,  curve: Curves.easeInOutCirc,
-                    duration: Duration(milliseconds: 400),);
-                }
-              }
-            ]
-                .map((e) => Expanded(
-                      child: GestureDetector(
-                        onTap: e['onPressed'],
-                        child: Container(
-                          height: double.infinity,width: double.infinity,
-                          alignment: Alignment.center,
-                          color: Colors.transparent,
-                          child: Text(
-                            e['title'],
-                            style: TextStyle(
-                                color: Theme.of(context)
+              Row(
+                children: [
+                  {
+                    'title': 'Chat',
+                    'active': currentTab == 0,
+                    'onPressed': () {
+                      // setState(() => currentTab = 0);
+                      pageController.animateToPage(
+                        0,
+                        curve: Curves.easeInOutCirc,
+                        duration: Duration(milliseconds: 400),
+                      );
+                    }
+                  },
+                  {
+                    'title': 'Game',
+                    'active': currentTab == 1,
+                    'onPressed': () {
+                      //setState(() => currentTab = 1);
+                      pageController.animateToPage(
+                        1,
+                        curve: Curves.easeInOutCirc,
+                        duration: Duration(milliseconds: 400),
+                      );
+                    }
+                  }
+                ]
+                    .map((e) => Expanded(
+                          child: GestureDetector(
+                            onTap: e['onPressed'],
+                            child: Container(
+                              height: double.infinity,
+                              width: double.infinity,
+                              alignment: Alignment.center,
+                              color: Colors.transparent,
+                              child: Text(
+                                e['title'],
+                                style: TextStyle(
+                                    color: Theme.of(context)
                                         .secondaryHeaderColor
                                         .withOpacity(.3),
-                                fontWeight: FontWeight.w500,
-                                fontSize: size.width * .036),
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: size.width * .036),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                    ))
-                .toList(),
-          ),
-          AnimatedAlign(
-            alignment: currentTab==0?Alignment.centerLeft:Alignment.centerRight,
-            curve: Curves.ease,
-            duration: Duration(milliseconds: 400),
-            child: Container(
-              width: (size.width-30)/2,
-              height: double.infinity,
-              decoration: BoxDecoration(
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                  borderRadius: BorderRadius.circular(11)),
-              alignment: Alignment.center,
-              child: Text(
-                currentTab==0?'Chat':'Game',
-                style: TextStyle(
-                    color: primary,
-                    fontWeight: FontWeight.w500,
-                    fontSize: size.width * .037),
+                        ))
+                    .toList(),
               ),
-            ),
-          )
-        ],
-      ),
-    );
+              AnimatedAlign(
+                alignment: currentTab == 0
+                    ? Alignment.centerLeft
+                    : Alignment.centerRight,
+                curve: Curves.ease,
+                duration: Duration(milliseconds: 400),
+                child: Container(
+                  width: (size.width - 30) / 2,
+                  height: double.infinity,
+                  decoration: BoxDecoration(
+                      color: Theme.of(context).scaffoldBackgroundColor,
+                      borderRadius: BorderRadius.circular(11)),
+                  alignment: Alignment.center,
+                  child: Text(
+                    currentTab == 0 ? 'Chat' : 'Game',
+                    style: TextStyle(
+                        color: primary,
+                        fontWeight: FontWeight.w500,
+                        fontSize: size.width * .037),
+                  ),
+                ),
+              )
+            ],
+          ),
+        );
 
     return WillPopScope(
-      onWillPop: ()async{
-        if(fullScreen){
+      onWillPop: () async {
+        if (fullScreen) {
           setState(() {
             fullScreen = false;
           });
           return Future.value(false);
-        }
-        else return Future.value(true);
+        } else
+          return Future.value(true);
       },
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          toolbarHeight: !showFullscreen?null:0,
+          toolbarHeight: !showFullscreen ? null : 0,
           leading: backButton(
               onPressed: () => Navigator.pop(context),
               color: Theme.of(context).secondaryHeaderColor.withOpacity(.8)),
@@ -172,7 +181,8 @@ class _PlayAreaState extends State<PlayArea> with SingleTickerProviderStateMixin
               Text(
                 widget.activity.username,
                 style: TextStyle(
-                    color: Theme.of(context).secondaryHeaderColor.withOpacity(.8),
+                    color:
+                        Theme.of(context).secondaryHeaderColor.withOpacity(.8),
                     fontWeight: FontWeight.w500,
                     fontSize: size.width * .035),
               ),
@@ -186,7 +196,8 @@ class _PlayAreaState extends State<PlayArea> with SingleTickerProviderStateMixin
                   child: Image.asset(
                     'assets/images/more.png',
                     height: 15,
-                    color: Theme.of(context).secondaryHeaderColor.withOpacity(.8),
+                    color:
+                        Theme.of(context).secondaryHeaderColor.withOpacity(.8),
                   ),
                 ))
           ],
@@ -196,22 +207,25 @@ class _PlayAreaState extends State<PlayArea> with SingleTickerProviderStateMixin
         body: Column(
           children: [
             tabControls(),
-            Expanded(child: PageView(
+            Expanded(
+                child: PageView(
               controller: pageController,
-              onPageChanged: (int page)=>setState(()=>currentTab=page),
+              onPageChanged: (int page) => setState(() => currentTab = page),
               children: [
-                Chat(),Anagram(onFullScreen: (){
-                  // if(!controller.isAnimating){
-                  //   if(opacityAnimation.value==1){
-                  //     controller.forward();
-                  //   }else{
-                  //     controller.reverse();
-                  //   }
-                  // }
-                  setState(() {
-                    fullScreen=!fullScreen;
-                  });
-                },)
+                Chat(),
+                widget.activity.gameType == 0
+                    ? TicTacToe(onFullScreen: () {
+                        setState(() {
+                          fullScreen = !fullScreen;
+                        });
+                      })
+                    : Anagram(
+                        onFullScreen: () {
+                          setState(() {
+                            fullScreen = !fullScreen;
+                          });
+                        },
+                      )
               ],
             ))
           ],

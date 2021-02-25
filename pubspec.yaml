@@ -24,7 +24,7 @@ dependencies:
   flutter:
     sdk: flutter
   google_fonts: ^1.1.1
-  sticky_headers: ^0.1.8+1
+  intl: ^0.16.1
   shared_preferences: ^0.5.12+4
   flutter_riverpod: ^0.12.1
   grouped_list: ^3.7.1

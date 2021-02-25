@@ -133,7 +133,7 @@ class _TextFieldState extends State<MyTextField> {
                     )
                   : widget.suffix,
               hintStyle: TextStyle(
-                  color: Theme.of(context).secondaryHeaderColor.withOpacity(.8),
+                  color: Theme.of(context).secondaryHeaderColor.withOpacity(.5),
                   fontSize: 14),
               hintText: widget.hint),
         ),

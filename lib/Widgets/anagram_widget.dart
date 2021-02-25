@@ -1,5 +1,9 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:weave/Models/anagram_activity.dart';
+import 'package:weave/Screens/guess_word_anagram.dart';
 import 'package:weave/Screens/scramble_word_anagram.dart';
 import 'package:weave/Util/colors.dart';
 import 'package:weave/Widgets/chat_clipper.dart';
@@ -8,9 +12,16 @@ class AnagramLayout extends StatefulWidget {
   final bool yourTurn;
   final AnagramActivity anagramActivity;
   final bool previousIsSameSender;
+  final Function(AnagramActivity x) onScrambleWord;
+  final Function(String index, String answer) onGuessWord;
 
   const AnagramLayout(
-      {Key key, this.anagramActivity, this.previousIsSameSender, this.yourTurn})
+      {Key key,
+      this.anagramActivity,
+      this.previousIsSameSender,
+      this.yourTurn,
+      this.onGuessWord,
+      this.onScrambleWord})
       : super(key: key);
 
   @override
@@ -25,13 +36,14 @@ class _AnagramLayoutState extends State<AnagramLayout> {
     // TODO: implement initState
     super.initState();
     userIsSender = widget.anagramActivity.userIsSender;
+    print(widget.anagramActivity.opponentAnswer??'');
   }
 
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
 
-    Widget widgetsBackground(child) => Container(
+    Widget widgetsBackground({child}) => Container(
         width: size.width * .7,
         alignment: userIsSender ? Alignment.centerRight : Alignment.centerLeft,
         margin: EdgeInsets.only(
@@ -63,7 +75,10 @@ class _AnagramLayoutState extends State<AnagramLayout> {
 
     Widget statusWidget() => Material(
           borderRadius: BorderRadius.circular(20),
-          color: widget.anagramActivity.isCorrect ? success : error,
+          color:
+              widget.anagramActivity.isCorrect
+                  ? success
+                  : error,
           child: Padding(
             padding: const EdgeInsets.all(2.0),
             child: Icon(
@@ -75,82 +90,125 @@ class _AnagramLayoutState extends State<AnagramLayout> {
         );
 
     Widget yourTurnWidget() => widgetsBackground(
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: userIsSender
-                ? CrossAxisAlignment.end
-                : CrossAxisAlignment.start,
-            children: [
-              // Text(
-              //   widget.anagramActivity.message,
-              //   style: TextStyle(
-              //       fontSize: 13,
-              //       color: Theme.of(context)
-              //           .secondaryHeaderColor
-              //           .withOpacity(.4)),
-              // ),
-              SizedBox(
-                height: 30,
-                child: FlatButton(
-                  onPressed: () => showModalBottomSheet(
-                    isScrollControlled: true,
-                      shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.vertical(top: Radius.circular(10))),
-                      context: (context),
-                      builder: (_) => ScrambleWord()),
-                  shape: RoundedRectangleBorder(),
-                  child: Text(
-                    'PLAY',
-                    style: TextStyle(
-                        fontSize: 14, color: primary.withOpacity(.78)),
-                  ),
-                ),
-              )
-            ],
+          child: SizedBox(
+            height: 30,
+            child: FlatButton(
+              onPressed: () => showModalBottomSheet(
+                  isScrollControlled: true,
+                  shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(10))),
+                  context: (context),
+                  builder: (_) => ScrambleWord()).then((value) {
+                if (value != null) {
+                  String hint = value['hint'];
+                  String word = value['word'];
+                  String scrambledWord = value['scramble'];
+                  var dateTime = DateTime.now();
+                  String date = DateFormat('dd-MM-yy').format(dateTime);
+                  String time = DateFormat('HH:mm').format(dateTime);
+                  AnagramActivity newActivity = AnagramActivity(
+                      id: Random().nextInt(1000).toString(),
+                      word: word,
+                      scrambledWord: scrambledWord,
+                      hint: hint,
+                      time: time,
+                      date: date,
+                      userIsSender: false,
+                      opponentAnswer: '',
+                      answered: false);
+
+                  widget.onScrambleWord(newActivity);
+                }
+              }),
+              shape: RoundedRectangleBorder(),
+              child: Text(
+                'PLAY',
+                style: TextStyle(
+                    fontSize: 14, color: primary.withOpacity(.78)),
+              ),
+            ),
           ),
         );
 
-    Widget activityWidget() => widgetsBackground(Column(
+    Widget activityWidget() => widgetsBackground(
+        child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: userIsSender
+          ? CrossAxisAlignment.end
+          : CrossAxisAlignment.start,
+      children: [
+        Row(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment:
-              userIsSender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (userIsSender) statusWidget(),
-                if (userIsSender)
-                  SizedBox(
-                    width: 7,
-                  ),
-                Text(
-                  widget.anagramActivity.time,
-                  style: TextStyle(
-                      fontSize: 11,
-                      color: Theme.of(context)
-                          .secondaryHeaderColor
-                          .withOpacity(.4)),
-                ),
-                if (!userIsSender)
-                  SizedBox(
-                    width: 7,
-                  ),
-                if (!userIsSender) statusWidget()
-              ],
-            ),
-            SizedBox(
-              height: 4,
-            ),
+            if (userIsSender && widget.anagramActivity.answered) statusWidget(),
+            if (userIsSender && widget.anagramActivity.answered)
+              SizedBox(
+                width: 7,
+              ),
             Text(
-              widget.anagramActivity.message,
+              widget.anagramActivity.time,
               style: TextStyle(
-                  fontSize: 14,
-                  color:
-                      Theme.of(context).secondaryHeaderColor.withOpacity(.68)),
+                  fontSize: 11,
+                  color: Theme.of(context)
+                      .secondaryHeaderColor
+                      .withOpacity(.4)),
             ),
+            if (!userIsSender&& widget.anagramActivity.answered)
+              SizedBox(
+                width: 7,
+              ),
+            if (!userIsSender&& widget.anagramActivity.answered) statusWidget()
           ],
-        ));
+        ),
+        SizedBox(
+          height: 4,
+        ),
+        Text(
+          widget.anagramActivity.opponentAnswer.isEmpty?widget.anagramActivity.scrambledWord:widget.anagramActivity.opponentAnswer,
+          style: TextStyle(
+              fontSize: 15,
+              letterSpacing: 2.8,
+              color: Theme.of(context)
+                  .secondaryHeaderColor
+                  .withOpacity(.68)),
+        ),
+        if(!widget.anagramActivity.answered)
+        SizedBox(height: 8,),
+        if(!widget.anagramActivity.answered)SizedBox(
+          height: 34,
+          child: FlatButton(
+            onPressed: (){
+              if(!widget.anagramActivity.answered){
+                showModalBottomSheet(
+                    isScrollControlled: true,
+                    shape: RoundedRectangleBorder(
+                        borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(10))),
+                    context: (context),
+                    builder: (_) => GuessWord(
+                      hint: widget.anagramActivity.hint,
+                      word: widget.anagramActivity.scrambledWord,
+                      answer: widget.anagramActivity.word,
+                      image: 'assets/user_dummies/img3.jpg',
+                    )).then((value){
+                  if(value!=null){
+                    String opponentAnswer = value['opponentAnswer'];
+                    widget.onGuessWord(widget.anagramActivity.id, opponentAnswer);
+                  }
+                });
+              }
+            },
+            shape: RoundedRectangleBorder(),
+            child: Text(
+              'ANSWER',
+              style: TextStyle(
+                  fontSize: 14, color: primary.withOpacity(.78)),
+            ),
+          ),
+        )
+      ],
+    ));
 
     return widget.yourTurn ? yourTurnWidget() : activityWidget();
   }

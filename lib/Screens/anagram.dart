@@ -8,15 +8,41 @@ import 'package:weave/Util/helper_functions.dart';
 import 'package:weave/Widgets/anagram_widget.dart';
 import 'package:weave/Widgets/chat_widget.dart';
 
-class Anagram extends StatelessWidget {
+class Anagram extends StatefulWidget {
   final Function onFullScreen;
 
   const Anagram({Key key, this.onFullScreen}) : super(key: key);
+
+  @override
+  _AnagramState createState() => _AnagramState();
+}
+
+class _AnagramState extends State<Anagram> {
+  List<AnagramActivity> sampleAnagrams = [];
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
-    if(!sampleAnagrams.last.userIsSender && sampleAnagrams.last.answered){
-      sampleAnagrams.add(AnagramActivity(userIsSender: true,message: 'Hey, its your turn',date: sampleAnagrams.last.date));
+    if(sampleAnagrams.isEmpty || (!sampleAnagrams.last.userIsSender && sampleAnagrams.last.answered)){
+      sampleAnagrams.add(AnagramActivity(userIsSender: true,word: 'Hey, its your turn',date: sampleAnagrams.isEmpty?'':sampleAnagrams.last.date));
+    }
+
+    onScrambleWord(AnagramActivity activity){
+      setState(() {
+        sampleAnagrams.add(activity);
+      });
+    }
+
+    onGuessWord(String id , String answer){
+      setState(() {
+        sampleAnagrams = [
+          for(final item in sampleAnagrams)
+            if(item.id == id)
+              item..answered=true..opponentAnswer=answer..isCorrect=answer==item.word
+            else
+              if(item.time!=null)
+                item
+        ];
+      });
     }
 
     Widget actionBar()=>Container(
@@ -31,7 +57,7 @@ class Anagram extends StatelessWidget {
               ),
               Spacer(),
               IconButton(icon: Image.asset('assets/images/refresh.png',height: 14,color: Theme.of(context).secondaryHeaderColor.withOpacity(.6),), onPressed: (){}),
-              IconButton(icon: Image.asset('assets/images/full_screen.png',height: 14,color: Theme.of(context).secondaryHeaderColor.withOpacity(.6),), onPressed: onFullScreen)
+              IconButton(icon: Image.asset('assets/images/full_screen.png',height: 14,color: Theme.of(context).secondaryHeaderColor.withOpacity(.6),), onPressed: widget.onFullScreen)
             ],
           ),
           Divider(height: 0,),
@@ -72,6 +98,8 @@ class Anagram extends StatelessWidget {
                           .userIsSender ==
                       element.userIsSender && sampleAnagrams[sampleAnagrams.indexOf(element) - 1].date==element.date
                   : false,
+              onGuessWord: onGuessWord,
+              onScrambleWord: onScrambleWord,
             ),
             useStickyGroupSeparators: true,
             floatingHeader: true,
