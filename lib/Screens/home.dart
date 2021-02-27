@@ -33,13 +33,18 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery.of(context).size;
+    var size = MediaQuery
+        .of(context)
+        .size;
 
-    Widget userImage() => Container(
+    Widget userImage() =>
+        Container(
           margin: EdgeInsets.all(5),
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(7),
-              color: Theme.of(context).scaffoldBackgroundColor,
+              color: Theme
+                  .of(context)
+                  .scaffoldBackgroundColor,
               image: DecorationImage(
                 image: AssetImage(
                   'assets/user_dummies/img5.jpg',
@@ -47,14 +52,17 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
               ),
               boxShadow: [
                 BoxShadow(
-                    color: Theme.of(context).backgroundColor,
+                    color: Theme
+                        .of(context)
+                        .backgroundColor,
                     offset: Offset(1.3, 1.3),
                     spreadRadius: 1.6,
                     blurRadius: 2)
               ]),
         );
 
-    Widget tabsUnreadCount({bool active, int count}) => Visibility(
+    Widget tabsUnreadCount({bool active, int count}) =>
+        Visibility(
           visible: count != 0,
           child: Container(
             margin: EdgeInsets.only(left: 5),
@@ -62,19 +70,21 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 shape: BoxShape.circle,
                 color: active
                     ? primary
-                    : Theme.of(context).secondaryHeaderColor.withOpacity(.3)),
+                    : Theme
+                    .of(context)
+                    .secondaryHeaderColor
+                    .withOpacity(.3)),
             padding: const EdgeInsets.all(4.0),
             child: Text(
               '$count',
               style: TextStyle(
-                  color: Theme.of(context).scaffoldBackgroundColor,
+                  color: Theme
+                      .of(context)
+                      .scaffoldBackgroundColor,
                   fontSize: size.width * .028),
             ),
           ),
         );
-
-
-
 
 
     return DefaultTabController(
@@ -85,29 +95,34 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           elevation: 0,
           leadingWidth: 150,
           leading: Align(
-            alignment: Alignment.centerLeft,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 17.0),
-              child: Text(
-                'Games',
-                  style: TextStyle(
-                    color: Theme.of(context).secondaryHeaderColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: size.width * .06)
-              ),
-            )
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 17.0),
+                child: Text(
+                    'Games',
+                    style: TextStyle(
+                        color: Theme
+                            .of(context)
+                            .secondaryHeaderColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: size.width * .06)
+                ),
+              )
             //child: logo(size: size.width * .06),
           ),
           actions: [
             Center(
                 child: IconButton(
-              icon: Image.asset(
-                'assets/images/search.png',
-                height: size.width * .04,
-                color: Theme.of(context).secondaryHeaderColor.withOpacity(.8),
-              ),
-              onPressed: () {},
-            )),
+                  icon: Image.asset(
+                    'assets/images/search.png',
+                    height: size.width * .04,
+                    color: Theme
+                        .of(context)
+                        .secondaryHeaderColor
+                        .withOpacity(.8),
+                  ),
+                  onPressed: () {},
+                )),
             Center(
               child: IconButton(
                 icon: userImage(),
@@ -121,7 +136,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         ),
         body: Padding(
           padding:
-              EdgeInsets.symmetric(vertical: 2, horizontal: 10),
+          EdgeInsets.symmetric(vertical: 2, horizontal: 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -147,13 +162,18 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 // labelColor: Theme.of(context).secondaryHeaderColor,
                 // unselectedLabelColor:
                 //     Theme.of(context).secondaryHeaderColor.withOpacity(.3),
-                labelColor: Theme.of(context).primaryColor,
+                labelColor: Theme
+                    .of(context)
+                    .primaryColor,
                 unselectedLabelColor:
-                Theme.of(context).secondaryHeaderColor.withOpacity(.3),
+                Theme
+                    .of(context)
+                    .secondaryHeaderColor
+                    .withOpacity(.3),
                 tabs: [
                   Padding(
                     padding:
-                        const EdgeInsets.only(right: 5.0, bottom: 8, top: 6),
+                    const EdgeInsets.only(right: 5.0, bottom: 8, top: 6),
                     child: Row(
                       children: [
                         Text(
@@ -165,15 +185,15 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                 .map((e) => e.unseenCount)
                                 .toList()
                                 .fold(
-                                    0,
+                                0,
                                     (previousValue, element) =>
-                                        previousValue + element))
+                                previousValue + element))
                       ],
                     ),
                   ),
                   Padding(
                     padding:
-                        const EdgeInsets.only(right: 8.0, bottom: 8, top: 6),
+                    const EdgeInsets.only(right: 8.0, bottom: 8, top: 6),
                     child: Row(
                       children: [
                         Text(
@@ -216,24 +236,30 @@ class TabBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
-    return items.isEmpty?emptyWidget(image:'assets/images/empty2.png',size: width*.2): tabIndex == 0
+    double width = MediaQuery
+        .of(context)
+        .size
+        .width;
+    return items.isEmpty ? emptyWidget(
+        image: 'assets/images/empty2.png', size: width * .2) : tabIndex == 0
         ? ListView(
-            padding: EdgeInsets.only(top: 10),
-            physics: BouncingScrollPhysics(),
-            children: items
-                .map((e) => ActivityLayout(
-                      activity: e,
-                    ))
-                .toList(),
-          )
-        :ListView(
       padding: EdgeInsets.only(top: 10),
       physics: BouncingScrollPhysics(),
       children: items
-          .map((e) => InviteLayout(
-        invite: e,
-      ))
+          .map((e) =>
+          ActivityLayout(
+            activity: e,
+          ))
+          .toList(),
+    )
+        : ListView(
+      padding: EdgeInsets.only(top: 10),
+      physics: BouncingScrollPhysics(),
+      children: items
+          .map((e) =>
+          InviteLayout(
+            invite: e,
+          ))
           .toList(),
     );
   }

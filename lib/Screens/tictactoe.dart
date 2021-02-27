@@ -18,18 +18,18 @@ class TicTacToe extends StatefulWidget {
 }
 
 class _TicTacToeState extends State<TicTacToe> {
-  List<int> edges = [0, 2, 6, 8];
   List<Map<String, dynamic>> occupiedIndexes = [];
   String currentDrag = '';
+  String creatorElement = 'assets/images/x.png';
+  String inviteeElement = 'assets/images/o.png';
+  List<int> winPositions = [];
 
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
-
-    // occupiedIndexes.sort((a, b) =>
-    //     int.parse(a['valueParameter'].replaceAll(',', '')).compareTo(
-    //         int.parse(b['valueParameter'].replaceAll(',', ''))));
+    //double dragObjectWidth = width * .07;
+    double imageWidth = width * .1;
 
     Widget actionBar() => Container(
           padding: EdgeInsets.symmetric(horizontal: 15),
@@ -51,7 +51,10 @@ class _TicTacToeState extends State<TicTacToe> {
                             .secondaryHeaderColor
                             .withOpacity(.6),
                       ),
-                      onPressed: () {}),
+                      onPressed: () => setState(() {
+                            occupiedIndexes = [];
+                            winPositions = [];
+                          })),
                   IconButton(
                       icon: Image.asset(
                         'assets/images/full_screen.png',
@@ -70,20 +73,22 @@ class _TicTacToeState extends State<TicTacToe> {
           ),
         );
 
-    print(occupiedIndexes.asMap());
-
-    Widget draggableWidget(String value) => Draggable(
-          data: value,
+    // draggable widget sample to be moved around the drag targets
+    Widget draggableWidget(Map<String, dynamic> data, {bool won}) {
+      return AbsorbPointer(
+        absorbing: winPositions.isNotEmpty,
+        child: Draggable(
+          data: data,
           onDraggableCanceled: (v, o) {
             setState(() {
               currentDrag = '';
             });
           },
           childWhenDragging: Container(
-            height: height * .04,
-            width: height * .04,
+            height: imageWidth,
+            width: imageWidth,
             decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(height * .07),
+                borderRadius: BorderRadius.circular(imageWidth),
                 color: Theme.of(context).scaffoldBackgroundColor,
                 boxShadow: [
                   BoxShadow(
@@ -93,12 +98,12 @@ class _TicTacToeState extends State<TicTacToe> {
                       blurRadius: 1)
                 ]),
           ),
-          child: currentDrag == value
+          child: currentDrag == data['value']
               ? Container(
-                  height: height * .04,
-                  width: height * .04,
+                  height: imageWidth,
+                  width: imageWidth,
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(height * .07),
+                      borderRadius: BorderRadius.circular(7),
                       color: Theme.of(context).scaffoldBackgroundColor,
                       boxShadow: [
                         BoxShadow(
@@ -109,37 +114,49 @@ class _TicTacToeState extends State<TicTacToe> {
                       ]),
                 )
               : Container(
-                  height: height * .07,
-                  width: height * .07,
+                  height: imageWidth,
+                  width: imageWidth,
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(height * .07),
-                      color: Colors.pink,
-                      boxShadow: [
-                        BoxShadow(
-                            color: Theme.of(context).backgroundColor,
-                            offset: Offset(-1.1, 1.1),
-                            spreadRadius: 1,
-                            blurRadius: 1)
-                      ]),
+                    borderRadius: BorderRadius.circular(imageWidth),
+                  ),
+                  alignment: Alignment.center,
+                  child: Image.asset(
+                    creatorElement,
+                    height: imageWidth,
+                    width: imageWidth,
+                    color: won != null && won ? Theme.of(context).scaffoldBackgroundColor : primary,
+                  ),
                 ),
           feedback: Container(
-            height: height * .07,
-            width: height * .07,
+            height: imageWidth,
+            width: imageWidth,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(height * .07),
-              color: Colors.pink,
+              borderRadius: BorderRadius.circular(7),
+            ),
+            alignment: Alignment.center,
+            child: Image.asset(
+              creatorElement,
+              height: imageWidth,
+              width: imageWidth,
+              color: primary,
             ),
           ),
-        );
+        ),
+      );
+    }
 
-    List unSelectedIndexes = [0, 1, 2];
-    unSelectedIndexes.removeWhere((element) => occupiedIndexes
-        .map((e) => e['value'])
-        .toList()
-        .contains('id' + element.toString()));
+    //  create selections the user can pick from that haven't been moved
+    List defIndexes = [0, 1, 2];
+    defIndexes.removeWhere((element) {
+      return occupiedIndexes
+          .where((element2) =>
+              element2['value'] == 'id$element' && element2['id'] == 'duke')
+          .toList()
+          .isNotEmpty;
+    });
 
-    List<String> selections =
-        unSelectedIndexes.map((e) => 'id' + e.toString()).toList();
+    List<Map<String, dynamic>> selections =
+        defIndexes.map((e) => {'value': 'id$e', 'id': 'duke'}).toList();
     List<Widget> selectionWidgets = selections
         .map((e) => Padding(
               padding: const EdgeInsets.all(8.0),
@@ -147,21 +164,74 @@ class _TicTacToeState extends State<TicTacToe> {
             ))
         .toList();
 
-    String positionIsUsed(index) {
+    // check if there is a winning play
+    bool resolvePositions(List<int> indexes) {
+      int a = indexes[0] >= 3
+          ? indexes[0] >= 6
+              ? 9
+              : 6
+          : 3;
+      int b = indexes[1] >= 3
+          ? indexes[1] >= 6
+              ? 9
+              : 6
+          : 3;
+      int c = indexes[2] >= 3
+          ? indexes[2] >= 6
+              ? 9
+              : 6
+          : 3;
+      print('$a $b $c');
+      if ((b == c && b == a) || (a == b && a == c) || (a != b && b != c)) {
+        return true;
+      }
+      return false;
+    }
+
+    List myPositions =
+        occupiedIndexes.where((element) => element['id'] == 'duke').toList();
+    List<int> myPositionIndexes =
+        myPositions.map((e) => (e['position'] as int)).toList();
+    myPositionIndexes.sort((a, b) => a.compareTo(b));
+    if (myPositionIndexes.length == 3 &&
+        (myPositionIndexes[1] - myPositionIndexes[0] ==
+            myPositionIndexes[2] - myPositionIndexes[1]) &&
+        resolvePositions(myPositionIndexes)) {
+      winPositions = myPositionIndexes;
+    } else {
+      List oppPositions =
+          occupiedIndexes.where((element) => element['id'] != 'duke').toList();
+      List<int> oppPositionIndexes =
+          oppPositions.map((e) => (e['position'] as int)).toList();
+      oppPositionIndexes.sort((a, b) => a.compareTo(b));
+      if (oppPositionIndexes.length == 3 &&
+          oppPositionIndexes[1] - oppPositionIndexes[0] != 2 &&
+          (oppPositionIndexes[1] - oppPositionIndexes[0] ==
+              oppPositionIndexes[2] - oppPositionIndexes[1])) {
+        winPositions = oppPositionIndexes;
+      }
+    }
+
+    // check if position of dragTarget is occupied
+    Map<String, dynamic> positionIsUsed(index) {
       for (final item in occupiedIndexes)
-        if (item['position'] == index) return item['value'];
+        if (item['position'] == index)
+          return {'value': item['value'], 'id': item['id']};
       return null;
     }
 
+    // dragTarget sample widget
     dragTargetBackground(int index) => AnimatedContainer(
           duration: Duration(milliseconds: 400),
           curve: Curves.easeIn,
-          height: height * .07,
-          width: height * .07,
+          // height: dragObjectWidth,
+          // width: dragObjectWidth,
           margin: EdgeInsets.symmetric(vertical: 3, horizontal: 3),
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(2),
-              color: Theme.of(context).scaffoldBackgroundColor,
+              borderRadius: BorderRadius.circular(7),
+              color: winPositions.contains(index)
+                  ? success.withOpacity(.8)
+                  : Theme.of(context).scaffoldBackgroundColor,
               boxShadow: [
                 BoxShadow(
                     color: Theme.of(context).backgroundColor,
@@ -171,11 +241,12 @@ class _TicTacToeState extends State<TicTacToe> {
               ]),
           alignment: Alignment.center,
           child: DragTarget(
-            builder: (context, List<String> candidateData, rejectedData) {
-              print('cand: $index ' + candidateData.asMap().toString());
-              String valueOfPosition = positionIsUsed(index);
-              return valueOfPosition != null
-                  ? draggableWidget(valueOfPosition)
+            builder: (context, List<Map<String, dynamic>> candidateData,
+                rejectedData) {
+              Map<String, dynamic> positionData = positionIsUsed(index);
+              return positionData != null
+                  ? draggableWidget(positionData,
+                      won: winPositions.contains(index))
                   : Container();
             },
             onWillAccept: (data) {
@@ -187,7 +258,11 @@ class _TicTacToeState extends State<TicTacToe> {
             onAccept: (data) {
               setState(() {
                 currentDrag = '';
-                occupiedIndexes.add({'value': data, 'position': index});
+                occupiedIndexes.add({
+                  'value': data['value'],
+                  'position': index,
+                  'id': data['id']
+                });
                 if (selectionWidgets.length == 1) {
                   // doneSelecting=true;
                   // selectionWidgets=[];
@@ -197,41 +272,50 @@ class _TicTacToeState extends State<TicTacToe> {
             onLeave: (data) {
               setState(() {
                 occupiedIndexes.removeWhere((element) =>
-                    element['position'] == index && element['value'] == data);
+                    element['position'] == index &&
+                    element['value'] == (data as Map)['value'] &&
+                    element['id'] == (data as Map)['id']);
               });
             },
             onMove: (details) {
               setState(() {
-                currentDrag = details.data;
+                currentDrag = details.data['value'];
               });
             },
           ),
         );
 
+    // list of drag Target sample widgets, play area
     List<Widget> dragTargets =
         List.generate(9, (index) => dragTargetBackground(index));
 
     return Column(
       children: [
         actionBar(),
-        Container(
-          height: height * .07,
-          child: Row(
-            children: selectionWidgets,
+
+        Expanded(
+          child: Stack(
+            children: [
+              Container(
+                height: imageWidth+imageWidth,
+                child: Row(
+                  children: selectionWidgets,
+                ),
+              ),
+              Center(
+                child: Container(
+                  width: width * .8,
+                  padding: EdgeInsets.all(10),
+                  child: GridView.count(
+                    crossAxisCount: 3,
+                    children: dragTargets,
+                    shrinkWrap: true,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
-        SizedBox(
-          height: 4,
-        ),
-        Container(
-          width: height * .4,
-          padding: EdgeInsets.all(10),
-          child: GridView.count(
-            crossAxisCount: 3,
-            children: dragTargets,
-            shrinkWrap: true,
-          ),
-        )
       ],
     );
   }

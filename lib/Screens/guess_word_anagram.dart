@@ -52,7 +52,7 @@ class _GuessWordState extends State<GuessWord> {
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(7),
               color:
-                  containerColor !=null? containerColor.withOpacity(.09): Theme.of(context).scaffoldBackgroundColor,
+                  containerColor?? Theme.of(context).scaffoldBackgroundColor,
               boxShadow: [
                 BoxShadow(
                     color: Theme.of(context).backgroundColor,
@@ -118,7 +118,7 @@ class _GuessWordState extends State<GuessWord> {
         (index) => GestureDetector(
             onTap: () => removeFromAnswers(answers[index]),
             child: textBox(answers[index]['text'],
-                textColor: answerColor??accentColor,
+                textColor: answerColor!=null?Theme.of(context).scaffoldBackgroundColor.withOpacity(.8):accentColor,
                 containerColor: answerColor)));
 
     List<Widget> unansweredWidgets = List.generate(

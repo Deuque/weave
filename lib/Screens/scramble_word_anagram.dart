@@ -96,7 +96,7 @@ class _ScrambleWordState extends State<ScrambleWord> {
                         if(wordController.value.text.isEmpty)return;
                         setState(() {
                           var wordStyle =  wordController.value.text.trim().split(' ');
-                          List<String> shuffledList = wordStyle.length>1?wordStyle[0].split(''):wordController.value.text.trim().split('');
+                          List<String> shuffledList = wordStyle[0].split('');
                           shuffledList.shuffle();
                           scrambledWord = shuffledList.join('');
                           scrambled=true;
@@ -124,7 +124,7 @@ class _ScrambleWordState extends State<ScrambleWord> {
           if(scrambled)
             spacer2(),
           actionButton('DONE', scrambled, () {
-            Navigator.pop(context,{'hint': hintController.value.text, 'word': wordController.value.text, 'scramble':scrambledWord});
+            Navigator.pop(context,{'hint': hintController.value.text.trim(), 'word': wordController.value.text.trim(), 'scramble':scrambledWord});
           }, context),
         ],
       ),
