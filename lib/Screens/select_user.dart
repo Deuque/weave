@@ -112,7 +112,7 @@ class _SelectUserState extends State<SelectUser> {
                                       backgroundColor:
                                           Colors.grey.withOpacity(.08),
                                       radius: width * .05,
-                                      backgroundImage: AssetImage(e.imageUrl),
+                                      backgroundImage: AssetImage(e.photo),
                                     ),
                                     Positioned(
                                       top: 0,
@@ -121,7 +121,7 @@ class _SelectUserState extends State<SelectUser> {
                                         onTap: () {
                                           setState(() {
                                             selectedUsers.removeWhere((item) =>
-                                                item.fullname == e.fullname);
+                                                item.username == e.username);
                                           });
                                           selectedUsersHorizontalController.sink
                                               .add(selectedUsers);
@@ -155,7 +155,7 @@ class _SelectUserState extends State<SelectUser> {
                               ),
                               SizedBox(height: 5),
                               Text(
-                                '@' + e.fullname,
+                                '@' + e.username,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   color: Theme.of(context).secondaryHeaderColor,
@@ -218,16 +218,16 @@ class _SelectUserState extends State<SelectUser> {
               _space(),
               ContactsOnWeave(
                 selected: (User user) => selectedUsers
-                    .map((e) => e.fullname)
-                    .contains(user.fullname),
+                    .map((e) => e.username)
+                    .contains(user.username),
                 onClick: (User user) {
                   setState(() {
                     if (selectedUsers
-                        .map((e) => e.fullname)
+                        .map((e) => e.username)
                         .toList()
-                        .contains(user.fullname)) {
+                        .contains(user.username)) {
                       selectedUsers
-                          .removeWhere((e) => e.fullname == user.fullname);
+                          .removeWhere((e) => e.username == user.username);
                     } else {
                       selectedUsers.add(user);
                     }
@@ -237,7 +237,7 @@ class _SelectUserState extends State<SelectUser> {
                 selectUserType: widget.selectUserType,
               ),
               if (widget.selectUserType == SelectUserType.multiple)
-                actionButton('DONE', true,
+                actionButton('DONE', true,false,
                     () => Navigator.pop(context, selectedUsers), context),
             ],
           ),
@@ -400,14 +400,14 @@ class UserWidget extends StatelessWidget {
           leading: ClipRRect(
             borderRadius: BorderRadius.circular(35),
             child: Image.asset(
-              user.imageUrl,
+              user.photo,
               height: size.width * .08,
               width: size.width * .08,
               fit: BoxFit.cover,
             ),
           ),
           title: Text(
-            user.userName,
+            user.username,
             style: TextStyle(
                 color: Theme.of(context).secondaryHeaderColor,
                 fontSize: size.width * .035,

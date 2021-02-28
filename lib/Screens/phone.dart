@@ -83,7 +83,7 @@ class _AddPhoneState extends State<AddPhone> {
                 controller: phoneController,
               ),
               spacer2(),
-              actionButton('CONTINUE', textEntered,
+              actionButton('CONTINUE', textEntered,false,
                   ()=>Navigator.pop(context), context),
             ],
           ),

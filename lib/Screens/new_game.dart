@@ -127,7 +127,7 @@ class _NewGameState extends State<NewGame> {
                 ),
               )),
           spacer2(),
-          actionButton('SEND INVITE', invitees.isNotEmpty, () {}, context),
+          actionButton('SEND INVITE', invitees.isNotEmpty, false, () {}, context),
         ],
       ),
     );

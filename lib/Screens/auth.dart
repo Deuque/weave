@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod/all.dart';
 import 'package:riverpod/riverpod.dart';
+import 'package:weave/Controllers/user_controller.dart';
+import 'package:weave/Controllers/current_user_controller.dart';
+import 'package:weave/Models/user.dart';
 import 'package:weave/Util/colors.dart';
 import 'package:weave/Util/helper_functions.dart';
 
@@ -43,52 +46,65 @@ class _AuthState extends State<Auth> {
       passController.clear();
     }
 
-    // checkForm() async {
-    //   if (loading) return;
-    //   if (_formKey.currentState.validate()) {
-    //     _formKey.currentState.save();
-    //
-    //     setState(() {
-    //       loading = true;
-    //     });
-    //
-    //     ApiResponse response;
-    //     if (isLogin) {
-    //       FocusScope.of(context).requestFocus(FocusNode());
-    //       response = await AuthFunction.login(
-    //           emailOrUsername: emailOrUsername.trim(), password: password);
-    //     } else {
-    //       FocusScope.of(context).requestFocus(FocusNode());
-    //       response = await AuthFunction.register(
-    //           email: email, name: name, username: username, password: password);
-    //     }
-    //
-    //     setState(() {
-    //       loading = false;
-    //     });
-    //
-    //     if (response.success) {
-    //       User user = User.fromMap(response.data['user'])
-    //         ..token = response.data['token'];
-    //       context.read(currentUserProvider).setUser(user);
-    //       user.phoneNumberConfirmed
-    //           ? Navigator.pushNamed(context, 'dash')
-    //           : Navigator.pushNamed(context, 'sendOtp');
-    //     } else {
-    //       showSnackBar(
-    //           key: _scaffoldKey,
-    //           message: response.errors.isEmpty
-    //               ? response.message
-    //               : response.errors[0]['description'] ?? response.message,
-    //           type: SnackBarType.error);
-    //     }
-    //   } else {
-    //     showSnackBar(
-    //         key: _scaffoldKey,
-    //         message: 'Please fill the fields correctly',
-    //         type: SnackBarType.error);
-    //   }
-    // }
+    checkForm() async {
+      if (loading) return;
+      email = emailController.value.text;
+      password = passController.value.text;
+      if (email.isNotEmpty && password.isNotEmpty) {
+
+        setState(() {
+          loading = true;
+        });
+
+       Map<String,dynamic> response = {};
+
+
+        if (isLogin) {
+          // FocusScope.of(context).requestFocus(FocusNode());
+          // response = await AuthFunction.login(
+          //     emailOrUsername: emailOrUsername.trim(), password: password);
+          response = await UserController().loginUser(
+              email: email, password: password);
+        } else {
+
+          response = await UserController().registerUser(
+              email: email, password: password);
+
+          if(response['error']==null){
+            response = await UserController().saveUserData({'email': email});
+          }
+        }
+
+
+
+        if (response['error']==null) {
+          User user = await context.read(userProvider).getInitialUserData();
+
+          if(user.username.isEmpty){
+            Navigator.pushReplacementNamed(context, 'username');
+          }else{
+            context.read(userProvider).startCurrentUserStream();
+            Navigator.pushReplacementNamed(context, 'dash');
+          }
+
+        } else {
+          showSnackBar(
+              key: _scaffoldKey,
+              message: response['error'],
+              type: SnackBarType.error);
+        }
+
+        setState(() {
+          loading = false;
+        });
+
+      } else {
+        showSnackBar(
+            key: _scaffoldKey,
+            message: 'Please fill the fields correctly',
+            type: SnackBarType.warning);
+      }
+    }
 
     spacer() => SizedBox(
           height: height * .05,
@@ -96,7 +112,7 @@ class _AuthState extends State<Auth> {
     spacer2() => SizedBox(
           height: height * .03,
         );
-    Widget actionButton(String label, bool active, Function onClick) =>
+    Widget actionButton(String label, bool active, bool loading, Function onClick) =>
         Expanded(
           flex: active ? 3 : 2,
           child: GestureDetector(
@@ -128,6 +144,7 @@ class _AuthState extends State<Auth> {
                     width: 4,
                   ),
                   if (active)
+                    loading ? SizedBox(height:15,width: 15,child: CircularProgressIndicator(strokeWidth: 1.5,valueColor: AlwaysStoppedAnimation(Colors.white.withOpacity(.8)),)):
                     Icon(
                       Icons.chevron_right_outlined,
                       color: Colors.white.withOpacity(.8),
@@ -141,10 +158,12 @@ class _AuthState extends State<Auth> {
     return GestureDetector(
       onTap: clearFocus,
       child: Scaffold(
+        key: _scaffoldKey,
         body: Padding(
           padding: EdgeInsets.symmetric(
               horizontal: width * .08, vertical: width * .15),
           child: Form(
+            key: _formKey,
             child: Align(
               alignment: Alignment.bottomCenter,
               child: ListView(
@@ -161,12 +180,14 @@ class _AuthState extends State<Auth> {
                   MyTextField(
                     label: 'Email',
                     hint: 'johnDoe@gmail.com',
+                    controller: emailController,
                   ),
                   spacer2(),
                   MyTextField(
                     label: 'Password',
                     hint: '........',
                     isPassword: true,
+                    controller: passController,
                   ),
                   Align(
                     alignment: Alignment.centerRight,
@@ -188,13 +209,14 @@ class _AuthState extends State<Auth> {
                       actionButton(
                         'LOGIN',
                         isLogin,
+                        loading,
                         () {
                           if (!isLogin) {
                             setState(() {
                               isLogin = true;
                             });
                           } else {
-                            Navigator.pushNamed(context, 'username');
+                            checkForm();
                           }
                         },
                       ),
@@ -204,11 +226,14 @@ class _AuthState extends State<Auth> {
                       actionButton(
                         'REGISTER',
                         !isLogin,
+                        loading,
                         () {
                           if (isLogin)
                             setState(() {
                               isLogin = false;
                             });
+                          else
+                            checkForm();
                         },
                       ),
                     ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:weave/Controllers/user_controller.dart';
 import 'package:weave/Util/colors.dart';
 import 'package:weave/Util/helper_functions.dart';
 
@@ -14,12 +15,17 @@ class _ChooseUsernameState extends State<ChooseUsername> {
   bool textEntered = false;
   bool checkingUsername = false;
   bool usernameExists;
-  bool isTyping = false;
+  String username = '';
 
   @override
   void initState() {
     super.initState();
     usernameController.addListener(() {
+      if(usernameController.text!=username && usernameExists!=null)
+        setState(() {
+          usernameExists=null;
+        });
+
       if (usernameController.text.isNotEmpty && !textEntered) {
         setState(() {
           textEntered = true;
@@ -33,25 +39,59 @@ class _ChooseUsernameState extends State<ChooseUsername> {
     });
   }
 
-  performSearch(String text) {
-    if (text.isEmpty) {
-      setState(() {
-        checkingUsername = false;
-        usernameExists = null;
-      });
-      return;
-    }
-    if (checkingUsername) return;
-
+  String stripUsername(){
+    String text = usernameController.value.text;
+    ['!','@','#','\$','%','^','&','*','(',')','+','=','-'].forEach((element) {
+      text = text.replaceAll(element, '');
+    });
+    return text;
+  }
+  performSearch() async {
     setState(() {
       checkingUsername = true;
     });
-    Future.delayed(Duration(seconds: 5), () {
-      setState(() {
-        checkingUsername = false;
-        usernameExists = true;
-      });
+    String text = stripUsername();
+    usernameExists = await UserController().checkUsername(text);
+    username = text;
+    if(!usernameExists){
+      showSnackBar(
+          key: _scaffoldKey,
+          message: '$text is available',
+          type: SnackBarType.success);
+
+    }
+
+    setState(() {
+      checkingUsername = false;
     });
+  }
+
+  onDone() async {
+    if (usernameExists == null) {
+      performSearch();
+    } else if (usernameExists) {
+      showSnackBar(
+          key: _scaffoldKey,
+          message: 'Username is already taken',
+          type: SnackBarType.warning);
+    } else {
+      setState(() {
+        loading = true;
+      });
+      var response = await UserController()
+          .saveUserData({'username': username});
+      if (response['error'] != null) {
+        showSnackBar(
+            key: _scaffoldKey,
+            message: response['error'],
+            type: SnackBarType.error);
+      } else {
+        Navigator.pushNamed(context, 'dash');
+      }
+      setState(() {
+        loading = false;
+      });
+    }
   }
 
   @override
@@ -74,6 +114,7 @@ class _ChooseUsernameState extends State<ChooseUsername> {
         );
 
     return Scaffold(
+      key: _scaffoldKey,
       body: Padding(
         padding: EdgeInsets.symmetric(
             horizontal: width * .08, vertical: width * .15),
@@ -99,9 +140,9 @@ class _ChooseUsernameState extends State<ChooseUsername> {
               spacer(),
               MyTextField(
                 label: 'Username',
-                hint: '@johnDoe',
+                hint: 'johnDoe',
                 controller: usernameController,
-                onEditComplete: () => performSearch(usernameController.text),
+                onEditComplete: () => performSearch(),
                 suffix: Padding(
                   padding: const EdgeInsets.all(14.0),
                   child: checkingUsername
@@ -116,7 +157,7 @@ class _ChooseUsernameState extends State<ChooseUsername> {
                           ? SizedBox(
                               height: 0,
                             )
-                          : usernameExists
+                          : !usernameExists
                               ? Image.asset(
                                   'assets/images/check.png',
                                   color: success,
@@ -129,8 +170,7 @@ class _ChooseUsernameState extends State<ChooseUsername> {
                 ),
               ),
               spacer2(),
-              actionButton('CONTINUE', textEntered,
-                  () => Navigator.pushNamed(context, 'dash'), context),
+              actionButton('CONTINUE', textEntered, loading, onDone, context),
             ],
           ),
         ),

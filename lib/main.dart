@@ -1,14 +1,15 @@
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:weave/Controllers/theme_controller.dart';
-import 'file:///C:/Users/HP/Desktop/keep/weave_mobile/lib/Screens/onboarding.dart';
 import 'package:weave/Util/colors.dart';
-import 'package:weave/Widgets/clock_widget.dart';
 import 'package:weave/routes.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  Firebase.initializeApp();
   runApp(
       ProviderScope(child: MyApp()));
 }

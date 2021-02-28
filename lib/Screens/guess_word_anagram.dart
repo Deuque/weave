@@ -199,7 +199,7 @@ class _GuessWordState extends State<GuessWord> {
           ),
           spacer2(),
           actionButton(
-              'DONE', answers.length == splitWord.length, () {
+              'DONE', answers.length == splitWord.length,false, () {
                 Navigator.pop(context,{'opponentAnswer': answers.map((e) => e['text']).toList().join('')});
           }, context),
         ]));

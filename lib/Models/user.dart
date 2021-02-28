@@ -1,30 +1,22 @@
 class User{
-  String id,fullname,email,phoneNumber, imageUrl,userName,token;
-  bool emailConfirmed,phoneNumberConfirmed;
+  String id,email,phone, photo,username,token;
 
-  User({this.id, this.fullname, this.email, this.phoneNumber, this.imageUrl, this.userName,this.emailConfirmed,this.phoneNumberConfirmed,this.token});
+  User({this.id, this.email, this.phone, this.photo, this.username,this.token});
   factory User.fromMap(data)=>User(
-    id: data['id'],
-    fullname: data['fullname'],
-    email: data['email'],
-    phoneNumber: data['phoneNumber'],
-    userName: data['userName'],
-    emailConfirmed: data['emailConfirmed']?? false,
-    phoneNumberConfirmed: data['phoneNumberConfirmed']?? false,
+    email: data['email']??'',
+    phone: data['phone']??'',
+    username: data['username']??'',
     token: data['token']??'',
-    imageUrl: data['imageUrl']??''
+    photo: data['photo']??''
   );
 
   toJson()=>{
     'id': id,
-    'fullname': fullname,
     'email': email,
-    'phoneNumber': phoneNumber,
-    'userName': userName,
-    'emailConfirmed': emailConfirmed,
-    'phoneNumberConfirmed': phoneNumberConfirmed,
+    'phone': phone,
+    'userName': username,
     'token': token,
-    'imageUrl': imageUrl
+    'imageUrl': photo
   };
 }
 

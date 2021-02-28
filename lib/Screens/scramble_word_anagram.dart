@@ -123,7 +123,7 @@ class _ScrambleWordState extends State<ScrambleWord> {
           ),
           if(scrambled)
             spacer2(),
-          actionButton('DONE', scrambled, () {
+          actionButton('DONE', scrambled,false, () {
             Navigator.pop(context,{'hint': hintController.value.text.trim(), 'word': wordController.value.text.trim(), 'scramble':scrambledWord});
           }, context),
         ],

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:weave/Controllers/current_user_controller.dart';
 import 'package:weave/Screens/home.dart';
 import 'package:weave/Screens/new_game.dart';
 import 'package:weave/Util/colors.dart';
 import 'package:weave/Widgets/customBottomBar.dart';
+import 'package:flutter_riverpod/all.dart';
 
 class Dashboard extends StatefulWidget {
   @override
@@ -14,6 +16,7 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   Widget build(BuildContext context) {
+    print('dash '+context.read(userProvider).currentUser().username);
     return Scaffold(
       body: currentTab,
       bottomNavigationBar: CustomBottomBar(

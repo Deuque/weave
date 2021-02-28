@@ -143,7 +143,7 @@ class _TextFieldState extends State<MyTextField> {
 }
 
 // custom button
-Widget actionButton(String label, bool active, Function onClick, context) =>
+Widget actionButton(String label, bool active, bool loading, Function onClick, context) =>
     GestureDetector(
       onTap: onClick,
       child: Container(
@@ -173,6 +173,7 @@ Widget actionButton(String label, bool active, Function onClick, context) =>
               width: 4,
             ),
             if (active)
+              loading ? SizedBox(height:15,width: 15,child: CircularProgressIndicator(strokeWidth: 1.5,valueColor: AlwaysStoppedAnimation(Colors.white.withOpacity(.8)),)):
               Icon(
                 Icons.chevron_right_outlined,
                 color: Colors.white.withOpacity(.8),
@@ -220,3 +221,23 @@ Widget backButton({Function onPressed, Color color})=>IconButton(
   icon: Image.asset('assets/images/back.png',height: 15,color: color,),
   onPressed: onPressed,
 );
+
+enum SnackBarType {
+  error,success,warning
+}
+void showSnackBar({@required GlobalKey<ScaffoldState> key,@required SnackBarType type, @required String message, String action, Function onAction}) {
+  final snackBar = SnackBar(
+    content: Text(message,style: TextStyle(color: Colors.white.withOpacity(.78))),
+    backgroundColor: type==SnackBarType.error?Colors.red:type==SnackBarType.success?Colors.green:Colors.orangeAccent,
+    behavior: SnackBarBehavior.fixed,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(8))),
+    elevation: 1.6,
+    duration: const Duration(seconds: 3),
+    action: action==null?null:SnackBarAction(
+        label: action,
+        textColor: Colors.white,
+        onPressed: onAction),
+  );
+
+  key.currentState.showSnackBar(snackBar);
+}

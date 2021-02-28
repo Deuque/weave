@@ -28,7 +28,7 @@ class Splash extends StatelessWidget {
               ),
             ),
           ),
-          onEnd: ()=>Future.delayed(Duration(milliseconds: 600),()=>Navigator.pushReplacementNamed(context, 'dash')),
+          onEnd: ()=>Future.delayed(Duration(milliseconds: 600),()=>Navigator.pushReplacementNamed(context, 'initial')),
         ),
       ),
     );
