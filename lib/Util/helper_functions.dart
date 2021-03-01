@@ -74,7 +74,7 @@ class MyTextField extends StatefulWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
   final bool isPassword;
-  final Widget suffix;
+  final Widget prefix,suffix;
   final Function onEditComplete;
 
   const MyTextField(
@@ -87,6 +87,9 @@ class MyTextField extends StatefulWidget {
       this.onEditComplete,
       this.isPassword = false,
       this.suffix = const SizedBox(
+        height: 0,
+      ),
+      this.prefix = const SizedBox(
         height: 0,
       )})
       : super(key: key);
@@ -117,6 +120,7 @@ class _TextFieldState extends State<MyTextField> {
           decoration: InputDecoration(
               contentPadding: EdgeInsets.all(20),
               border: InputBorder.none,
+              prefixIcon: widget.prefix,
               suffixIcon: widget.isPassword
                   ? InkWell(
                       onTap: () => setState(() {
@@ -145,7 +149,7 @@ class _TextFieldState extends State<MyTextField> {
 // custom button
 Widget actionButton(String label, bool active, bool loading, Function onClick, context) =>
     GestureDetector(
-      onTap: onClick,
+      onTap: active?onClick:(){},
       child: Container(
         decoration: BoxDecoration(
             color: active ? primary : lightGrey.withOpacity(.2),

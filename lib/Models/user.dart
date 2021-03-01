@@ -3,6 +3,7 @@ class User{
 
   User({this.id, this.email, this.phone, this.photo, this.username,this.token});
   factory User.fromMap(data)=>User(
+    id: data['id']??'',
     email: data['email']??'',
     phone: data['phone']??'',
     username: data['username']??'',
@@ -21,24 +22,24 @@ class User{
 }
 
 List<User> contacts = [
-  // User(
-  //   imageUrl: 'assets/user_dummies/img1.jpg',
-  //   fullname: 'Jumo Ibrahim',
-  //   userName: '@jumo123',
-  // ),
-  // User(
-  //   imageUrl: 'assets/user_dummies/img5.jpg',
-  //   fullname: 'Frank Lampard',
-  //   userName: '@scarytoad',
-  // ),
-  // User(
-  //   imageUrl: 'assets/user_dummies/img3.jpg',
-  //   fullname: 'Stanley Afor',
-  //   userName: '@stan6969',
-  // ),
-  // User(
-  //   imageUrl: 'assets/user_dummies/img4.jpg',
-  //   fullname: 'Baba Songo',
-  //   userName: '@freeboy',
-  // ),
+  User(
+    photo: 'assets/user_dummies/img1.jpg',
+    phone: '+23409876544',
+    username: '@jumo123',
+  ),
+  User(
+    photo: 'assets/user_dummies/img5.jpg',
+    phone: '+23409876904',
+    username: '@scarytoad',
+  ),
+  User(
+    photo: 'assets/user_dummies/img3.jpg',
+    phone: '+23409876544',
+    username: '@stan6969',
+  ),
+  User(
+    photo: 'assets/user_dummies/img4.jpg',
+    phone: '+23409844124',
+    username: '@freeboy',
+  ),
 ];

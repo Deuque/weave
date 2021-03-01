@@ -16,7 +16,6 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   Widget build(BuildContext context) {
-    print('dash '+context.read(userProvider).currentUser().username);
     return Scaffold(
       body: currentTab,
       bottomNavigationBar: CustomBottomBar(

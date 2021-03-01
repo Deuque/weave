@@ -29,6 +29,11 @@ class Repo {
   Future<QuerySnapshot> getUsersWithUsername(String username){
     return userDbInstance.where('username',isEqualTo: username).get();
   }
+
+  Future<QuerySnapshot> getUsers(){
+    return userDbInstance.get();
+  }
+
   Stream<DocumentSnapshot> userStream(String id) {
     return userDbInstance.doc(id).snapshots();
   }

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:weave/Models/user.dart';
 import 'package:weave/Repos/repo.dart';
 
 class UserController{
@@ -40,6 +41,16 @@ class UserController{
   Future<bool> checkUsername(String username) async{
     var query = await repo.getUsersWithUsername(username);
     return query.docs.isNotEmpty;
+  }
+
+  Future<List<User>> getUsers() async{
+    var responseData, error;
+    await repo.getUsers().then((value) => responseData=value).catchError((e)=>error=e.toString());
+    if(error==null){
+      return (responseData as QuerySnapshot).docs.map((e) => User.fromMap(e)..id=e.id).toList();
+    }else{
+      return [];
+    }
   }
 
 }

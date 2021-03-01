@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/all.dart';
+import 'package:weave/Controllers/current_user_controller.dart';
 import 'package:weave/Models/user.dart';
 import 'package:weave/Util/colors.dart';
 import 'package:weave/Util/helper_functions.dart';
@@ -155,7 +156,7 @@ class _SelectUserState extends State<SelectUser> {
                               ),
                               SizedBox(height: 5),
                               Text(
-                                '@' + e.username,
+                                e.username,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   color: Theme.of(context).secondaryHeaderColor,
@@ -237,7 +238,7 @@ class _SelectUserState extends State<SelectUser> {
                 selectUserType: widget.selectUserType,
               ),
               if (widget.selectUserType == SelectUserType.multiple)
-                actionButton('DONE', true,false,
+                actionButton('DONE', true, false,
                     () => Navigator.pop(context, selectedUsers), context),
             ],
           ),
@@ -311,7 +312,8 @@ class _ContactsOnWeaveState extends State<ContactsOnWeave> {
                       )),
                 );
               if (snapshot.hasData && snapshot.data.isEmpty)
-                return emptyWidget(image:'assets/images/emptySearch.png',size: width*.2);
+                return emptyWidget(
+                    image: 'assets/images/emptySearch.png', size: width * .2);
               return ListView(
                   padding: EdgeInsets.zero,
                   children: snapshot.data
@@ -332,14 +334,20 @@ class _ContactsOnWeaveState extends State<ContactsOnWeave> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(height: 30,width: 2,decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),color: accentColor
-            ),margin: EdgeInsets.only(right: 10),),
+            Container(
+              height: 30,
+              width: 2,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5), color: accentColor),
+              margin: EdgeInsets.only(right: 10),
+            ),
             Expanded(
               child: Text(
                 'Add a phone number so your contacts can see you too',
                 style: TextStyle(
-                    color: Theme.of(context).secondaryHeaderColor, fontSize: 13,fontWeight: FontWeight.w300),
+                    color: Theme.of(context).secondaryHeaderColor,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w300),
               ),
             ),
             FlatButton(
@@ -366,7 +374,14 @@ class _ContactsOnWeaveState extends State<ContactsOnWeave> {
           _space(),
           _allUsersLayout(),
           _space(),
-          _addPhoneLayout()
+          Consumer(builder: (context, watch, _) {
+            User currentUser = watch(userProvider.state);
+            return currentUser.phone.isEmpty
+                ? _addPhoneLayout()
+                : SizedBox(
+                    height: 0,
+                  );
+          })
         ],
       ),
     );
@@ -407,20 +422,19 @@ class UserWidget extends StatelessWidget {
             ),
           ),
           title: Text(
-            user.username,
+            '${user.username}',
             style: TextStyle(
                 color: Theme.of(context).secondaryHeaderColor,
                 fontSize: size.width * .035,
                 fontWeight: FontWeight.w500),
           ),
-          // subtitle: Text(
-          //   //user.userName,
-          //   '@' +user.userName,
-          //   style: TextStyle(
-          //       color: Theme.of(context).secondaryHeaderColor.withOpacity(.5),
-          //       fontSize: 14,
-          //       fontWeight: FontWeight.w400),
-          // ),
+          subtitle: Text(
+            user.phone,
+            style: TextStyle(
+                color: Theme.of(context).secondaryHeaderColor.withOpacity(.5),
+                fontSize: size.width * .03,
+                fontWeight: FontWeight.w400),
+          ),
           trailing: selected
               ? Icon(
                   Icons.check_circle,
