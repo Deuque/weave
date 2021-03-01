@@ -17,7 +17,7 @@ class Contacts extends StateNotifier<List<User>> {
     state = await getSavedContacts();
   }
 
-  Future<List<User>> getContactsOnFlipp() async {
+  Future<List<User>> getContactsOnWeave() async {
     if (state.isNotEmpty) return Future.value(state);
     state = await processContactsOnDevice();
     saveContactsState();
@@ -36,12 +36,14 @@ class Contacts extends StateNotifier<List<User>> {
       element1.phones.forEach((element2) {
 
         String number = element2.value.replaceAll(' ', '');
+        if(number.startsWith('0')) number = number.replaceFirst('0', '+234');
         if(!numbers.contains(number)) numbers.add(number);
 
       });
     });
 
     List<User> result  = await UserController().getUsers();
+    result.removeWhere((element) => element.id==UserController().currentUserId());
     result.retainWhere((element) => numbers.contains(element.phone));
 
 

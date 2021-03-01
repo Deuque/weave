@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:weave/Controllers/contacts_controller.dart';
 import 'package:weave/Controllers/current_user_controller.dart';
 import 'package:weave/Screens/home.dart';
 import 'package:weave/Screens/new_game.dart';
@@ -13,6 +14,13 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   Widget currentTab = Home();
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    context.read(userProvider).startCurrentUserStream();
+    context.read(contactsProvider).initialSetup();
+  }
 
   @override
   Widget build(BuildContext context) {

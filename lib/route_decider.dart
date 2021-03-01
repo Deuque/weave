@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:weave/Controllers/contacts_controller.dart';
 import 'package:weave/Controllers/current_user_controller.dart';
 import 'file:///C:/Users/HP/Desktop/keep/weave_mobile/lib/Screens/onboarding.dart';
 import 'package:weave/Controllers/user_controller.dart';
@@ -28,7 +29,7 @@ class RouteDecider extends StatelessWidget {
                     valueColor: AlwaysStoppedAnimation(primary),
                   ),
                 );
-              context.read(userProvider).startCurrentUserStream();
+
               return snapshot.data.username.isEmpty ? ChooseUsername() : Dashboard();
             });
   }

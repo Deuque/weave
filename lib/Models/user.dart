@@ -15,9 +15,9 @@ class User{
     'id': id,
     'email': email,
     'phone': phone,
-    'userName': username,
+    'username': username,
     'token': token,
-    'imageUrl': photo
+    'photo': photo
   };
 }
 

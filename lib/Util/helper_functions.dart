@@ -86,12 +86,8 @@ class MyTextField extends StatefulWidget {
       this.focusNode,
       this.onEditComplete,
       this.isPassword = false,
-      this.suffix = const SizedBox(
-        height: 0,
-      ),
-      this.prefix = const SizedBox(
-        height: 0,
-      )})
+      this.suffix,
+      this.prefix})
       : super(key: key);
 
   @override

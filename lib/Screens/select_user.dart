@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/all.dart';
+import 'package:weave/Controllers/contacts_controller.dart';
 import 'package:weave/Controllers/current_user_controller.dart';
 import 'package:weave/Models/user.dart';
 import 'package:weave/Util/colors.dart';
@@ -278,10 +279,10 @@ class _ContactsOnWeaveState extends State<ContactsOnWeave> {
   }
 
   Future<void> getAllUsers() {
-    // context.read(contactsProvider).getContactsOnFlipp(context.read(currentUserProvider).getUser().token).then((value){
-    //   allUsersController.sink.add(value);
-    // });
-    allUsersController.sink.add(contacts);
+    context.read(contactsProvider).getContactsOnWeave().then((value){
+      allUsersController.sink.add(value);
+    });
+   // allUsersController.sink.add(contacts);
   }
 
   @override
@@ -319,7 +320,7 @@ class _ContactsOnWeaveState extends State<ContactsOnWeave> {
                   children: snapshot.data
                       .map(
                         (user) => UserWidget(
-                            user: user,
+                            user: user..photo='assets/user_dummies/img${1+Random().nextInt(7)}.jpg',
                             selected: widget.selected(user),
                             onClick: () => widget.onClick(user)),
                       )

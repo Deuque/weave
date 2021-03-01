@@ -47,7 +47,7 @@ class UserController{
     var responseData, error;
     await repo.getUsers().then((value) => responseData=value).catchError((e)=>error=e.toString());
     if(error==null){
-      return (responseData as QuerySnapshot).docs.map((e) => User.fromMap(e)..id=e.id).toList();
+      return (responseData as QuerySnapshot).docs.map((e) => User.fromMap(e.data())..id=e.id).toList();
     }else{
       return [];
     }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod/all.dart';
 import 'package:riverpod/riverpod.dart';
+import 'package:weave/Controllers/contacts_controller.dart';
 import 'package:weave/Controllers/user_controller.dart';
 import 'package:weave/Controllers/current_user_controller.dart';
 import 'package:weave/Models/user.dart';
@@ -48,8 +49,8 @@ class _AuthState extends State<Auth> {
 
     checkForm() async {
       if (loading) return;
-      email = emailController.value.text;
-      password = passController.value.text;
+      email = emailController.value.text.trim();
+      password = passController.value.text.trim();
       if (email.isNotEmpty && password.isNotEmpty) {
 
         setState(() {
@@ -83,7 +84,8 @@ class _AuthState extends State<Auth> {
           if(user.username.isEmpty){
             Navigator.pushReplacementNamed(context, 'username');
           }else{
-            context.read(userProvider).startCurrentUserStream();
+
+
             Navigator.pushReplacementNamed(context, 'dash');
           }
 

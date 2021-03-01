@@ -21,9 +21,9 @@ class _ChooseUsernameState extends State<ChooseUsername> {
   void initState() {
     super.initState();
     usernameController.addListener(() {
-      if(usernameController.text!=username && usernameExists!=null)
+      if (usernameController.text != username && usernameExists != null)
         setState(() {
-          usernameExists=null;
+          usernameExists = null;
         });
 
       if (usernameController.text.isNotEmpty && !textEntered) {
@@ -39,13 +39,15 @@ class _ChooseUsernameState extends State<ChooseUsername> {
     });
   }
 
-  String stripUsername(){
+  String stripUsername() {
     String text = usernameController.value.text;
-    ['!','@','#','\$','%','^','&','*','(',')','+','=','-'].forEach((element) {
+    ['!', '@', '#', '\$', '%', '^', '&', '*', '(', ')', '+', '=', '-']
+        .forEach((element) {
       text = text.replaceAll(element, '');
     });
     return text;
   }
+
   performSearch() async {
     setState(() {
       checkingUsername = true;
@@ -53,12 +55,11 @@ class _ChooseUsernameState extends State<ChooseUsername> {
     String text = stripUsername();
     usernameExists = await UserController().checkUsername(text);
     username = text;
-    if(!usernameExists){
+    if (!usernameExists) {
       showSnackBar(
           key: _scaffoldKey,
           message: '$text is available',
           type: SnackBarType.success);
-
     }
 
     setState(() {
@@ -78,8 +79,8 @@ class _ChooseUsernameState extends State<ChooseUsername> {
       setState(() {
         loading = true;
       });
-      var response = await UserController()
-          .saveUserData({'username': username});
+      var response =
+          await UserController().saveUserData({'username': username});
       if (response['error'] != null) {
         showSnackBar(
             key: _scaffoldKey,
@@ -143,6 +144,15 @@ class _ChooseUsernameState extends State<ChooseUsername> {
                 hint: 'johnDoe',
                 controller: usernameController,
                 onEditComplete: () => performSearch(),
+                prefix: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/images/email.png',
+                      height: 14,
+                    ),
+                  ],
+                ),
                 suffix: Padding(
                   padding: const EdgeInsets.all(14.0),
                   child: checkingUsername
