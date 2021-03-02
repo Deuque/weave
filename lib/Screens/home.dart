@@ -1,7 +1,11 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:weave/Controllers/current_user_controller.dart';
+import 'package:weave/Controllers/streams_controller.dart';
 import 'package:weave/Models/activity.dart';
 import 'package:weave/Models/invite.dart';
 import 'package:weave/Util/colors.dart';
@@ -18,6 +22,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   int tabIndex = 0;
   TabController _controller;
+  StreamController<int> unreadInvites = new StreamController();
 
   @override
   void initState() {
@@ -29,8 +34,17 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           tabIndex = _controller.index;
         });
     });
+
+    unreadInvites.sink.add(0);
   }
 
+  @override
+  void dispose() {
+
+    unreadInvites?.close();
+    // TODO: implement dispose
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery
@@ -191,17 +205,22 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       ],
                     ),
                   ),
-                  Padding(
-                    padding:
-                    const EdgeInsets.only(right: 8.0, bottom: 8, top: 6),
-                    child: Row(
-                      children: [
-                        Text(
-                          'Invites',
+                  StreamBuilder<int>(
+                      stream: unreadInvites.stream,
+                    builder: (context, snapshot) {
+                      return Padding(
+                        padding:
+                        const EdgeInsets.only(right: 8.0, bottom: 8, top: 6),
+                        child: Row(
+                          children: [
+                            Text(
+                              'Invites',
+                            ),
+                            tabsUnreadCount(active: tabIndex == 1, count: snapshot?.data??0)
+                          ],
                         ),
-                        tabsUnreadCount(active: tabIndex == 1, count: 0)
-                      ],
-                    ),
+                      );
+                    }
                   ),
                 ],
               ),
@@ -210,9 +229,16 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     physics: BouncingScrollPhysics(),
                     controller: _controller,
                     children: [
-                      TabBody(
-                        items: sampleActivities,
-                        tabIndex: 0,
+                      Consumer(
+                        builder: (context, watch,_) {
+                          List<Invite> invites = watch(userStreamsProvider).myInvites;
+                          int unread = invites.where((element) => !element.seenByReceiver && element.receiver==context.read(userProvider.state).id).toList().length;
+                          unreadInvites.sink.add(unread);
+                          return TabBody(
+                            items: invites,
+                            tabIndex: 0,
+                          );
+                        }
                       ),
                       TabBody(
                         items: sampleInvites,

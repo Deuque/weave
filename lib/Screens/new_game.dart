@@ -1,8 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:weave/Controllers/current_user_controller.dart';
+import 'package:weave/Controllers/user_controller.dart';
+import 'package:weave/Models/invite.dart';
 import 'package:weave/Models/user.dart';
 import 'package:weave/Screens/select_user.dart';
 import 'package:weave/Util/colors.dart';
 import 'package:weave/Util/helper_functions.dart';
+import 'package:flutter_riverpod/all.dart';
 
 class NewGame extends StatefulWidget {
   @override
@@ -12,6 +17,7 @@ class NewGame extends StatefulWidget {
 class _NewGameState extends State<NewGame> {
   int gameType = 0;
   List<User> invitees = [];
+  bool loading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +38,27 @@ class _NewGameState extends State<NewGame> {
         SizedBox(
           height: height * .03,
         );
+
+    onDone() async{
+      setState(() {
+        loading=true;
+      });
+      for(User user in invitees){
+        Invite invite = Invite(
+          sender: context.read(userProvider.state).id,
+          receiver: user.id,
+          parties: [context.read(userProvider.state).id, user.id],
+          gameType: gameType,
+          timestamp: Timestamp.now(),
+        );
+
+        await UserController().sendInvite(invite);
+      }
+      setState(() {
+        loading=false;
+      });
+      Navigator.pop(context);
+    }
 
     return Container(
       padding:
@@ -127,7 +154,7 @@ class _NewGameState extends State<NewGame> {
                 ),
               )),
           spacer2(),
-          actionButton('SEND INVITE', invitees.isNotEmpty, false, () {}, context),
+          actionButton('SEND INVITE', invitees.isNotEmpty, loading, onDone, context),
         ],
       ),
     );

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:weave/Models/invite.dart';
 import 'package:weave/Models/user.dart';
 import 'package:weave/Repos/repo.dart';
 
@@ -52,5 +53,16 @@ class UserController{
       return [];
     }
   }
+
+  Future<void> sendInvite(Invite invite) async{
+    await repo.addOrEditInvite(invite);
+  }
+  Future<void> editInvite(Invite invite) async{
+    await repo.addOrEditInvite(invite,edit: true);
+  }
+
+  Stream<QuerySnapshot> getInvites(){
+    return repo.getInvites();
+}
 
 }

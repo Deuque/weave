@@ -1,8 +1,37 @@
-class Invite {
-  String sender, receiver, date;
-  int gameType;
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-  Invite({this.sender, this.receiver, this.gameType, this.date});
+class Invite {
+  String id,sender, receiver,date;
+  List<String> parties;
+  int gameType;
+  bool accepted,declined,seenByReceiver;
+  Timestamp timestamp;
+
+  Invite({this.id, this.sender, this.receiver, this.gameType, this.date, this.parties, this.accepted, this.declined, this.seenByReceiver, this.timestamp});
+
+  toJson()=>{
+    'id': this.id,
+    'sender': this.sender,
+    'receiver': this.receiver,
+    'parties': this.parties,
+    'gameType': this.gameType,
+    'timestamp': this.gameType,
+    'accepted': this.accepted,
+    'declined': this.declined,
+    'seenByReceiver': this.seenByReceiver
+  };
+
+  factory Invite.fromMap(Map<String,dynamic> data)=>Invite(
+    id: data['id']??'',
+    sender: data['sender'],
+    receiver: data['receiver'],
+    parties: List<String>.from(data['parties']),
+    gameType: data['gameType'],
+    timestamp: data['timestamp'],
+    accepted: data['accepted']??false,
+    declined: data['declined']??false,
+    seenByReceiver: data['seenByReceiver']??false
+  );
 }
 
 List<Invite> sampleInvites = [
