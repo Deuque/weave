@@ -1,8 +1,9 @@
 class Message{
-  String message,time,date;
-  bool userIsSender;
+  String message,time,date,receiver,sender;
+  bool userIsSender,seenByReceiver;
+  List<String> parties;
 
-  Message({this.message, this.time, this.date, this.userIsSender});
+  Message({this.message, this.time, this.date, this.userIsSender, this.parties,this.seenByReceiver});
 }
 
 List<Message> sampleMessages = [

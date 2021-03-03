@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:weave/Controllers/current_user_controller.dart';
+import 'package:weave/Controllers/streams_controller.dart';
 import 'package:weave/Controllers/user_controller.dart';
 import 'package:weave/Models/invite.dart';
 import 'package:weave/Models/user.dart';
@@ -44,6 +46,11 @@ class _NewGameState extends State<NewGame> {
         loading=true;
       });
       for(User user in invitees){
+        List<Invite> prevInvites = context.read(userStreamsProvider).myInvites;
+        if(prevInvites.isNotEmpty && prevInvites.where((element) => element.parties.contains(user.id) && !element.declined).toList().isNotEmpty){
+          Fluttertoast.showToast(msg: 'you have a game with @${user.username}');
+          continue;
+        }
         Invite invite = Invite(
           sender: context.read(userProvider.state).id,
           receiver: user.id,

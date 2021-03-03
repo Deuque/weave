@@ -17,8 +17,10 @@ class InviteLayout extends StatefulWidget {
   _InviteLayoutState createState() => _InviteLayoutState();
 }
 
-class _InviteLayoutState extends State<InviteLayout> with AutomaticKeepAliveClientMixin{
+class _InviteLayoutState extends State<InviteLayout>
+    with AutomaticKeepAliveClientMixin {
   User invitee;
+  String currentAction = '';
 
   @override
   // TODO: implement wantKeepAlive
@@ -28,6 +30,7 @@ class _InviteLayoutState extends State<InviteLayout> with AutomaticKeepAliveClie
   void initState() {
     // TODO: implement initState
     super.initState();
+    getInvitee();
   }
 
   getInvitee() async {
@@ -35,9 +38,9 @@ class _InviteLayoutState extends State<InviteLayout> with AutomaticKeepAliveClie
         .userStream(widget.invite.parties.firstWhere(
             (element) => element != context.read(userProvider.state).id))
         .first
-        .then((value) => setState((){
-      invitee = User.fromMap(value.data())..id = value.id;
-    }));
+        .then((value) => setState(() {
+              invitee = User.fromMap(value.data())..id = value.id;
+            }));
   }
 
   @override
@@ -47,30 +50,68 @@ class _InviteLayoutState extends State<InviteLayout> with AutomaticKeepAliveClie
     bool userIsSender =
         widget.invite.sender == context.read(userProvider.state).id;
 
-    String date = DateFormat('dd MMM, yy').format(DateTime.fromMillisecondsSinceEpoch(widget.invite.timestamp.millisecondsSinceEpoch));
+    String date = DateFormat('dd MMM, yy').format(
+        DateTime.fromMillisecondsSinceEpoch(
+            widget.invite.timestamp.millisecondsSinceEpoch));
+
+    loader(Color color) => Padding(
+          padding: const EdgeInsets.only(left: 4.0),
+          child: SizedBox(
+            height: 14,
+            width: 14,
+            child: CircularProgressIndicator(
+              strokeWidth: 1.5,
+              valueColor: AlwaysStoppedAnimation<Color>(color),
+            ),
+          ),
+        );
 
     Widget actionWidgets() => Container(
           height: 40,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              {'color': error, 'text': 'Decline', 'onClick': () {}},
+              {
+                'color': error,
+                'text': 'Decline',
+                'onClick': () async {
+                  await UserController()
+                      .editInvite(widget.invite..declined = true);
+                }
+              },
               {},
-              {'color': success, 'text': 'Accept', 'onClick': () {}},
+              {
+                'color': success,
+                'text': 'Accept',
+                'onClick': () async {
+                  await UserController()
+                      .editInvite(widget.invite..accepted = true);
+                }
+              },
             ]
                 .map((e) => e.isEmpty
                     ? VerticalDivider()
                     : Expanded(
                         child: FlatButton(
-                          onPressed: e['onClick'],
+                          onPressed: () {
+                            setState(() => currentAction = e['text']);
+                            e['onClick']();
+                            setState(() => currentAction = '');
+                          },
                           //color: e['color'],
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(6)),
-                          child: Text(
-                            e['text'],
-                            style: TextStyle(
-                              color: e['color'],
-                            ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                e['text'],
+                                style: TextStyle(
+                                  color: e['color'],
+                                ),
+                              ),
+                              if (currentAction == e['text']) loader(e['color'])
+                            ],
                           ),
                         ),
                       ))
@@ -91,7 +132,11 @@ class _InviteLayoutState extends State<InviteLayout> with AutomaticKeepAliveClie
                 text: TextSpan(
               children: [
                 TextSpan(
-                  text: userIsSender ? 'You' : invitee==null?'...':'@${invitee.username}',
+                  text: userIsSender
+                      ? 'You'
+                      : invitee == null
+                          ? '...'
+                          : '@${invitee.username}',
                   style: TextStyle(
                       color: Theme.of(context)
                           .secondaryHeaderColor
@@ -111,7 +156,11 @@ class _InviteLayoutState extends State<InviteLayout> with AutomaticKeepAliveClie
                       fontSize: size.width * .032),
                 ),
                 TextSpan(
-                  text: userIsSender ? invitee==null?'...':'@${invitee.username}' : 'you',
+                  text: userIsSender
+                      ? invitee == null
+                          ? '...'
+                          : '@${invitee.username}'
+                      : 'you',
                   style: TextStyle(
                       color: Theme.of(context)
                           .secondaryHeaderColor
@@ -134,19 +183,35 @@ class _InviteLayoutState extends State<InviteLayout> with AutomaticKeepAliveClie
                 type: widget.invite.gameType,
                 size: size.width * .03,
                 context: context),
-            trailing: Text(
-              date,
-              style: TextStyle(
-                  color: Theme.of(context).secondaryHeaderColor.withOpacity(.5),
-                  fontWeight: FontWeight.w300,
-                  fontSize: size.width * .026),
+            trailing: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  date,
+                  style: TextStyle(
+                      color: Theme.of(context).secondaryHeaderColor.withOpacity(.5),
+                      fontWeight: FontWeight.w300,
+                      fontSize: size.width * .026),
+                ),
+                if(widget.invite.declined)Padding(
+                  padding: const EdgeInsets.only(top:2.0),
+                  child: Text(
+                    'Declined',
+                    style: TextStyle(
+                      color: error,
+                        fontSize: size.width * .032
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-          if (!userIsSender)
+          if (!userIsSender&& !widget.invite.declined)
             Divider(
               height: 0,
             ),
-          if (!userIsSender) actionWidgets()
+          if (!userIsSender && !widget.invite.declined) actionWidgets(),
+
         ],
       ),
     );

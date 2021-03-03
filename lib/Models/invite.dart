@@ -9,13 +9,13 @@ class Invite {
 
   Invite({this.id, this.sender, this.receiver, this.gameType, this.date, this.parties, this.accepted, this.declined, this.seenByReceiver, this.timestamp});
 
-  toJson()=>{
+  Map<String,dynamic> toJson()=>{
     'id': this.id,
     'sender': this.sender,
     'receiver': this.receiver,
     'parties': this.parties,
     'gameType': this.gameType,
-    'timestamp': this.gameType,
+    'timestamp': this.timestamp,
     'accepted': this.accepted,
     'declined': this.declined,
     'seenByReceiver': this.seenByReceiver

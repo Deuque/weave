@@ -8,6 +8,7 @@ import 'package:weave/Controllers/current_user_controller.dart';
 import 'package:weave/Controllers/streams_controller.dart';
 import 'package:weave/Models/activity.dart';
 import 'package:weave/Models/invite.dart';
+import 'package:weave/Models/message.dart';
 import 'package:weave/Util/colors.dart';
 import 'package:weave/Util/helper_functions.dart';
 import 'package:weave/Widgets/activity_widget.dart';
@@ -23,6 +24,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   int tabIndex = 0;
   TabController _controller;
   StreamController<int> unreadInvites = new StreamController();
+  StreamController<int> unreadActivities = new StreamController();
 
   @override
   void initState() {
@@ -36,15 +38,17 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     });
 
     unreadInvites.sink.add(0);
+    unreadActivities.sink.add(0);
   }
 
   @override
   void dispose() {
-
     unreadInvites?.close();
+    unreadActivities?.close();
     // TODO: implement dispose
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery
@@ -185,42 +189,42 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     .secondaryHeaderColor
                     .withOpacity(.3),
                 tabs: [
-                  Padding(
-                    padding:
-                    const EdgeInsets.only(right: 5.0, bottom: 8, top: 6),
-                    child: Row(
-                      children: [
-                        Text(
-                          'Ongoing',
-                        ),
-                        tabsUnreadCount(
-                            active: tabIndex == 0,
-                            count: sampleActivities
-                                .map((e) => e.unseenCount)
-                                .toList()
-                                .fold(
-                                0,
-                                    (previousValue, element) =>
-                                previousValue + element))
-                      ],
-                    ),
+                  StreamBuilder<int>(
+                      stream: unreadActivities.stream,
+                      builder: (context, snapshot) {
+                        return Padding(
+                          padding:
+                          const EdgeInsets.only(right: 5.0, bottom: 8, top: 6),
+                          child: Row(
+                            children: [
+                              Text(
+                                'Ongoing',
+                              ),
+                              tabsUnreadCount(
+                                  active: tabIndex == 0,
+                                  count: snapshot?.data ?? 0)
+                            ],
+                          ),
+                        );
+                      }
                   ),
                   StreamBuilder<int>(
                       stream: unreadInvites.stream,
-                    builder: (context, snapshot) {
-                      return Padding(
-                        padding:
-                        const EdgeInsets.only(right: 8.0, bottom: 8, top: 6),
-                        child: Row(
-                          children: [
-                            Text(
-                              'Invites',
-                            ),
-                            tabsUnreadCount(active: tabIndex == 1, count: snapshot?.data??0)
-                          ],
-                        ),
-                      );
-                    }
+                      builder: (context, snapshot) {
+                        return Padding(
+                          padding:
+                          const EdgeInsets.only(right: 8.0, bottom: 8, top: 6),
+                          child: Row(
+                            children: [
+                              Text(
+                                'Invites',
+                              ),
+                              tabsUnreadCount(active: tabIndex == 1,
+                                  count: snapshot?.data ?? 0)
+                            ],
+                          ),
+                        );
+                      }
                   ),
                 ],
               ),
@@ -230,19 +234,66 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     controller: _controller,
                     children: [
                       Consumer(
-                        builder: (context, watch,_) {
-                          List<Invite> invites = watch(userStreamsProvider).myInvites;
-                          int unread = invites.where((element) => !element.seenByReceiver && element.receiver==context.read(userProvider.state).id).toList().length;
-                          unreadInvites.sink.add(unread);
-                          return TabBody(
-                            items: invites,
-                            tabIndex: 0,
-                          );
-                        }
+                          builder: (context, watch, _) {
+                            List<Invite> invites = watch(userStreamsProvider)
+                                .myInvites;
+                            invites = invites.where((element) =>
+                            element.accepted == true).toList();
+
+
+                            List<Message> messages = watch(userStreamsProvider)
+                                .myMessages;
+                            messages.sort();
+
+                            List<Activity> activities = [];
+
+                            invites.forEach((element) {
+
+                              String opponent = element.parties.firstWhere((
+                                  element) =>
+                              element != context
+                                  .read(userProvider.state)
+                                  .id);
+
+                              int unreadMessages = messages.where((element) => element.parties.contains(opponent)&&element.receiver==context
+                                  .read(userProvider.state)
+                                  .id&& !element.seenByReceiver).toList().length;
+
+                              Activity activity = Activity(
+                                  opponentId: opponent, gameType: element.gameType,
+                                unreadChat: unreadMessages,
+                                timestamp: element.timestamp
+                              );
+                              activities.add(activity);
+                            });
+
+                            activities.sort((b,a)=>b.timestamp.compareTo(a.timestamp));
+                            return TabBody(
+                              items: activities,
+                              tabIndex: 0,
+                            );
+                          }
                       ),
-                      TabBody(
-                        items: sampleInvites,
-                        tabIndex: 1,
+                      Consumer(
+                          builder: (context, watch, _) {
+                            List<Invite> invites = watch(userStreamsProvider)
+                                .myInvites;
+                            invites = invites.where((element) =>
+                            element.accepted == false).toList();
+                            int unread = invites
+                                .where((element) =>
+                            !element.seenByReceiver &&
+                                element.receiver == context
+                                    .read(userProvider.state)
+                                    .id)
+                                .toList()
+                                .length;
+                            unreadInvites.sink.add(unread);
+                            return TabBody(
+                              items: invites,
+                              tabIndex: 1,
+                            );
+                          }
                       ),
                     ]),
               )

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:weave/Controllers/contacts_controller.dart';
 import 'package:weave/Controllers/current_user_controller.dart';
+import 'package:weave/Controllers/streams_controller.dart';
 import 'package:weave/Screens/home.dart';
 import 'package:weave/Screens/new_game.dart';
 import 'package:weave/Util/colors.dart';
@@ -20,6 +21,7 @@ class _DashboardState extends State<Dashboard> {
     super.initState();
     context.read(userProvider).startCurrentUserStream();
     context.read(contactsProvider).initialSetup();
+    context.read(userStreamsProvider).startStreams();
   }
 
   @override

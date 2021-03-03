@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:weave/Controllers/user_controller.dart';
 import 'package:weave/Models/invite.dart';
+import 'package:weave/Models/message.dart';
 import 'package:weave/Models/user.dart';
 import 'package:weave/Repos/repo.dart';
 
@@ -10,6 +11,7 @@ final userStreamsProvider = ChangeNotifierProvider<UserStreams>((ref) => new Use
 
 class UserStreams extends ChangeNotifier {
   List<Invite> myInvites =[];
+  List<Message> myMessages = [];
 
   void startStreams() {
    UserController().getInvites().listen((event) {
@@ -19,4 +21,5 @@ class UserStreams extends ChangeNotifier {
 
    });
   }
+
 }
