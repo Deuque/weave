@@ -11,6 +11,7 @@ import 'package:weave/Models/anagram_activity.dart';
 import 'package:weave/Models/game.dart';
 import 'package:weave/Models/invite.dart';
 import 'package:weave/Models/message.dart';
+import 'package:weave/Models/tictactoe_activity.dart';
 import 'package:weave/Models/user.dart';
 import 'package:weave/Screens/anagram.dart';
 import 'package:weave/Screens/chat.dart';
@@ -315,6 +316,26 @@ class _PlayAreaState extends State<PlayArea>
                             }
                           }
 
+                      }else{
+                        List<TictactoeActivity> games = watch(userStreamsProvider)
+                            .myTttGames;
+                        games = games
+                            .where((element) =>
+                            element.parties.contains(
+                                widget.activity.opponentId))
+                            .toList();
+                        games.sort((a, b) =>
+                            b.index.compareTo(a.index));
+
+                        if (games.isNotEmpty) {
+                          if (games[0].sender !=
+                              context
+                                  .read(userProvider.state)
+                                  .id &&
+                              !games[0].seenByReceiver) {
+                            unreadGameTurn.sink.add(1);
+                          }
+                        }
                       }
 
 
@@ -368,7 +389,7 @@ class _PlayAreaState extends State<PlayArea>
                       element.parties.contains(
                           widget.activity.opponentId) && element.accepted==true);
                       List<AnagramActivity> anagramGames = [];
-
+                      List<TictactoeActivity> tttGames=[];
                       if(invite.gameType==1){
                         anagramGames=watch(userStreamsProvider).myAnagramGames;
                         anagramGames = anagramGames
@@ -383,13 +404,28 @@ class _PlayAreaState extends State<PlayArea>
                                 e.timestamp.millisecondsSinceEpoch))
                             ..userIsSender = e.sender == context.read(userProvider.state).id;
                         }).toList();
+                      }else{
+                        tttGames = watch(userStreamsProvider)
+                            .myTttGames;
+                        tttGames = tttGames
+                            .where((element) =>
+                            element.parties.contains(
+                                widget.activity.opponentId))
+                            .toList();
+                        tttGames.sort((a, b) =>
+                            b.index.compareTo(a.index));
+
                       }
 
 
 
 
                       return widget.activity.gameType == 0
-                          ? TicTacToe(onFullScreen: () {
+                          ? TicTacToe(
+                        key: tttGames.isEmpty?Key('key'):Key(tttGames[0].sender),
+                          invite: invite,
+                          tictactoeActivity: tttGames.isEmpty?null:tttGames[0],
+                          onFullScreen: () {
                         setState(() {
                           fullScreen = !fullScreen;
                         });

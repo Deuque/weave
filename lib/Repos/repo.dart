@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:weave/Models/game.dart';
 import 'package:weave/Models/invite.dart';
 import 'package:weave/Models/message.dart';
+import 'package:weave/Models/tictactoe_activity.dart';
 
 class Repo {
   var authInstance = FirebaseAuth.instance;
@@ -12,6 +13,7 @@ class Repo {
   var inviteDbInstance = FirebaseFirestore.instance.collection('Invites');
   var chatDbInstance = FirebaseFirestore.instance.collection('Chats');
   var anagramGameDbInstance = FirebaseFirestore.instance.collection('AnagramGames');
+  var tttGameDbInstance = FirebaseFirestore.instance.collection('TictactoeGames');
 
   currentUserId()=>authInstance.currentUser?.uid;
 
@@ -72,5 +74,16 @@ class Repo {
 
   Stream<QuerySnapshot> getAnagramGames(){
     return anagramGameDbInstance.where('parties',arrayContains: currentUserId()).snapshots();
+  }
+
+  Future<dynamic> addOrEditTttGame(TictactoeActivity game, {bool edit = false}){
+    if(!edit)
+      return tttGameDbInstance.add(game.toJson());
+    else
+      return tttGameDbInstance.doc(game.id).update(game.toJson());
+  }
+
+  Stream<QuerySnapshot> getTttGames(){
+    return tttGameDbInstance.where('parties',arrayContains: currentUserId()).snapshots();
   }
 }

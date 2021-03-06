@@ -6,6 +6,7 @@ import 'package:weave/Models/anagram_activity.dart';
 import 'package:weave/Models/game.dart';
 import 'package:weave/Models/invite.dart';
 import 'package:weave/Models/message.dart';
+import 'package:weave/Models/tictactoe_activity.dart';
 import 'package:weave/Models/user.dart';
 import 'package:weave/Repos/repo.dart';
 
@@ -15,6 +16,7 @@ class UserStreams extends ChangeNotifier {
   List<Invite> myInvites =[];
   List<Message> myMessages = [];
   List<AnagramActivity> myAnagramGames = [];
+  List<TictactoeActivity> myTttGames = [];
 
   void startStreams() {
    UserController().getInvites().listen((event) {
@@ -27,6 +29,10 @@ class UserStreams extends ChangeNotifier {
    });
    UserController().getAnagramGames().listen((event) {
      myAnagramGames = event.docs.map((e) => AnagramActivity.fromMap(e.data())..id=e.id).toList();
+     notifyListeners();
+   });
+   UserController().getTttGames().listen((event) {
+     myTttGames = event.docs.map((e) => TictactoeActivity.fromMap(e.data())..id=e.id).toList();
      notifyListeners();
    });
   }
