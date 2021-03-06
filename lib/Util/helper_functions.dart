@@ -6,8 +6,35 @@
 //
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:weave/Util/colors.dart';
 
+//date formatter
+String dateFormat(DateTime dateTime) {
+
+    String dateString = DateFormat('dd MMM, yy').format(
+        dateTime);
+    String todayDate = DateFormat('dd MMM, yy').format(
+        DateTime.now());
+    String yesterdayDate = DateFormat('dd MMM, yy').format(
+        DateTime.now().subtract(Duration(days: 1)));
+
+      return dateString == todayDate ? DateFormat('HH:mma').format(
+          dateTime).toLowerCase() : dateString == yesterdayDate ? 'Yesterday' : dateString;
+
+}
+String dateFormat2(DateTime dateTime) {
+
+    String dateString = DateFormat('dd MMM, yy').format(
+        dateTime);
+    String todayDate = DateFormat('dd MMM, yy').format(
+        DateTime.now());
+    String yesterdayDate = DateFormat('dd MMM, yy').format(
+        DateTime.now().subtract(Duration(days: 1)));
+
+    return dateString == todayDate ? 'Today' : dateString==yesterdayDate? 'Yesterday' : dateString;
+
+}
 //custom logo
 Widget logo({double size, double spacing}) {
   return Text.rich(TextSpan(
@@ -31,12 +58,15 @@ Widget logo({double size, double spacing}) {
 
 // custom field identifier
 Widget customFieldIdentifier(
-        {@required child, @required label, @required BuildContext context}) =>
+    {@required child, @required label, @required BuildContext context}) =>
     Stack(
       children: [
         Container(
           decoration: BoxDecoration(
-            color: Theme.of(context).backgroundColor.withOpacity(.1),
+            color: Theme
+                .of(context)
+                .backgroundColor
+                .withOpacity(.1),
             borderRadius: BorderRadius.circular(15),
           ),
           margin: EdgeInsets.only(top: 8),
@@ -50,7 +80,10 @@ Widget customFieldIdentifier(
               borderRadius: BorderRadius.circular(8),
               child: Material(
                 color:
-                    Theme.of(context).scaffoldBackgroundColor.withOpacity(.9),
+                Theme
+                    .of(context)
+                    .scaffoldBackgroundColor
+                    .withOpacity(.9),
                 borderRadius: BorderRadius.circular(8),
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: 2, horizontal: 11.0),
@@ -74,20 +107,19 @@ class MyTextField extends StatefulWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
   final bool isPassword;
-  final Widget prefix,suffix;
+  final Widget prefix, suffix;
   final Function onEditComplete;
 
-  const MyTextField(
-      {Key key,
-      this.label,
-      this.hint,
-      this.onSaved,
-      this.controller,
-      this.focusNode,
-      this.onEditComplete,
-      this.isPassword = false,
-      this.suffix,
-      this.prefix})
+  const MyTextField({Key key,
+    this.label,
+    this.hint,
+    this.onSaved,
+    this.controller,
+    this.focusNode,
+    this.onEditComplete,
+    this.isPassword = false,
+    this.suffix,
+    this.prefix})
       : super(key: key);
 
   @override
@@ -112,28 +144,34 @@ class _TextFieldState extends State<MyTextField> {
           obscureText: obscureText,
           onEditingComplete: widget.onEditComplete,
           style: TextStyle(
-              color: Theme.of(context).secondaryHeaderColor, fontSize: 14),
+              color: Theme
+                  .of(context)
+                  .secondaryHeaderColor, fontSize: 14),
           decoration: InputDecoration(
               contentPadding: EdgeInsets.all(20),
               border: InputBorder.none,
               prefixIcon: widget.prefix,
               suffixIcon: widget.isPassword
                   ? InkWell(
-                      onTap: () => setState(() {
-                        obscureText = !obscureText;
-                      }),
-                      child: Container(
-                        color: Colors.transparent,
-                        padding: EdgeInsets.all(5),
-                        child: Icon(
-                          obscureText ? Icons.visibility : Icons.visibility_off,
-                          size: 14,
-                        ),
-                      ),
-                    )
+                onTap: () =>
+                    setState(() {
+                      obscureText = !obscureText;
+                    }),
+                child: Container(
+                  color: Colors.transparent,
+                  padding: EdgeInsets.all(5),
+                  child: Icon(
+                    obscureText ? Icons.visibility : Icons.visibility_off,
+                    size: 14,
+                  ),
+                ),
+              )
                   : widget.suffix,
               hintStyle: TextStyle(
-                  color: Theme.of(context).secondaryHeaderColor.withOpacity(.5),
+                  color: Theme
+                      .of(context)
+                      .secondaryHeaderColor
+                      .withOpacity(.5),
                   fontSize: 14),
               hintText: widget.hint),
         ),
@@ -143,9 +181,10 @@ class _TextFieldState extends State<MyTextField> {
 }
 
 // custom button
-Widget actionButton(String label, bool active, bool loading, Function onClick, context) =>
+Widget actionButton(String label, bool active, bool loading, Function onClick,
+    context) =>
     GestureDetector(
-      onTap: active?onClick:(){},
+      onTap: active ? onClick : () {},
       child: Container(
         decoration: BoxDecoration(
             color: active ? primary : lightGrey.withOpacity(.2),
@@ -156,7 +195,9 @@ Widget actionButton(String label, bool active, bool loading, Function onClick, c
                     offset: Offset(0, 3),
                     spreadRadius: 1,
                     blurRadius: 2,
-                    color: Theme.of(context).backgroundColor)
+                    color: Theme
+                        .of(context)
+                        .backgroundColor)
             ]),
         padding: EdgeInsets.all(20),
         alignment: Alignment.center,
@@ -173,7 +214,11 @@ Widget actionButton(String label, bool active, bool loading, Function onClick, c
               width: 4,
             ),
             if (active)
-              loading ? SizedBox(height:15,width: 15,child: CircularProgressIndicator(strokeWidth: 1.5,valueColor: AlwaysStoppedAnimation(Colors.white.withOpacity(.8)),)):
+              loading ? SizedBox(height: 15,
+                  width: 15,
+                  child: CircularProgressIndicator(strokeWidth: 1.5,
+                    valueColor: AlwaysStoppedAnimation(
+                        Colors.white.withOpacity(.8)),)) :
               Icon(
                 Icons.chevron_right_outlined,
                 color: Colors.white.withOpacity(.8),
@@ -184,8 +229,9 @@ Widget actionButton(String label, bool active, bool loading, Function onClick, c
       ),
     );
 
-Widget gameTypeWidget({int type, double size, context}) => Row(
-  crossAxisAlignment: CrossAxisAlignment.center,
+Widget gameTypeWidget({int type, double size, context}) =>
+    Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Image.asset(
           type == 1
@@ -200,7 +246,10 @@ Widget gameTypeWidget({int type, double size, context}) => Row(
         Text(
           type == 1 ? 'Anagram' : 'Tic-Tac-Toe',
           style: TextStyle(
-              color: Theme.of(context).secondaryHeaderColor.withOpacity(.6),
+              color: Theme
+                  .of(context)
+                  .secondaryHeaderColor
+                  .withOpacity(.6),
               fontWeight: FontWeight.w100,
               fontSize: size),
         )
@@ -217,23 +266,31 @@ Widget emptyWidget({String image, size}) {
   );
 }
 
-Widget backButton({Function onPressed, Color color})=>IconButton(
-  icon: Image.asset('assets/images/back.png',height: 15,color: color,),
-  onPressed: onPressed,
-);
+Widget backButton({Function onPressed, Color color}) =>
+    IconButton(
+      icon: Image.asset('assets/images/back.png', height: 15, color: color,),
+      onPressed: onPressed,
+    );
 
 enum SnackBarType {
-  error,success,warning
+  error,
+  success,
+  warning
 }
-void showSnackBar({@required GlobalKey<ScaffoldState> key,@required SnackBarType type, @required String message, String action, Function onAction}) {
+
+void showSnackBar({@required GlobalKey<
+    ScaffoldState> key, @required SnackBarType type, @required String message, String action, Function onAction}) {
   final snackBar = SnackBar(
-    content: Text(message,style: TextStyle(color: Colors.white.withOpacity(.78))),
-    backgroundColor: type==SnackBarType.error?Colors.red:type==SnackBarType.success?Colors.green:Colors.orangeAccent,
+    content: Text(
+        message, style: TextStyle(color: Colors.white.withOpacity(.78))),
+    backgroundColor: type == SnackBarType.error ? Colors.red : type ==
+        SnackBarType.success ? Colors.green : Colors.orangeAccent,
     behavior: SnackBarBehavior.fixed,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(8))),
+    shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(8))),
     elevation: 1.6,
     duration: const Duration(seconds: 3),
-    action: action==null?null:SnackBarAction(
+    action: action == null ? null : SnackBarAction(
         label: action,
         textColor: Colors.white,
         onPressed: onAction),

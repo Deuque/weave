@@ -50,9 +50,9 @@ class _InviteLayoutState extends State<InviteLayout>
     bool userIsSender =
         widget.invite.sender == context.read(userProvider.state).id;
 
-    String date = DateFormat('dd MMM, yy').format(
-        DateTime.fromMillisecondsSinceEpoch(
-            widget.invite.timestamp.millisecondsSinceEpoch));
+
+    String date = dateFormat(DateTime.fromMillisecondsSinceEpoch(
+        widget.invite.timestamp.millisecondsSinceEpoch));
 
     loader(Color color) => Padding(
           padding: const EdgeInsets.only(left: 4.0),

@@ -1,5 +1,15 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/all.dart';
+import 'package:intl/intl.dart';
+import 'package:weave/Controllers/current_user_controller.dart';
+import 'package:weave/Controllers/streams_controller.dart';
 import 'package:weave/Models/activity.dart';
+import 'package:weave/Models/anagram_activity.dart';
+import 'package:weave/Models/game.dart';
+import 'package:weave/Models/message.dart';
 import 'package:weave/Models/user.dart';
 import 'package:weave/Screens/anagram.dart';
 import 'package:weave/Screens/chat.dart';
@@ -10,7 +20,7 @@ import 'package:weave/Util/helper_functions.dart';
 class PlayArea extends StatefulWidget {
   final Activity activity;
 
-  const PlayArea({Key key, this.activity}) : super(key: key);
+  PlayArea({Key key, this.activity}) : super(key: key);
 
   @override
   _PlayAreaState createState() => _PlayAreaState();
@@ -23,6 +33,8 @@ class _PlayAreaState extends State<PlayArea>
   AnimationController controller;
   Animation<double> opacityAnimation;
   bool fullScreen = false;
+  StreamController<int> unreadMessages = new StreamController();
+  StreamController<int> unreadGameTurn = new StreamController();
 
   @override
   void initState() {
@@ -38,22 +50,46 @@ class _PlayAreaState extends State<PlayArea>
     //
     //   });
     // });
+    unreadMessages.sink.add(0);
+    unreadGameTurn.sink.add(0);
   }
 
-  // @override
-  // void dispose() {
-  //   // TODO: implement dispose
-  //   controller.dispose();
-  //   super.dispose();
-  // }
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    unreadMessages?.close();
+    unreadGameTurn?.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery.of(context).size;
+    var size = MediaQuery
+        .of(context)
+        .size;
 
     bool showFullscreen = currentTab == 1 && fullScreen;
 
-    Widget tabControls() => AnimatedContainer(
+    Widget tabsUnreadCount({Color color, int count}) =>
+        Visibility(
+          visible: count != 0,
+          child: Container(
+            margin: EdgeInsets.only(left: 5),
+            decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+            padding: const EdgeInsets.all(4.0),
+            child: Text(
+              '$count',
+              style: TextStyle(
+                  color: Theme
+                      .of(context)
+                      .scaffoldBackgroundColor,
+                  fontSize: size.width * .028),
+            ),
+          ),
+        );
+
+    Widget tabControls() =>
+        AnimatedContainer(
           height: !showFullscreen ? size.width * .1 : 0,
           duration: Duration(milliseconds: 700),
           curve: Curves.ease,
@@ -61,7 +97,10 @@ class _PlayAreaState extends State<PlayArea>
           margin: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 7),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(11),
-            color: Theme.of(context).backgroundColor.withOpacity(.3),
+            color: Theme
+                .of(context)
+                .backgroundColor
+                .withOpacity(.3),
           ),
           child: Stack(
             children: [
@@ -69,6 +108,7 @@ class _PlayAreaState extends State<PlayArea>
                 children: [
                   {
                     'title': 'Chat',
+                    'unseen': unreadMessages.stream,
                     'active': currentTab == 0,
                     'onPressed': () {
                       // setState(() => currentTab = 0);
@@ -81,6 +121,7 @@ class _PlayAreaState extends State<PlayArea>
                   },
                   {
                     'title': 'Game',
+                    'unseen': unreadGameTurn.stream,
                     'active': currentTab == 1,
                     'onPressed': () {
                       //setState(() => currentTab = 1);
@@ -92,26 +133,43 @@ class _PlayAreaState extends State<PlayArea>
                     }
                   }
                 ]
-                    .map((e) => Expanded(
-                          child: GestureDetector(
-                            onTap: e['onPressed'],
-                            child: Container(
-                              height: double.infinity,
-                              width: double.infinity,
-                              alignment: Alignment.center,
-                              color: Colors.transparent,
-                              child: Text(
-                                e['title'],
-                                style: TextStyle(
-                                    color: Theme.of(context)
-                                        .secondaryHeaderColor
-                                        .withOpacity(.3),
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: size.width * .036),
-                              ),
-                            ),
-                          ),
-                        ))
+                    .map((e) =>
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: e['onPressed'],
+                        child: Container(
+                          height: double.infinity,
+                          width: double.infinity,
+                          alignment: Alignment.center,
+                          color: Colors.transparent,
+                          child: StreamBuilder<int>(
+                              stream: e['unseen'],
+                              builder: (context, snapshot) {
+                                return Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      e['title'],
+                                      style: TextStyle(
+                                          color: Theme
+                                              .of(context)
+                                              .secondaryHeaderColor
+                                              .withOpacity(.3),
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: size.width * .036),
+                                    ),
+                                    tabsUnreadCount(
+                                        color: Theme
+                                            .of(context)
+                                            .secondaryHeaderColor
+                                            .withOpacity(.3),
+                                        count: snapshot.data ?? 0)
+                                  ],
+                                );
+                              }),
+                        ),
+                      ),
+                    ))
                     .toList(),
               ),
               AnimatedAlign(
@@ -124,7 +182,9 @@ class _PlayAreaState extends State<PlayArea>
                   width: (size.width - 30) / 2,
                   height: double.infinity,
                   decoration: BoxDecoration(
-                      color: Theme.of(context).scaffoldBackgroundColor,
+                      color: Theme
+                          .of(context)
+                          .scaffoldBackgroundColor,
                       borderRadius: BorderRadius.circular(11)),
                   alignment: Alignment.center,
                   child: Text(
@@ -156,7 +216,10 @@ class _PlayAreaState extends State<PlayArea>
           toolbarHeight: !showFullscreen ? null : 0,
           leading: backButton(
               onPressed: () => Navigator.pop(context),
-              color: Theme.of(context).secondaryHeaderColor.withOpacity(.8)),
+              color: Theme
+                  .of(context)
+                  .secondaryHeaderColor
+                  .withOpacity(.8)),
           title: Row(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -167,10 +230,12 @@ class _PlayAreaState extends State<PlayArea>
                 decoration: BoxDecoration(
                   //borderRadius: BorderRadius.circular(15),
                   shape: BoxShape.circle,
-                  color: Theme.of(context).scaffoldBackgroundColor,
+                  color: Theme
+                      .of(context)
+                      .scaffoldBackgroundColor,
                   image: DecorationImage(
                       image: AssetImage(
-                        widget.activity.image,
+                        'assets/user_dummies/img${1 + Random().nextInt(7)}.jpg',
                       ),
                       fit: BoxFit.cover),
                 ),
@@ -179,10 +244,13 @@ class _PlayAreaState extends State<PlayArea>
                 width: 10,
               ),
               Text(
-                widget.activity.username,
+                '@${widget.activity.opponent.username}',
                 style: TextStyle(
                     color:
-                        Theme.of(context).secondaryHeaderColor.withOpacity(.8),
+                    Theme
+                        .of(context)
+                        .secondaryHeaderColor
+                        .withOpacity(.8),
                     fontWeight: FontWeight.w500,
                     fontSize: size.width * .035),
               ),
@@ -197,7 +265,10 @@ class _PlayAreaState extends State<PlayArea>
                     'assets/images/more.png',
                     height: 15,
                     color:
-                        Theme.of(context).secondaryHeaderColor.withOpacity(.8),
+                    Theme
+                        .of(context)
+                        .secondaryHeaderColor
+                        .withOpacity(.8),
                   ),
                 ))
           ],
@@ -209,25 +280,140 @@ class _PlayAreaState extends State<PlayArea>
             tabControls(),
             Expanded(
                 child: PageView(
-              controller: pageController,
-              onPageChanged: (int page) => setState(() => currentTab = page),
-              children: [
-                Chat(),
-                widget.activity.gameType == 0
-                    ? TicTacToe(onFullScreen: () {
+                  controller: pageController,
+                  onPageChanged: (int page) =>
+                      setState(() => currentTab = page),
+                  children: [
+                    Consumer(builder: (context, watch, _) {
+
+                      //setup game stream count, since this is the first tab
+                      List<dynamic> games = watch(userStreamsProvider).myGames;
+                      if(games[0].data()['type'] == 1){
+                        games = games.map((e) => AnagramActivity.fromMap(e.data())).toList();
+                        games = games
+                            .where((element) =>
+                            element.parties.contains(widget.activity.opponentId))
+                            .toList();
+                        (games as List<AnagramActivity>).sort((a,b)=>b.index.compareTo(a.index));
+                        if (games.isNotEmpty) {
+                          if (games[0].sender !=
+                              context
+                                  .read(userProvider.state)
+                                  .id &&
+                              !games[0].seenByReceiver) {
+                            unreadGameTurn.sink.add(1);
+                          }
+                        }
+                      }
+
+
+
+
+                      //setup chat stream
+                      List<Message> messages =
+                          watch(userStreamsProvider).myMessages;
+                      messages = messages
+                          .where((element) =>
+                          element.parties.contains(widget.activity.opponentId))
+                          .toList();
+                      messages.sort((a, b) =>
+                          b.timestamp.compareTo(a.timestamp));
+                      messages.map((e) {
+                        e.date = dateFormat2(
+                            DateTime.fromMillisecondsSinceEpoch(
+                                e.timestamp.millisecondsSinceEpoch));
+                        e.time = DateFormat('HH:mma')
+                            .format(DateTime.fromMillisecondsSinceEpoch(
+                            e.timestamp.millisecondsSinceEpoch))
+                            .toLowerCase();
+                        e.userIsSender =
+                            e.sender == context
+                                .read(userProvider.state)
+                                .id;
+                      }).toList();
+                      messages.forEach((element) {
+                        print('${element.message} ${element.timestamp.millisecondsSinceEpoch} ${element.timestamp.microsecondsSinceEpoch}');
+                      });
+                      int unread = messages
+                          .where((element) =>
+                      element.receiver ==
+                          context
+                              .read(userProvider.state)
+                              .id &&
+                          !element.seenByReceiver)
+                          .toList()
+                          .length;
+                      unreadMessages.sink.add(unread);
+
+                      return Chat(
+                        opponentId: widget.activity.opponentId,
+                        messages: messages,
+                      );
+                    }),
+                    Consumer(builder: (context, watch, _) {
+                      // List<Game> games = watch(userStreamsProvider).myGames;
+                      // games = games
+                      //     .where((element) =>
+                      //     element.parties.contains(widget.activity.opponentId))
+                      //     .toList();
+                      // Game myGame;
+                      // if (games.isNotEmpty) {
+                      //   myGame = games[0];
+                      // } else {
+                      //   String inviteCreator = context
+                      //       .read(userStreamsProvider)
+                      //       .myInvites
+                      //       .firstWhere((element) =>
+                      //       element.parties.contains(
+                      //           widget.activity.opponentId)).sender;
+                      //   myGame = Game(starter: inviteCreator, plays: [], toPlay:inviteCreator, parties: [context
+                      //       .read(userProvider.state).id, widget.activity.opponentId] );
+                      // }
+
+                      List<dynamic> games = watch(userStreamsProvider).myGames;
+
+                      if(games[0].data()['type'] == 1){
+                        games = games.map((e) => AnagramActivity.fromMap(e.data())).toList();
+                        games = games
+                            .where((element) =>
+                            element.parties.contains(widget.activity.opponentId))
+                            .toList();
+                        (games as List<AnagramActivity>).sort((a,b)=>b.index.compareTo(a.index));
+                        if (games.isNotEmpty) {
+                          if (games[0].sender !=
+                              context
+                                  .read(userProvider.state)
+                                  .id &&
+                              !games[0].seenByReceiver) {
+                            unreadGameTurn.sink.add(1);
+                          }
+                        }
+                      }
+
+                      return widget.activity.gameType == 0
+                          ? TicTacToe(onFullScreen: () {
                         setState(() {
                           fullScreen = !fullScreen;
                         });
                       })
-                    : Anagram(
+                          : Anagram(
+                        //game: myGame,
+                        anagramActivities: games,
+                        invite: context
+                                .read(userStreamsProvider)
+                                .myInvites
+                                .firstWhere((element) =>
+                                element.parties.contains(
+                                    widget.activity.opponentId)),
                         onFullScreen: () {
                           setState(() {
                             fullScreen = !fullScreen;
                           });
                         },
-                      )
-              ],
-            ))
+                      );
+                    })
+                  ],
+                ))
           ],
         ),
       ),

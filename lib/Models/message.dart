@@ -1,9 +1,38 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Message{
-  String message,time,date,receiver,sender;
+  String id, message,time,date,receiver,sender;
+  String replyId; String replyMessage;
   bool userIsSender,seenByReceiver;
   List<String> parties;
+  Timestamp timestamp;
 
-  Message({this.message, this.time, this.date, this.userIsSender, this.parties,this.seenByReceiver});
+
+  Message({this.id, this.message, this.time, this.date, this.sender, this.receiver, this.replyId, this.replyMessage, this.userIsSender, this.parties, this.seenByReceiver, this.timestamp});
+
+  Map<String,dynamic> toJson()=>{
+    'id':this.id,
+    'message':this.message,
+    'receiver':this.receiver,
+    'sender':this.sender,
+    'replyId':this.replyId,
+    'replyMessage':this.replyMessage,
+    'seenByReceiver':this.seenByReceiver,
+    'parties': this.parties,
+    'timestamp': this.timestamp
+  };
+
+  factory Message.fromMap(Map<String,dynamic> data)=>Message(
+    id: data['id']??'',
+    message: data['message'],
+    receiver: data['receiver'],
+    sender: data['sender'],
+    replyId: data['replyId']??'',
+    replyMessage: data['replyMessage']??'',
+    seenByReceiver: data['seenByReceiver'],
+    parties: List<String>.from(data['parties']),
+    timestamp: data['timestamp']
+  );
 }
 
 List<Message> sampleMessages = [

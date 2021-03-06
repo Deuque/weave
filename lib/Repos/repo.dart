@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:weave/Models/game.dart';
 import 'package:weave/Models/invite.dart';
+import 'package:weave/Models/message.dart';
 
 class Repo {
   var authInstance = FirebaseAuth.instance;
@@ -48,5 +50,27 @@ class Repo {
 
   Stream<QuerySnapshot> getInvites(){
     return inviteDbInstance.where('parties',arrayContains: currentUserId()).snapshots();
+  }
+
+  Future<DocumentReference> addOrEditMessage(Message message, {bool edit = false}){
+    if(!edit)
+      return chatDbInstance.add(message.toJson());
+    else
+      return chatDbInstance.doc(message.id).update(message.toJson());
+  }
+
+  Stream<QuerySnapshot> getChats(){
+    return chatDbInstance.where('parties',arrayContains: currentUserId()).snapshots();
+  }
+
+  Future<DocumentReference> addOrEditGame(Game game, {bool edit = false}){
+    if(!edit)
+      return gameDbInstance.add(game.toJson());
+    else
+      return gameDbInstance.doc(game.id).update(game.toJson());
+  }
+
+  Stream<QuerySnapshot> getGames(){
+    return gameDbInstance.where('parties',arrayContains: currentUserId()).snapshots();
   }
 }

@@ -1,12 +1,15 @@
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:weave/Controllers/current_user_controller.dart';
 import 'package:weave/Models/anagram_activity.dart';
 import 'package:weave/Screens/guess_word_anagram.dart';
 import 'package:weave/Screens/scramble_word_anagram.dart';
 import 'package:weave/Util/colors.dart';
 import 'package:weave/Widgets/chat_clipper.dart';
+import 'package:flutter_riverpod/all.dart';
 
 class AnagramLayout extends StatefulWidget {
   final bool yourTurn;
@@ -42,6 +45,11 @@ class _AnagramLayoutState extends State<AnagramLayout> {
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
+
+    String time='';
+    if(widget.anagramActivity.type!='play'){String time = DateFormat('HH:mma')
+        .format(DateTime.fromMillisecondsSinceEpoch(
+        widget.anagramActivity.timestamp.millisecondsSinceEpoch));}
 
     Widget widgetsBackground({child}) => Container(
         width: size.width * .7,
@@ -104,17 +112,15 @@ class _AnagramLayoutState extends State<AnagramLayout> {
                   String hint = value['hint'];
                   String word = value['word'];
                   String scrambledWord = value['scramble'];
-                  var dateTime = DateTime.now();
-                  String date = DateFormat('dd-MM-yy').format(dateTime);
-                  String time = DateFormat('HH:mm').format(dateTime);
+                  // var dateTime = DateTime.now();
+                  // String date = DateFormat('dd-MM-yy').format(dateTime);
+                  // String time = DateFormat('HH:mm').format(dateTime);
                   AnagramActivity newActivity = AnagramActivity(
-                      id: Random().nextInt(1000).toString(),
+                      id: Timestamp.now().millisecondsSinceEpoch.toString(),
                       word: word,
                       scrambledWord: scrambledWord,
                       hint: hint,
-                      time: time,
-                      date: date,
-                      userIsSender: false,
+                      timestamp: Timestamp.now(),
                       opponentAnswer: '',
                       answered: false);
 
@@ -147,7 +153,7 @@ class _AnagramLayoutState extends State<AnagramLayout> {
                 width: 7,
               ),
             Text(
-              widget.anagramActivity.time,
+              time,
               style: TextStyle(
                   fontSize: 11,
                   color: Theme.of(context)

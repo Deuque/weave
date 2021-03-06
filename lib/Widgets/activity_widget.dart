@@ -67,12 +67,10 @@ class _ActivityLayoutState extends State<ActivityLayout> with AutomaticKeepAlive
     //     ),
     //   );
     // }
-    String date = DateFormat('dd MMM, yy').format(
-        DateTime.fromMillisecondsSinceEpoch(
-            widget.activity.timestamp.millisecondsSinceEpoch));
-
+    String date = dateFormat(DateTime.fromMillisecondsSinceEpoch(
+        widget.activity.timestamp.millisecondsSinceEpoch));
     return InkWell(
-      onTap: ()=>Navigator.pushNamed(context, 'playArea', arguments: widget.activity),
+      onTap: ()=>Navigator.pushNamed(context, 'playArea', arguments: widget.activity..opponent=opponent),
       child: Container(
         margin: EdgeInsets.only(bottom: 10,right: 6,left: 6),
         decoration: BoxDecoration(

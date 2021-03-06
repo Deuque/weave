@@ -1,14 +1,16 @@
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:weave/Models/user.dart';
 
 class Activity {
   String image, username;
   String opponentId;
+  User opponent;
   int gameType,unreadChat;
   bool gameTurn;
   Timestamp timestamp;
-  Activity({this.image,this.username,this.gameType,this.timestamp,this.opponentId,this.gameTurn,this.unreadChat});
+  Activity({this.image,this.username,this.gameType,this.timestamp,this.opponentId,this.opponent, this.gameTurn,this.unreadChat});
 
 
 }
