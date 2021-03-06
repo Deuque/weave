@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:weave/Controllers/user_controller.dart';
+import 'package:weave/Models/anagram_activity.dart';
 import 'package:weave/Models/game.dart';
 import 'package:weave/Models/invite.dart';
 import 'package:weave/Models/message.dart';
@@ -13,7 +14,7 @@ final userStreamsProvider = ChangeNotifierProvider<UserStreams>((ref) => new Use
 class UserStreams extends ChangeNotifier {
   List<Invite> myInvites =[];
   List<Message> myMessages = [];
-  List<dynamic> myGames = [];
+  List<AnagramActivity> myAnagramGames = [];
 
   void startStreams() {
    UserController().getInvites().listen((event) {
@@ -24,8 +25,8 @@ class UserStreams extends ChangeNotifier {
      myMessages = event.docs.map((e) => Message.fromMap(e.data())..id=e.id).toList();
      notifyListeners();
    });
-   UserController().getGames().listen((event) {
-     myGames = event.docs;
+   UserController().getAnagramGames().listen((event) {
+     myAnagramGames = event.docs.map((e) => AnagramActivity.fromMap(e.data())..id=e.id).toList();
      notifyListeners();
    });
   }

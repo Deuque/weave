@@ -92,15 +92,15 @@ class UserController {
     return repo.getChats();
   }
 
-  Future<void> addGame(Game game) async {
-    await repo.addOrEditGame(game);
+  Future<void> addAnagramGame(Map<String,dynamic> game) async {
+    await repo.addOrEditAnagramGame(game);
   }
 
-  Future<void> editGame(Game game) async {
-    await repo.addOrEditGame(game, edit: true);
+  Future<void> editAnagramGame(Map<String,dynamic> game) async {
+    await repo.addOrEditAnagramGame(game, edit: true);
   }
 
-  Stream<QuerySnapshot> getGames() {
-    return repo.getGames();
+  Stream<QuerySnapshot> getAnagramGames() {
+    return repo.getAnagramGames();
   }
 }

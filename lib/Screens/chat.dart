@@ -51,8 +51,11 @@ class _ChatState extends State<Chat> {
       children: [
         Expanded(
           child: GroupedListView<Message, String>(
+            sort: false,
+            order: GroupedListOrder.DESC,
             controller: controller,
             reverse: true,
+            shrinkWrap: true,
             physics: BouncingScrollPhysics(),
             padding: EdgeInsets.only(bottom: 15),
             elements: widget.messages,
@@ -84,8 +87,8 @@ class _ChatState extends State<Chat> {
                           element.date
                   : false,
             ),
-            useStickyGroupSeparators: true,
-            floatingHeader: true,
+            // useStickyGroupSeparators: true,
+            // floatingHeader: true,
           ),
         ),
         TypingArea(

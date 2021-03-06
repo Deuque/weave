@@ -11,7 +11,7 @@ class Repo {
   var weaveDbInstance = FirebaseFirestore.instance.collection('Weaves');
   var inviteDbInstance = FirebaseFirestore.instance.collection('Invites');
   var chatDbInstance = FirebaseFirestore.instance.collection('Chats');
-  var gameDbInstance = FirebaseFirestore.instance.collection('Games');
+  var anagramGameDbInstance = FirebaseFirestore.instance.collection('AnagramGames');
 
   currentUserId()=>authInstance.currentUser?.uid;
 
@@ -63,14 +63,14 @@ class Repo {
     return chatDbInstance.where('parties',arrayContains: currentUserId()).snapshots();
   }
 
-  Future<DocumentReference> addOrEditGame(Game game, {bool edit = false}){
+  Future<DocumentReference> addOrEditAnagramGame(Map<String,dynamic> game, {bool edit = false}){
     if(!edit)
-      return gameDbInstance.add(game.toJson());
+      return anagramGameDbInstance.add(game);
     else
-      return gameDbInstance.doc(game.id).update(game.toJson());
+      return anagramGameDbInstance.doc(game['id']).update(game);
   }
 
-  Stream<QuerySnapshot> getGames(){
-    return gameDbInstance.where('parties',arrayContains: currentUserId()).snapshots();
+  Stream<QuerySnapshot> getAnagramGames(){
+    return anagramGameDbInstance.where('parties',arrayContains: currentUserId()).snapshots();
   }
 }

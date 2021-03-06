@@ -21,7 +21,8 @@ class AnagramActivity{
     'sender':this.sender,
     'parties': this.parties,
     'seenByReceiver': this.seenByReceiver,
-    'index':this.index
+    'index':this.index,
+    'type':this.type
   };
 
   factory AnagramActivity.fromMap(Map<String,dynamic> data)=>AnagramActivity(
@@ -33,10 +34,10 @@ class AnagramActivity{
     answered: data['answered'],
     timestamp: data['timestamp'],
     sender: data['sender'],
-    isCorrect: !data['answered']??false?false:data['opponentAnswer']==data['word'],
     seenByReceiver: data['seenByReceiver'],
       parties: List<String>.from(data['parties']),
-    index: data['index']
+    index: data['index'],
+    type: data['type']
   );
 }
 

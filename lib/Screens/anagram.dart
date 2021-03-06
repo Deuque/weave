@@ -14,32 +14,13 @@ import 'package:weave/Widgets/anagram_widget.dart';
 import 'package:weave/Widgets/chat_widget.dart';
 import 'package:flutter_riverpod/all.dart';
 
-class Anagram extends StatefulWidget {
+class Anagram extends StatelessWidget {
   final Invite invite;
-  final List<AnagramActivity> anagramActivities;
+  final List<AnagramActivity> anagrams;
   final Game game;
   final Function onFullScreen;
 
-  const Anagram({Key key, this.onFullScreen, this.game,this.invite,this.anagramActivities}) : super(key: key);
-
-  @override
-  _AnagramState createState() => _AnagramState();
-}
-
-class _AnagramState extends State<Anagram> {
-  List<AnagramActivity> anagrams = [];
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    anagrams = widget.game.plays.map((e) {
-      return AnagramActivity.fromMap(e)
-        ..date = dateFormat2(DateTime.fromMillisecondsSinceEpoch(
-            (e['timestamp'] as Timestamp).millisecondsSinceEpoch))
-        ..userIsSender = e['sender'] == context.read(userProvider.state).id;
-    }).toList();
-  }
+  const Anagram({Key key, this.onFullScreen, this.game,this.invite,this.anagrams}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -54,46 +35,28 @@ class _AnagramState extends State<Anagram> {
     // }
 
 
-    if (widget.game.toPlay == context.read(userProvider.state).id && (anagrams.isEmpty || anagrams[anagrams.length-1].answered == true)) {
+    if ((anagrams.isEmpty && invite.sender== context.read(userProvider.state).id) || (!anagrams.isEmpty && !anagrams[0].userIsSender && anagrams[0].answered)) {
       anagrams.removeWhere((element) => element.type=='play');
-      anagrams.add(AnagramActivity(
+      anagrams.insert(0,AnagramActivity(
           userIsSender: true,
           type: 'play',
           date: anagrams.isEmpty ? 'Today' : anagrams.last.date));
     }
 
     onScrambleWord(AnagramActivity activity) async {
-      anagrams.removeWhere((element) => element.type=='play');
-        anagrams.add(activity..sender=context.read(userProvider.state).id);
-      Game game = widget.game
-        ..toPlay = widget.game.parties.firstWhere(
-            (element) => element != context.read(userProvider.state).id)
-        ..plays = anagrams.map((e) => e.toJson()).toList()
-        ..seenLastPlay = false
-        ..timestamp = Timestamp.now();
-
-      game.id != null && game.id.isNotEmpty
-          ? UserController().editGame(game)
-          : UserController().addGame(game);
+      //anagrams.removeWhere((element) => element.type=='play');
+        activity.sender=context.read(userProvider.state).id;
+        activity.index = anagrams.length;
+        activity.parties = invite.parties;
+        UserController().addAnagramGame(activity.toJson());
     }
 
     onGuessWord(String id, String answer) {
-      anagrams = [
-        for (final item in anagrams)
-          if (item.id == id)
-            item
-              ..answered = true
-              ..opponentAnswer = answer
-              ..isCorrect = answer == item.word
-          else if (item.type != 'play')
-            item
-      ];
-      Game game = widget.game
-        ..plays = anagrams.map((e) => e.toJson()).toList()
-        ..seenLastPlay = false
-        ..timestamp = Timestamp.now();
+      AnagramActivity activity = anagrams.firstWhere((element) => element.id==id);
+      activity.opponentAnswer=answer;
+      activity.answered=true;
 
-      UserController().editGame(game);
+      UserController().editAnagramGame(activity.toJson());
     }
 
     Widget actionBar() => Container(
@@ -125,7 +88,7 @@ class _AnagramState extends State<Anagram> {
                             .secondaryHeaderColor
                             .withOpacity(.6),
                       ),
-                      onPressed: widget.onFullScreen)
+                      onPressed: onFullScreen)
                 ],
               ),
               Divider(
@@ -142,8 +105,12 @@ class _AnagramState extends State<Anagram> {
         ),
         Expanded(
           child: GroupedListView<AnagramActivity, String>(
+            sort: false,
+            order: GroupedListOrder.DESC,
+            reverse: true,
+            padding: EdgeInsets.only(bottom: 15),
             physics: BouncingScrollPhysics(),
-            padding: EdgeInsets.zero,
+            shrinkWrap: true,
             elements: anagrams,
             groupBy: (element) => element.date,
             groupSeparatorBuilder: (String groupByValue) => Align(
@@ -176,8 +143,8 @@ class _AnagramState extends State<Anagram> {
               onGuessWord: onGuessWord,
               onScrambleWord: onScrambleWord,
             ),
-            useStickyGroupSeparators: true,
-            floatingHeader: true,
+            // useStickyGroupSeparators: true,
+            // floatingHeader: true,
           ),
         ),
       ],

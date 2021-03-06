@@ -39,7 +39,6 @@ class _AnagramLayoutState extends State<AnagramLayout> {
     // TODO: implement initState
     super.initState();
     userIsSender = widget.anagramActivity.userIsSender;
-    print(widget.anagramActivity.opponentAnswer??'');
   }
 
   @override
@@ -47,7 +46,7 @@ class _AnagramLayoutState extends State<AnagramLayout> {
     var size = MediaQuery.of(context).size;
 
     String time='';
-    if(widget.anagramActivity.type!='play'){String time = DateFormat('HH:mma')
+    if(widget.anagramActivity.type!='play'){time = DateFormat('HH:mma')
         .format(DateTime.fromMillisecondsSinceEpoch(
         widget.anagramActivity.timestamp.millisecondsSinceEpoch));}
 
@@ -116,13 +115,12 @@ class _AnagramLayoutState extends State<AnagramLayout> {
                   // String date = DateFormat('dd-MM-yy').format(dateTime);
                   // String time = DateFormat('HH:mm').format(dateTime);
                   AnagramActivity newActivity = AnagramActivity(
-                      id: Timestamp.now().millisecondsSinceEpoch.toString(),
                       word: word,
                       scrambledWord: scrambledWord,
                       hint: hint,
                       timestamp: Timestamp.now(),
                       opponentAnswer: '',
-                      answered: false);
+                      answered: false,type: '1',seenByReceiver: false);
 
                   widget.onScrambleWord(newActivity);
                 }
@@ -181,7 +179,7 @@ class _AnagramLayoutState extends State<AnagramLayout> {
         ),
         if(!widget.anagramActivity.answered)
         SizedBox(height: 8,),
-        if(!widget.anagramActivity.answered)SizedBox(
+        if(!userIsSender && !widget.anagramActivity.answered)SizedBox(
           height: 34,
           child: FlatButton(
             onPressed: (){

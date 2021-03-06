@@ -9,6 +9,7 @@ import 'package:weave/Controllers/streams_controller.dart';
 import 'package:weave/Models/activity.dart';
 import 'package:weave/Models/anagram_activity.dart';
 import 'package:weave/Models/game.dart';
+import 'package:weave/Models/invite.dart';
 import 'package:weave/Models/message.dart';
 import 'package:weave/Models/user.dart';
 import 'package:weave/Screens/anagram.dart';
@@ -287,23 +288,33 @@ class _PlayAreaState extends State<PlayArea>
                     Consumer(builder: (context, watch, _) {
 
                       //setup game stream count, since this is the first tab
-                      List<dynamic> games = watch(userStreamsProvider).myGames;
-                      if(games[0].data()['type'] == 1){
-                        games = games.map((e) => AnagramActivity.fromMap(e.data())).toList();
-                        games = games
-                            .where((element) =>
-                            element.parties.contains(widget.activity.opponentId))
-                            .toList();
-                        (games as List<AnagramActivity>).sort((a,b)=>b.index.compareTo(a.index));
-                        if (games.isNotEmpty) {
-                          if (games[0].sender !=
-                              context
-                                  .read(userProvider.state)
-                                  .id &&
-                              !games[0].seenByReceiver) {
-                            unreadGameTurn.sink.add(1);
+                      Invite invite = context
+                          .read(userStreamsProvider)
+                          .myInvites
+                          .firstWhere((element) =>
+                      element.parties.contains(
+                          widget.activity.opponentId) && element.accepted==true);
+                      if(invite.gameType==1) {
+                        List<AnagramActivity> games = watch(userStreamsProvider)
+                            .myAnagramGames;
+                          games = games
+                              .where((element) =>
+                              element.parties.contains(
+                                  widget.activity.opponentId))
+                              .toList();
+                          games.sort((a, b) =>
+                              b.index.compareTo(a.index));
+
+                          if (games.isNotEmpty) {
+                            if (games[0].sender !=
+                                context
+                                    .read(userProvider.state)
+                                    .id &&
+                                !games[0].seenByReceiver) {
+                              unreadGameTurn.sink.add(1);
+                            }
                           }
-                        }
+
                       }
 
 
@@ -331,9 +342,7 @@ class _PlayAreaState extends State<PlayArea>
                                 .read(userProvider.state)
                                 .id;
                       }).toList();
-                      messages.forEach((element) {
-                        print('${element.message} ${element.timestamp.millisecondsSinceEpoch} ${element.timestamp.microsecondsSinceEpoch}');
-                      });
+
                       int unread = messages
                           .where((element) =>
                       element.receiver ==
@@ -351,44 +360,33 @@ class _PlayAreaState extends State<PlayArea>
                       );
                     }),
                     Consumer(builder: (context, watch, _) {
-                      // List<Game> games = watch(userStreamsProvider).myGames;
-                      // games = games
-                      //     .where((element) =>
-                      //     element.parties.contains(widget.activity.opponentId))
-                      //     .toList();
-                      // Game myGame;
-                      // if (games.isNotEmpty) {
-                      //   myGame = games[0];
-                      // } else {
-                      //   String inviteCreator = context
-                      //       .read(userStreamsProvider)
-                      //       .myInvites
-                      //       .firstWhere((element) =>
-                      //       element.parties.contains(
-                      //           widget.activity.opponentId)).sender;
-                      //   myGame = Game(starter: inviteCreator, plays: [], toPlay:inviteCreator, parties: [context
-                      //       .read(userProvider.state).id, widget.activity.opponentId] );
-                      // }
 
-                      List<dynamic> games = watch(userStreamsProvider).myGames;
+                      Invite invite = context
+                          .read(userStreamsProvider)
+                          .myInvites
+                          .firstWhere((element) =>
+                      element.parties.contains(
+                          widget.activity.opponentId) && element.accepted==true);
+                      List<AnagramActivity> anagramGames = [];
 
-                      if(games[0].data()['type'] == 1){
-                        games = games.map((e) => AnagramActivity.fromMap(e.data())).toList();
-                        games = games
+                      if(invite.gameType==1){
+                        anagramGames=watch(userStreamsProvider).myAnagramGames;
+                        anagramGames = anagramGames
                             .where((element) =>
                             element.parties.contains(widget.activity.opponentId))
                             .toList();
-                        (games as List<AnagramActivity>).sort((a,b)=>b.index.compareTo(a.index));
-                        if (games.isNotEmpty) {
-                          if (games[0].sender !=
-                              context
-                                  .read(userProvider.state)
-                                  .id &&
-                              !games[0].seenByReceiver) {
-                            unreadGameTurn.sink.add(1);
-                          }
-                        }
+                        anagramGames.sort((a,b)=>b.index.compareTo(a.index));
+                        anagramGames = anagramGames.map((e) {
+                          return e
+                            ..isCorrect=!e.answered?false:e.opponentAnswer==e.word
+                            ..date = dateFormat2(DateTime.fromMillisecondsSinceEpoch(
+                                e.timestamp.millisecondsSinceEpoch))
+                            ..userIsSender = e.sender == context.read(userProvider.state).id;
+                        }).toList();
                       }
+
+
+
 
                       return widget.activity.gameType == 0
                           ? TicTacToe(onFullScreen: () {
@@ -398,13 +396,8 @@ class _PlayAreaState extends State<PlayArea>
                       })
                           : Anagram(
                         //game: myGame,
-                        anagramActivities: games,
-                        invite: context
-                                .read(userStreamsProvider)
-                                .myInvites
-                                .firstWhere((element) =>
-                                element.parties.contains(
-                                    widget.activity.opponentId)),
+                        anagrams: anagramGames,
+                        invite: invite,
                         onFullScreen: () {
                           setState(() {
                             fullScreen = !fullScreen;
