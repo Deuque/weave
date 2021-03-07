@@ -9,17 +9,26 @@ import 'package:weave/Models/anagram_activity.dart';
 import 'package:weave/Models/invite.dart';
 import 'package:weave/Models/message.dart';
 import 'package:weave/Models/tictactoe_activity.dart';
+import 'package:weave/Models/user.dart';
 import 'package:weave/Util/colors.dart';
 import 'package:weave/Util/helper_functions.dart';
 import 'package:flutter_riverpod/all.dart';
+import 'package:weave/Widgets/chat_clipper.dart';
 
 class TicTacToe extends StatefulWidget {
   final Invite invite;
   final TictactoeActivity tictactoeActivity;
+  final User opponent;
   final Function onFullScreen;
+  final Function onRestartGame;
 
   const TicTacToe(
-      {Key key, this.onFullScreen, this.invite, this.tictactoeActivity})
+      {Key key,
+      this.onFullScreen,
+        this.onRestartGame,
+      this.invite,
+      this.tictactoeActivity,
+      this.opponent})
       : super(key: key);
 
   @override
@@ -27,7 +36,7 @@ class TicTacToe extends StatefulWidget {
 }
 
 class _TicTacToeState extends State<TicTacToe> {
-  List<Map<String, dynamic>> prevOccupiedIndexes=[];
+  List<Map<String, dynamic>> prevOccupiedIndexes = [];
   List<Map<String, dynamic>> occupiedIndexes = [];
   String id = '';
   String currentDrag = '';
@@ -35,7 +44,7 @@ class _TicTacToeState extends State<TicTacToe> {
   String inviteeElement = 'assets/images/o.png';
   List<int> winPositions = [];
   bool toPlay = false;
-  int prevIndexesLength=0;
+  int prevIndexesLength = 0;
 
   @override
   void initState() {
@@ -43,7 +52,6 @@ class _TicTacToeState extends State<TicTacToe> {
     super.initState();
 
     if (widget.tictactoeActivity != null)
-      prevIndexesLength = widget.tictactoeActivity.plays.length;
       occupiedIndexes.addAll(widget.tictactoeActivity.plays);
     id = context.read(userProvider.state).id;
     toPlay = widget.tictactoeActivity == null
@@ -52,69 +60,78 @@ class _TicTacToeState extends State<TicTacToe> {
   }
 
   // check if user play is valid
-  userPlayIsValid(){
-
-    int currentUserPlayLength = occupiedIndexes.where((element) => element['id']==id).toList().length;
-    int prevUserPlayLength = widget.tictactoeActivity.plays.where((element) => element['id']==id).toList().length;
-
-    if(currentUserPlayLength!=3 && (currentUserPlayLength==prevUserPlayLength)){
+  userPlayIsValid() {
+    List<Map<String, dynamic>> plays =
+        widget.tictactoeActivity == null ? [] : widget.tictactoeActivity.plays;
+    int currentUserPlayLength =
+        occupiedIndexes.where((element) => element['id'] == id).toList().length;
+    int prevUserPlayLength =
+        plays.where((element) => element['id'] == id).toList().length;
+    print('$currentUserPlayLength $prevIndexesLength');
+    if (currentUserPlayLength != 3 &&
+        (currentUserPlayLength == prevUserPlayLength)) {
       Fluttertoast.showToast(msg: 'You should move a new piece');
       setState(() {
-        occupiedIndexes=[];
-        occupiedIndexes.addAll(widget.tictactoeActivity.plays);
+        occupiedIndexes = [];
+        occupiedIndexes.addAll(plays);
       });
       return false;
-    }else if(currentUserPlayLength>prevUserPlayLength){
+    } else if (currentUserPlayLength < prevUserPlayLength) {
+      Fluttertoast.showToast(msg: 'You should make a valid move');
+      setState(() {
+        occupiedIndexes = [];
+        occupiedIndexes.addAll(plays);
+      });
+      return false;
+    }else if (currentUserPlayLength > prevUserPlayLength) {
       return true;
-    }
-    else  {
-      var plays = widget.tictactoeActivity==null?[]:widget.tictactoeActivity.plays;
+    }  else {
       for (final item in occupiedIndexes) {
         for (final item2 in plays) {
           if (item['value'] == item2['value']) {
-            if(item['position']!=item2['position']){
+            if (item['position'] != item2['position']) {
               return true;
             }
           }
         }
-
       }
       Fluttertoast.showToast(msg: 'You haven\'t moved a piece');
       return false;
     }
-
   }
 
   // upload user play
   uploadPlay() {
-    if(!userPlayIsValid())return;
-    TictactoeActivity tictactoeActivity = widget.tictactoeActivity??TictactoeActivity()
-      ..parties = widget.invite.parties
-      ..index = 0
-      ..sender = id
-      ..seenByReceiver = false
-      ..plays = occupiedIndexes
-      ..timestamp = Timestamp.now();
+    if (!userPlayIsValid()) return;
+    TictactoeActivity tictactoeActivity =
+        widget.tictactoeActivity ?? TictactoeActivity()
+          ..parties = widget.invite.parties
+          ..index = 0
+          ..sender = id
+          ..seenByReceiver = false
+          ..plays = occupiedIndexes
+          ..timestamp = Timestamp.now();
     widget.tictactoeActivity == null
         ? UserController().addTttGame(tictactoeActivity)
         : UserController().editTttGame(tictactoeActivity);
   }
 
   //check difference between occupiedIndex and previous plays
-  List<Map<String,dynamic>> diff(){
-    var plays = widget.tictactoeActivity==null?[]:widget.tictactoeActivity.plays;
-    List<Map<String,dynamic>> diff = [];
-    for(final item in occupiedIndexes){
+  List<Map<String, dynamic>> diff() {
+    var plays =
+        widget.tictactoeActivity == null ? [] : widget.tictactoeActivity.plays;
+    List<Map<String, dynamic>> diff = [];
+    for (final item in occupiedIndexes) {
       bool found = false;
-      for(final item2 in plays){
-        if(item['value']==item2['value']){
-          found=true;
-          if(item['position']!=item2['position']){
+      for (final item2 in plays) {
+        if (item['value'] == item2['value']) {
+          found = true;
+          if (item['position'] != item2['position']) {
             diff.add(item);
           }
         }
       }
-      if(!found)diff.add(item);
+      if (!found) diff.add(item);
     }
 
     return diff;
@@ -156,10 +173,7 @@ class _TicTacToeState extends State<TicTacToe> {
                             .secondaryHeaderColor
                             .withOpacity(.6),
                       ),
-                      onPressed: () => setState(() {
-                            occupiedIndexes = [];
-                            winPositions = [];
-                          })),
+                      onPressed: widget.onRestartGame),
                   IconButton(
                       icon: Image.asset(
                         'assets/images/full_screen.png',
@@ -181,7 +195,10 @@ class _TicTacToeState extends State<TicTacToe> {
     // draggable widget sample to be moved around the drag targets
     Widget draggableWidget(Map<String, dynamic> data, {bool won}) {
       return AbsorbPointer(
-        absorbing: winPositions.isNotEmpty || !toPlay || data['id'] != id || (diff().isNotEmpty && diff()[0]['value']!=data['value']),
+        absorbing: winPositions.isNotEmpty ||
+            !toPlay ||
+            data['id'] != id ||
+            (diff().isNotEmpty && diff()[0]['value'] != data['value']),
         child: Draggable(
           data: data,
           onDraggableCanceled: (v, o) {
@@ -292,7 +309,7 @@ class _TicTacToeState extends State<TicTacToe> {
               ? 9
               : 6
           : 3;
-      print('$a $b $c');
+      //print('$a $b $c');
       if ((b == c && b == a) || (a == b && a == c) || (a != b && b != c)) {
         return true;
       }
@@ -316,16 +333,12 @@ class _TicTacToeState extends State<TicTacToe> {
           oppPositions.map((e) => (e['position'] as int)).toList();
       oppPositionIndexes.sort((a, b) => a.compareTo(b));
       if (oppPositionIndexes.length == 3 &&
-          oppPositionIndexes[1] - oppPositionIndexes[0] != 2 &&
           (oppPositionIndexes[1] - oppPositionIndexes[0] ==
-              oppPositionIndexes[2] - oppPositionIndexes[1])) {
+              oppPositionIndexes[2] - oppPositionIndexes[1]) &&
+          resolvePositions(oppPositionIndexes)) {
         winPositions = oppPositionIndexes;
       }
     }
-
-
-
-
 
     // dragTarget sample widget
     dragTargetBackground(int index) => AnimatedContainer(
@@ -358,9 +371,10 @@ class _TicTacToeState extends State<TicTacToe> {
             },
             onWillAccept: (data) {
               return occupiedIndexes
-                  .where((element) => element['position'] == index)
-                  .toList()
-                  .isEmpty && diff().length<1;
+                      .where((element) => element['position'] == index)
+                      .toList()
+                      .isEmpty &&
+                  diff().length < 1;
             },
             onAccept: (data) {
               setState(() {
@@ -397,36 +411,76 @@ class _TicTacToeState extends State<TicTacToe> {
     List<Widget> dragTargets =
         List.generate(9, (index) => dragTargetBackground(index));
 
+    turnWidget(bool userTurn) => Padding(
+          padding: const EdgeInsets.only(top: 15.0, right: 15,left: 15),
+          child: Align(
+            alignment: userTurn ? Alignment.centerRight : Alignment.centerLeft,
+            child: ClipPath(
+                clipper: ChatClipper(leftSide: !userTurn, clip: true),
+                child: Container(
+                  padding: EdgeInsets.only(
+                      top: 7,
+                      bottom: 10,
+                      right: userTurn ? 23 : 10,
+                      left: userTurn ? 10 : 23),
+                  color: lightGrey.withOpacity(.15),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                          userTurn
+                              ? 'Your turn'
+                              : '@${widget.opponent.username} is playing',
+                          style: TextStyle(
+                              fontSize: 14,
+                              color: Theme.of(context)
+                                  .secondaryHeaderColor
+                                  .withOpacity(.6))),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Image.asset(
+                        userTurn ? widget.invite.sender == id
+                            ? creatorElement
+                            : inviteeElement : widget.invite.sender == widget.opponent.id
+                            ? creatorElement
+                            : inviteeElement,
+                        height: 10,
+                        color: primary,
+                      )
+                    ],
+                  ),
+                )),
+          ),
+        );
+
     return Column(
       children: [
         actionBar(),
+        turnWidget(toPlay),
         Expanded(
-          child: Stack(
+          child: Column(
             children: [
               Container(
                 height: imageWidth + imageWidth,
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: selectionWidgets,
                 ),
               ),
-              Center(
-                child: Container(
-                  width: width * .8,
-                  padding: EdgeInsets.all(10),
-                  child: GridView.count(
-                    crossAxisCount: 3,
-                    children: dragTargets,
-                    shrinkWrap: true,
-                  ),
+              Container(
+                width: width * .7,
+                padding: EdgeInsets.all(10),
+                child: GridView.count(
+                  crossAxisCount: 3,
+                  children: dragTargets,
+                  shrinkWrap: true,
                 ),
               ),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: FlatButton(
-                  onPressed: uploadPlay,
-                  color: primary,
-                  child: Text('Upload'),
-                ),
+              Padding(
+                padding: EdgeInsets.only(
+                    left: width * .15, right: width * .15, bottom: 15,top: 10),
+                child: actionButton('PLAY', toPlay, false, uploadPlay, context),
               )
             ],
           ),

@@ -31,7 +31,6 @@ class _ActivityLayoutState extends State<ActivityLayout> with AutomaticKeepAlive
   }
 
   startOpponentStream(){
-    print(widget.activity.opponentId);
     UserController().userStream(widget.activity.opponentId).listen((event) {
       setState(() {
         opponent = User.fromMap(event.data())..id=event.id;

@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/all.dart';
 import 'package:intl/intl.dart';
 import 'package:weave/Controllers/current_user_controller.dart';
 import 'package:weave/Controllers/streams_controller.dart';
+import 'package:weave/Controllers/user_controller.dart';
 import 'package:weave/Models/activity.dart';
 import 'package:weave/Models/anagram_activity.dart';
 import 'package:weave/Models/game.dart';
@@ -62,6 +64,11 @@ class _PlayAreaState extends State<PlayArea>
     unreadMessages?.close();
     unreadGameTurn?.close();
     super.dispose();
+  }
+
+  restartTttGame(TictactoeActivity game)async{
+     await UserController().startNewTttGame(game..sender=widget.activity.opponentId..plays=[]..index=0..seenByReceiver=false..timestamp=Timestamp.now());
+
   }
 
   @override
@@ -419,12 +426,14 @@ class _PlayAreaState extends State<PlayArea>
 
 
 
-
+                      //print(tttGames[0].toJson());
                       return widget.activity.gameType == 0
                           ? TicTacToe(
-                        key: tttGames.isEmpty?Key('key'):Key(tttGames[0].sender),
+                        opponent: widget.activity.opponent,
+                        key: tttGames.isEmpty?Key('key'):Key(tttGames[0].timestamp.toString()),
                           invite: invite,
                           tictactoeActivity: tttGames.isEmpty?null:tttGames[0],
+                          onRestartGame: tttGames.isEmpty?(){}:()=>restartTttGame(tttGames[0]),
                           onFullScreen: () {
                         setState(() {
                           fullScreen = !fullScreen;
