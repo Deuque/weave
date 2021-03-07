@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:weave/Controllers/contacts_controller.dart';
 import 'package:weave/Controllers/current_user_controller.dart';
 import 'package:weave/Controllers/streams_controller.dart';
+import 'package:weave/Controllers/user_controller.dart';
 import 'package:weave/Screens/home.dart';
 import 'package:weave/Screens/new_game.dart';
 import 'package:weave/Util/colors.dart';
@@ -42,7 +43,7 @@ class _DashboardState extends State<Dashboard> {
         ],
         color: lightGrey.withOpacity(.3),
         selectedColor: primary,
-        onTabSelected: (int index) {
+        onTabSelected: (int index) async{
           if (index == 0)
             setState(() {
               currentTab = Home();
@@ -53,7 +54,10 @@ class _DashboardState extends State<Dashboard> {
                     borderRadius: BorderRadius.circular(10)),
                 context: (context),
                 builder: (_) => NewGame()));
-          // if(index==3)currentTab=Account();
+          if(index==2){
+            await UserController().signOut();
+            Navigator.pushReplacementNamed(context, 'auth');
+          };
         },
       ),
     );

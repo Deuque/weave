@@ -66,21 +66,27 @@ class _PlayAreaState extends State<PlayArea>
     super.dispose();
   }
 
-  restartTttGame(TictactoeActivity game)async{
-     await UserController().startNewTttGame(game..sender=widget.activity.opponentId..plays=[]..index=0..seenByReceiver=false..timestamp=Timestamp.now());
+  restartTttGame(TictactoeActivity game) async {
+    await UserController().startNewTttGame(game
+      ..sender = widget.activity.opponentId
+      ..plays = []
+      ..index = 0
+      ..seenByReceiver = false
+      ..timestamp = Timestamp.now());
+  }
 
+  restartAnagramGame(List<AnagramActivity> anagrams) async {
+    await UserController()
+        .startNewAnagramGame(anagrams.map((e) => e.id).toList());
   }
 
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery
-        .of(context)
-        .size;
+    var size = MediaQuery.of(context).size;
 
     bool showFullscreen = currentTab == 1 && fullScreen;
 
-    Widget tabsUnreadCount({Color color, int count}) =>
-        Visibility(
+    Widget tabsUnreadCount({Color color, int count}) => Visibility(
           visible: count != 0,
           child: Container(
             margin: EdgeInsets.only(left: 5),
@@ -89,16 +95,13 @@ class _PlayAreaState extends State<PlayArea>
             child: Text(
               '$count',
               style: TextStyle(
-                  color: Theme
-                      .of(context)
-                      .scaffoldBackgroundColor,
+                  color: Theme.of(context).scaffoldBackgroundColor,
                   fontSize: size.width * .028),
             ),
           ),
         );
 
-    Widget tabControls() =>
-        AnimatedContainer(
+    Widget tabControls() => AnimatedContainer(
           height: !showFullscreen ? size.width * .1 : 0,
           duration: Duration(milliseconds: 700),
           curve: Curves.ease,
@@ -106,10 +109,7 @@ class _PlayAreaState extends State<PlayArea>
           margin: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 7),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(11),
-            color: Theme
-                .of(context)
-                .backgroundColor
-                .withOpacity(.3),
+            color: Theme.of(context).backgroundColor.withOpacity(.3),
           ),
           child: Stack(
             children: [
@@ -142,43 +142,40 @@ class _PlayAreaState extends State<PlayArea>
                     }
                   }
                 ]
-                    .map((e) =>
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: e['onPressed'],
-                        child: Container(
-                          height: double.infinity,
-                          width: double.infinity,
-                          alignment: Alignment.center,
-                          color: Colors.transparent,
-                          child: StreamBuilder<int>(
-                              stream: e['unseen'],
-                              builder: (context, snapshot) {
-                                return Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      e['title'],
-                                      style: TextStyle(
-                                          color: Theme
-                                              .of(context)
-                                              .secondaryHeaderColor
-                                              .withOpacity(.3),
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: size.width * .036),
-                                    ),
-                                    tabsUnreadCount(
-                                        color: Theme
-                                            .of(context)
-                                            .secondaryHeaderColor
-                                            .withOpacity(.3),
-                                        count: snapshot.data ?? 0)
-                                  ],
-                                );
-                              }),
-                        ),
-                      ),
-                    ))
+                    .map((e) => Expanded(
+                          child: GestureDetector(
+                            onTap: e['onPressed'],
+                            child: Container(
+                              height: double.infinity,
+                              width: double.infinity,
+                              alignment: Alignment.center,
+                              color: Colors.transparent,
+                              child: StreamBuilder<int>(
+                                  stream: e['unseen'],
+                                  builder: (context, snapshot) {
+                                    return Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          e['title'],
+                                          style: TextStyle(
+                                              color: Theme.of(context)
+                                                  .secondaryHeaderColor
+                                                  .withOpacity(.3),
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: size.width * .036),
+                                        ),
+                                        tabsUnreadCount(
+                                            color: Theme.of(context)
+                                                .secondaryHeaderColor
+                                                .withOpacity(.3),
+                                            count: snapshot.data ?? 0)
+                                      ],
+                                    );
+                                  }),
+                            ),
+                          ),
+                        ))
                     .toList(),
               ),
               AnimatedAlign(
@@ -191,9 +188,7 @@ class _PlayAreaState extends State<PlayArea>
                   width: (size.width - 30) / 2,
                   height: double.infinity,
                   decoration: BoxDecoration(
-                      color: Theme
-                          .of(context)
-                          .scaffoldBackgroundColor,
+                      color: Theme.of(context).scaffoldBackgroundColor,
                       borderRadius: BorderRadius.circular(11)),
                   alignment: Alignment.center,
                   child: Text(
@@ -225,10 +220,7 @@ class _PlayAreaState extends State<PlayArea>
           toolbarHeight: !showFullscreen ? null : 0,
           leading: backButton(
               onPressed: () => Navigator.pop(context),
-              color: Theme
-                  .of(context)
-                  .secondaryHeaderColor
-                  .withOpacity(.8)),
+              color: Theme.of(context).secondaryHeaderColor.withOpacity(.8)),
           title: Row(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -239,9 +231,7 @@ class _PlayAreaState extends State<PlayArea>
                 decoration: BoxDecoration(
                   //borderRadius: BorderRadius.circular(15),
                   shape: BoxShape.circle,
-                  color: Theme
-                      .of(context)
-                      .scaffoldBackgroundColor,
+                  color: Theme.of(context).scaffoldBackgroundColor,
                   image: DecorationImage(
                       image: AssetImage(
                         'assets/user_dummies/img${1 + Random().nextInt(7)}.jpg',
@@ -256,10 +246,7 @@ class _PlayAreaState extends State<PlayArea>
                 '@${widget.activity.opponent.username}',
                 style: TextStyle(
                     color:
-                    Theme
-                        .of(context)
-                        .secondaryHeaderColor
-                        .withOpacity(.8),
+                        Theme.of(context).secondaryHeaderColor.withOpacity(.8),
                     fontWeight: FontWeight.w500,
                     fontSize: size.width * .035),
               ),
@@ -274,10 +261,7 @@ class _PlayAreaState extends State<PlayArea>
                     'assets/images/more.png',
                     height: 15,
                     color:
-                    Theme
-                        .of(context)
-                        .secondaryHeaderColor
-                        .withOpacity(.8),
+                        Theme.of(context).secondaryHeaderColor.withOpacity(.8),
                   ),
                 ))
           ],
@@ -289,169 +273,154 @@ class _PlayAreaState extends State<PlayArea>
             tabControls(),
             Expanded(
                 child: PageView(
-                  controller: pageController,
-                  onPageChanged: (int page) =>
-                      setState(() => currentTab = page),
-                  children: [
-                    Consumer(builder: (context, watch, _) {
+              controller: pageController,
+              onPageChanged: (int page) => setState(() => currentTab = page),
+              children: [
+                Consumer(builder: (context, watch, _) {
+                  //setup game stream count, since this is the first tab
+                  Invite invite = context
+                      .read(userStreamsProvider)
+                      .myInvites
+                      .firstWhere((element) =>
+                          element.parties
+                              .contains(widget.activity.opponentId) &&
+                          element.accepted == true);
+                  if (invite.gameType == 1) {
+                    List<AnagramActivity> games =
+                        watch(userStreamsProvider).myAnagramGames;
+                    games = games
+                        .where((element) => element.parties
+                            .contains(widget.activity.opponentId))
+                        .toList();
+                    games.sort((a, b) => b.index.compareTo(a.index));
 
-                      //setup game stream count, since this is the first tab
-                      Invite invite = context
-                          .read(userStreamsProvider)
-                          .myInvites
-                          .firstWhere((element) =>
-                      element.parties.contains(
-                          widget.activity.opponentId) && element.accepted==true);
-                      if(invite.gameType==1) {
-                        List<AnagramActivity> games = watch(userStreamsProvider)
-                            .myAnagramGames;
-                          games = games
-                              .where((element) =>
-                              element.parties.contains(
-                                  widget.activity.opponentId))
-                              .toList();
-                          games.sort((a, b) =>
-                              b.index.compareTo(a.index));
-
-                          if (games.isNotEmpty) {
-                            if (games[0].sender !=
-                                context
-                                    .read(userProvider.state)
-                                    .id &&
-                                !games[0].seenByReceiver) {
-                              unreadGameTurn.sink.add(1);
-                            }
-                          }
-
-                      }else{
-                        List<TictactoeActivity> games = watch(userStreamsProvider)
-                            .myTttGames;
-                        games = games
-                            .where((element) =>
-                            element.parties.contains(
-                                widget.activity.opponentId))
-                            .toList();
-                        games.sort((a, b) =>
-                            b.index.compareTo(a.index));
-
-                        if (games.isNotEmpty) {
-                          if (games[0].sender !=
-                              context
-                                  .read(userProvider.state)
-                                  .id &&
-                              !games[0].seenByReceiver) {
-                            unreadGameTurn.sink.add(1);
-                          }
-                        }
+                    if (games.isNotEmpty) {
+                      if (games[0].sender !=
+                              context.read(userProvider.state).id &&
+                          !games[0].seenByReceiver) {
+                        unreadGameTurn.sink.add(1);
                       }
+                    }
+                  } else {
+                    List<TictactoeActivity> games =
+                        watch(userStreamsProvider).myTttGames;
+                    games = games
+                        .where((element) => element.parties
+                            .contains(widget.activity.opponentId))
+                        .toList();
+                    games.sort((a, b) => b.index.compareTo(a.index));
 
+                    if (games.isNotEmpty) {
+                      if (games[0].sender !=
+                              context.read(userProvider.state).id &&
+                          !games[0].seenByReceiver) {
+                        unreadGameTurn.sink.add(1);
+                      }
+                    }
+                  }
 
-
-
-                      //setup chat stream
-                      List<Message> messages =
-                          watch(userStreamsProvider).myMessages;
-                      messages = messages
-                          .where((element) =>
+                  //setup chat stream
+                  List<Message> messages =
+                      watch(userStreamsProvider).myMessages;
+                  messages = messages
+                      .where((element) =>
                           element.parties.contains(widget.activity.opponentId))
-                          .toList();
-                      messages.sort((a, b) =>
-                          b.timestamp.compareTo(a.timestamp));
-                      messages.map((e) {
-                        e.date = dateFormat2(
-                            DateTime.fromMillisecondsSinceEpoch(
-                                e.timestamp.millisecondsSinceEpoch));
-                        e.time = DateFormat('HH:mma')
-                            .format(DateTime.fromMillisecondsSinceEpoch(
+                      .toList();
+                  messages.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+                  messages.map((e) {
+                    e.date = dateFormat2(DateTime.fromMillisecondsSinceEpoch(
+                        e.timestamp.millisecondsSinceEpoch));
+                    e.time = DateFormat('HH:mma')
+                        .format(DateTime.fromMillisecondsSinceEpoch(
                             e.timestamp.millisecondsSinceEpoch))
-                            .toLowerCase();
-                        e.userIsSender =
-                            e.sender == context
-                                .read(userProvider.state)
-                                .id;
-                      }).toList();
+                        .toLowerCase();
+                    e.userIsSender =
+                        e.sender == context.read(userProvider.state).id;
+                  }).toList();
 
-                      int unread = messages
-                          .where((element) =>
-                      element.receiver ==
-                          context
-                              .read(userProvider.state)
-                              .id &&
+                  int unread = messages
+                      .where((element) =>
+                          element.receiver ==
+                              context.read(userProvider.state).id &&
                           !element.seenByReceiver)
-                          .toList()
-                          .length;
-                      unreadMessages.sink.add(unread);
+                      .toList()
+                      .length;
+                  unreadMessages.sink.add(unread);
 
-                      return Chat(
-                        opponentId: widget.activity.opponentId,
-                        messages: messages,
-                      );
-                    }),
-                    Consumer(builder: (context, watch, _) {
-
-                      Invite invite = context
-                          .read(userStreamsProvider)
-                          .myInvites
-                          .firstWhere((element) =>
-                      element.parties.contains(
-                          widget.activity.opponentId) && element.accepted==true);
-                      List<AnagramActivity> anagramGames = [];
-                      List<TictactoeActivity> tttGames=[];
-                      if(invite.gameType==1){
-                        anagramGames=watch(userStreamsProvider).myAnagramGames;
-                        anagramGames = anagramGames
-                            .where((element) =>
-                            element.parties.contains(widget.activity.opponentId))
-                            .toList();
-                        anagramGames.sort((a,b)=>b.index.compareTo(a.index));
-                        anagramGames = anagramGames.map((e) {
-                          return e
-                            ..isCorrect=!e.answered?false:e.opponentAnswer==e.word
-                            ..date = dateFormat2(DateTime.fromMillisecondsSinceEpoch(
+                  return Chat(
+                    opponentId: widget.activity.opponentId,
+                    messages: messages,
+                  );
+                }),
+                Consumer(builder: (context, watch, _) {
+                  Invite invite = context
+                      .read(userStreamsProvider)
+                      .myInvites
+                      .firstWhere((element) =>
+                          element.parties
+                              .contains(widget.activity.opponentId) &&
+                          element.accepted == true);
+                  List<AnagramActivity> anagramGames = [];
+                  List<TictactoeActivity> tttGames = [];
+                  if (invite.gameType == 1) {
+                    anagramGames = watch(userStreamsProvider).myAnagramGames;
+                    anagramGames = anagramGames
+                        .where((element) => element.parties
+                            .contains(widget.activity.opponentId))
+                        .toList();
+                    anagramGames.sort((a, b) => b.index.compareTo(a.index));
+                    anagramGames = anagramGames.map((e) {
+                      return e
+                        ..isCorrect =
+                            !e.answered ? false : e.opponentAnswer == e.word
+                        ..date = dateFormat2(
+                            DateTime.fromMillisecondsSinceEpoch(
                                 e.timestamp.millisecondsSinceEpoch))
-                            ..userIsSender = e.sender == context.read(userProvider.state).id;
-                        }).toList();
-                      }else{
-                        tttGames = watch(userStreamsProvider)
-                            .myTttGames;
-                        tttGames = tttGames
-                            .where((element) =>
-                            element.parties.contains(
-                                widget.activity.opponentId))
-                            .toList();
-                        tttGames.sort((a, b) =>
-                            b.index.compareTo(a.index));
+                        ..userIsSender =
+                            e.sender == context.read(userProvider.state).id;
+                    }).toList();
+                  } else {
+                    tttGames = watch(userStreamsProvider).myTttGames;
+                    tttGames = tttGames
+                        .where((element) => element.parties
+                            .contains(widget.activity.opponentId))
+                        .toList();
+                    tttGames.sort((a, b) => b.index.compareTo(a.index));
+                  }
 
-                      }
-
-
-
-                      //print(tttGames[0].toJson());
-                      return widget.activity.gameType == 0
-                          ? TicTacToe(
-                        opponent: widget.activity.opponent,
-                        key: tttGames.isEmpty?Key('key'):Key(tttGames[0].timestamp.toString()),
+                  return widget.activity.gameType == 0
+                      ? TicTacToe(
+                          opponent: widget.activity.opponent,
+                          key: tttGames.isEmpty
+                              ? Key('key')
+                              : Key(tttGames[0].timestamp.toString()),
                           invite: invite,
-                          tictactoeActivity: tttGames.isEmpty?null:tttGames[0],
-                          onRestartGame: tttGames.isEmpty?(){}:()=>restartTttGame(tttGames[0]),
+                          tictactoeActivity:
+                              tttGames.isEmpty ? null : tttGames[0],
+                          onRestartGame: tttGames.isEmpty
+                              ? () {}
+                              : () => restartTttGame(tttGames[0]),
                           onFullScreen: () {
-                        setState(() {
-                          fullScreen = !fullScreen;
-                        });
-                      })
-                          : Anagram(
-                        //game: myGame,
-                        anagrams: anagramGames,
-                        invite: invite,
-                        onFullScreen: () {
-                          setState(() {
-                            fullScreen = !fullScreen;
-                          });
-                        },
-                      );
-                    })
-                  ],
-                ))
+                            setState(() {
+                              fullScreen = !fullScreen;
+                            });
+                          })
+                      : Anagram(
+                          opponent: widget.activity.opponent,
+                          onRestartGame: anagramGames.isEmpty
+                              ? () {}
+                              : () => restartAnagramGame(anagramGames),
+                          anagrams: anagramGames,
+                          invite: invite,
+                          onFullScreen: () {
+                            setState(() {
+                              fullScreen = !fullScreen;
+                            });
+                          },
+                        );
+                })
+              ],
+            ))
           ],
         ),
       ),

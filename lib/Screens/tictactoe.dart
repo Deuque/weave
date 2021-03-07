@@ -412,7 +412,7 @@ class _TicTacToeState extends State<TicTacToe> {
         List.generate(9, (index) => dragTargetBackground(index));
 
     turnWidget(bool userTurn) => Padding(
-          padding: const EdgeInsets.only(top: 15.0, right: 15,left: 15),
+          padding: const EdgeInsets.only(top: 15.0, right: 15,left: 15,bottom: 30),
           child: Align(
             alignment: userTurn ? Alignment.centerRight : Alignment.centerLeft,
             child: ClipPath(
@@ -454,37 +454,34 @@ class _TicTacToeState extends State<TicTacToe> {
           ),
         );
 
-    return Column(
+    return ListView(
+      physics: BouncingScrollPhysics(),
       children: [
         actionBar(),
         turnWidget(toPlay),
-        Expanded(
-          child: Column(
-            children: [
-              Container(
-                height: imageWidth + imageWidth,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: selectionWidgets,
-                ),
-              ),
-              Container(
-                width: width * .7,
-                padding: EdgeInsets.all(10),
-                child: GridView.count(
-                  crossAxisCount: 3,
-                  children: dragTargets,
-                  shrinkWrap: true,
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(
-                    left: width * .15, right: width * .15, bottom: 15,top: 10),
-                child: actionButton('PLAY', toPlay, false, uploadPlay, context),
-              )
-            ],
+        Container(
+          height: imageWidth + imageWidth,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: selectionWidgets,
           ),
         ),
+        Container(
+          width: width * .7,
+          padding: EdgeInsets.all(10),
+          margin: EdgeInsets.symmetric(horizontal: width*.15),
+          child: GridView.count(
+            physics: NeverScrollableScrollPhysics(),
+            crossAxisCount: 3,
+            children: dragTargets,
+            shrinkWrap: true,
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.only(
+              left: width * .15, right: width * .15, bottom: 15,top: 10),
+          child: actionButton('PLAY', toPlay, false, uploadPlay, context),
+        )
       ],
     );
   }

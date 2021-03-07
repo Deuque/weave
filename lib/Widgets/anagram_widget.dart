@@ -99,7 +99,16 @@ class _AnagramLayoutState extends State<AnagramLayout> {
     Widget yourTurnWidget() => widgetsBackground(
           child: SizedBox(
             height: 30,
-            child: FlatButton(
+            child: !userIsSender?FlatButton(
+              onPressed: null,
+              child: Text(
+                widget.anagramActivity.word,
+                style: TextStyle(
+                    fontSize: 14, color: Theme.of(context)
+                    .secondaryHeaderColor
+                    .withOpacity(.6)),
+              ),
+            ): FlatButton(
               onPressed: () => showModalBottomSheet(
                   isScrollControlled: true,
                   shape: RoundedRectangleBorder(

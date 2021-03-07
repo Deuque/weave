@@ -27,6 +27,10 @@ class Repo {
         email: email, password: password);
   }
 
+  signOut(){
+    return authInstance.signOut();
+  }
+
   saveUserData(Map<String,dynamic> data){
     return  userDbInstance.doc(currentUserId()).set(data, SetOptions(merge: true));
   }
@@ -65,11 +69,15 @@ class Repo {
     return chatDbInstance.where('parties',arrayContains: currentUserId()).snapshots();
   }
 
-  Future<DocumentReference> addOrEditAnagramGame(Map<String,dynamic> game, {bool edit = false}){
+  Future<dynamic> addOrEditAnagramGame(Map<String,dynamic> game, {bool edit = false}){
     if(!edit)
       return anagramGameDbInstance.add(game);
     else
       return anagramGameDbInstance.doc(game['id']).update(game);
+  }
+
+  Future<void> deleteAnagramGame(String id){
+    return anagramGameDbInstance.doc(id).delete();
   }
 
   Stream<QuerySnapshot> getAnagramGames(){

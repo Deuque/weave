@@ -34,6 +34,10 @@ class UserController {
     return {'error': error, 'data': responseData};
   }
 
+  Future<void> signOut() async{
+    await repo.signOut();
+  }
+
   Future<Map<String, dynamic>> saveUserData(Map<String, dynamic> data) async {
     var responseData, error;
     await repo
@@ -99,6 +103,11 @@ class UserController {
 
   Future<void> editAnagramGame(Map<String,dynamic> game) async {
     await repo.addOrEditAnagramGame(game, edit: true);
+  }
+
+  Future<void> startNewAnagramGame(List<String> anagramIds)async{
+    for(final id in anagramIds.reversed)
+      await repo.deleteAnagramGame(id);
   }
 
   Stream<QuerySnapshot> getAnagramGames() {

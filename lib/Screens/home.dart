@@ -8,8 +8,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:weave/Controllers/current_user_controller.dart';
 import 'package:weave/Controllers/streams_controller.dart';
 import 'package:weave/Models/activity.dart';
+import 'package:weave/Models/anagram_activity.dart';
 import 'package:weave/Models/invite.dart';
 import 'package:weave/Models/message.dart';
+import 'package:weave/Models/tictactoe_activity.dart';
 import 'package:weave/Util/colors.dart';
 import 'package:weave/Util/helper_functions.dart';
 import 'package:weave/Widgets/activity_widget.dart';
@@ -243,6 +245,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                               (element) =>
                                   element !=
                                   context.read(userProvider.state).id);
+                          //get messages of activity
                           List<Message> activityMessages = messages.where((element) => element.parties.contains(opponent)).toList();
                           int unreadMessages = activityMessages
                               .where((element) =>
@@ -252,10 +255,42 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                   !element.seenByReceiver)
                               .toList()
                               .length;
-                          
+
+                          // get games of activity
+                          int unreadGame = 0;
+                          Timestamp gamestamp;
+                          if(element.gameType==1){
+                            List<AnagramActivity> anagramGames=watch(userStreamsProvider).myAnagramGames;
+                            anagramGames = anagramGames
+                                .where((element) =>
+                                element.parties.contains(opponent))
+                                .toList();
+                            anagramGames.sort((a,b)=>b.index.compareTo(a.index));
+                            unreadGame = anagramGames.isEmpty?0:anagramGames[0].sender!=context.read(userProvider.state).id && !anagramGames[0].seenByReceiver?1:0;
+                            gamestamp = anagramGames.isEmpty?null:anagramGames[0].timestamp;
+                          }else{
+                            List<TictactoeActivity> tttGames = watch(userStreamsProvider)
+                                .myTttGames;
+                            tttGames = tttGames
+                                .where((element) =>
+                                element.parties.contains(
+                                    opponent))
+                                .toList();
+                            tttGames.sort((a, b) =>
+                                b.index.compareTo(a.index));
+                            unreadGame = tttGames.isEmpty?0:tttGames[0].sender!=context.read(userProvider.state).id && !tttGames[0].seenByReceiver?1:0;
+                            gamestamp = tttGames.isEmpty?null:tttGames[0].timestamp;
+
+                          }
+
+                          //most recent time between invite and chat
                           int largestTime = activityMessages.isEmpty
                               ? element.timestamp.millisecondsSinceEpoch
                               : max(element.timestamp.millisecondsSinceEpoch, activityMessages[0].timestamp.millisecondsSinceEpoch);
+
+                          //most recent time between recent from above and game
+                          largestTime = gamestamp==null?largestTime:max(largestTime, gamestamp.millisecondsSinceEpoch);
+
                           Activity activity = Activity(
                               opponentId: opponent,
                               gameType: element.gameType,
