@@ -47,7 +47,7 @@ class Repo {
     return userDbInstance.doc(id).snapshots();
   }
 
-  Future<DocumentReference> addOrEditInvite(Invite invite, {bool edit = false}){
+  Future<dynamic> addOrEditInvite(Invite invite, {bool edit = false}){
     if(!edit)
       return inviteDbInstance.add(invite.toJson());
     else
@@ -89,6 +89,10 @@ class Repo {
       return tttGameDbInstance.add(game.toJson());
     else
       return tttGameDbInstance.doc(game.id).update(game.toJson());
+  }
+
+  Future<void> deleteTttGame(String id){
+    return tttGameDbInstance.doc(id).delete();
   }
 
   Stream<QuerySnapshot> getTttGames(){

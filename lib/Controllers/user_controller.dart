@@ -122,8 +122,8 @@ class UserController {
     await repo.addOrEditTttGame(game, edit: true);
   }
 
-  Future<void> startNewTttGame(TictactoeActivity game)async{
-    await editTttGame(game);
+  Future<void> startNewTttGame(String id)async{
+    await repo.deleteTttGame(id);
   }
 
   Stream<QuerySnapshot> getTttGames() {

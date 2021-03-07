@@ -51,7 +51,7 @@ class _DashboardState extends State<Dashboard> {
           if (index == 1)
             Future.delayed(Duration(milliseconds: 400),()=>showModalBottomSheet(
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
+                    borderRadius: BorderRadius.vertical(top:Radius.circular(10))),
                 context: (context),
                 builder: (_) => NewGame()));
           if(index==2){

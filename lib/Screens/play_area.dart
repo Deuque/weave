@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/all.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:weave/Controllers/current_user_controller.dart';
 import 'package:weave/Controllers/streams_controller.dart';
@@ -17,6 +18,7 @@ import 'package:weave/Models/tictactoe_activity.dart';
 import 'package:weave/Models/user.dart';
 import 'package:weave/Screens/anagram.dart';
 import 'package:weave/Screens/chat.dart';
+import 'package:weave/Screens/restart_game.dart';
 import 'package:weave/Screens/tictactoe.dart';
 import 'package:weave/Util/colors.dart';
 import 'package:weave/Util/helper_functions.dart';
@@ -66,18 +68,37 @@ class _PlayAreaState extends State<PlayArea>
     super.dispose();
   }
 
-  restartTttGame(TictactoeActivity game) async {
-    await UserController().startNewTttGame(game
-      ..sender = widget.activity.opponentId
-      ..plays = []
-      ..index = 0
-      ..seenByReceiver = false
-      ..timestamp = Timestamp.now());
+  restartTttGame(TictactoeActivity game, Invite invite) async {
+    var result = await showRestartConfirmSheet();
+    if(result==null || !result) return;
+    if (game != null) await UserController().startNewTttGame(game.id);
+    if (invite.sender != context.read(userProvider.state).id)
+      await UserController().editInvite(invite
+        ..sender = context.read(userProvider.state).id
+        ..timestamp = Timestamp.now());
+    Fluttertoast.showToast(msg: 'Game restarted');
   }
 
-  restartAnagramGame(List<AnagramActivity> anagrams) async {
-    await UserController()
-        .startNewAnagramGame(anagrams.map((e) => e.id).toList());
+  restartAnagramGame(List<AnagramActivity> anagrams, Invite invite) async {
+    var result = await showRestartConfirmSheet();
+    if(result==null || !result) return;
+    if (anagrams.isNotEmpty)
+      await UserController()
+          .startNewAnagramGame(anagrams.map((e) => e.id).toList());
+    if (invite.sender != context.read(userProvider.state).id)
+      await UserController().editInvite(invite
+        ..sender = context.read(userProvider.state).id
+        ..timestamp = Timestamp.now());
+    Fluttertoast.showToast(msg: 'Game restarted');
+  }
+
+  showRestartConfirmSheet() async{
+    var result = await showModalBottomSheet(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top:Radius.circular(10))),
+        context: (context),
+        builder: (_) => RestartGame());
+    return result;
   }
 
   @override
@@ -398,8 +419,8 @@ class _PlayAreaState extends State<PlayArea>
                           tictactoeActivity:
                               tttGames.isEmpty ? null : tttGames[0],
                           onRestartGame: tttGames.isEmpty
-                              ? () {}
-                              : () => restartTttGame(tttGames[0]),
+                              ? () => restartTttGame(null, invite)
+                              : () => restartTttGame(tttGames[0], invite),
                           onFullScreen: () {
                             setState(() {
                               fullScreen = !fullScreen;
@@ -407,9 +428,8 @@ class _PlayAreaState extends State<PlayArea>
                           })
                       : Anagram(
                           opponent: widget.activity.opponent,
-                          onRestartGame: anagramGames.isEmpty
-                              ? () {}
-                              : () => restartAnagramGame(anagramGames),
+                          onRestartGame: () =>
+                              restartAnagramGame(anagramGames, invite),
                           anagrams: anagramGames,
                           invite: invite,
                           onFullScreen: () {
