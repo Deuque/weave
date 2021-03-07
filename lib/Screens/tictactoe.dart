@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:weave/Controllers/current_user_controller.dart';
 import 'package:weave/Controllers/user_controller.dart';
@@ -43,14 +44,50 @@ class _TicTacToeState extends State<TicTacToe> {
 
     if (widget.tictactoeActivity != null)
       prevIndexesLength = widget.tictactoeActivity.plays.length;
-      occupiedIndexes = widget.tictactoeActivity.plays;
+      occupiedIndexes.addAll(widget.tictactoeActivity.plays);
     id = context.read(userProvider.state).id;
     toPlay = widget.tictactoeActivity == null
         ? widget.invite.sender == id
         : widget.tictactoeActivity.sender != id;
   }
 
+  // check if user play is valid
+  userPlayIsValid(){
+
+    int currentUserPlayLength = occupiedIndexes.where((element) => element['id']==id).toList().length;
+    int prevUserPlayLength = widget.tictactoeActivity.plays.where((element) => element['id']==id).toList().length;
+
+    if(currentUserPlayLength!=3 && (currentUserPlayLength==prevUserPlayLength)){
+      Fluttertoast.showToast(msg: 'You should move a new piece');
+      setState(() {
+        occupiedIndexes=[];
+        occupiedIndexes.addAll(widget.tictactoeActivity.plays);
+      });
+      return false;
+    }else if(currentUserPlayLength>prevUserPlayLength){
+      return true;
+    }
+    else  {
+      var plays = widget.tictactoeActivity==null?[]:widget.tictactoeActivity.plays;
+      for (final item in occupiedIndexes) {
+        for (final item2 in plays) {
+          if (item['value'] == item2['value']) {
+            if(item['position']!=item2['position']){
+              return true;
+            }
+          }
+        }
+
+      }
+      Fluttertoast.showToast(msg: 'You haven\'t moved a piece');
+      return false;
+    }
+
+  }
+
+  // upload user play
   uploadPlay() {
+    if(!userPlayIsValid())return;
     TictactoeActivity tictactoeActivity = widget.tictactoeActivity??TictactoeActivity()
       ..parties = widget.invite.parties
       ..index = 0
@@ -61,6 +98,35 @@ class _TicTacToeState extends State<TicTacToe> {
     widget.tictactoeActivity == null
         ? UserController().addTttGame(tictactoeActivity)
         : UserController().editTttGame(tictactoeActivity);
+  }
+
+  //check difference between occupiedIndex and previous plays
+  List<Map<String,dynamic>> diff(){
+    var plays = widget.tictactoeActivity==null?[]:widget.tictactoeActivity.plays;
+    List<Map<String,dynamic>> diff = [];
+    for(final item in occupiedIndexes){
+      bool found = false;
+      for(final item2 in plays){
+        if(item['value']==item2['value']){
+          found=true;
+          if(item['position']!=item2['position']){
+            diff.add(item);
+          }
+        }
+      }
+      if(!found)diff.add(item);
+    }
+
+    return diff;
+  }
+
+  // check if position of dragTarget is occupied
+  Map<String, dynamic> positionIsUsed(index) {
+    //List<Map<String,dynamic>> plays = widget.tictactoeActivity==null?[]:widget.tictactoeActivity.plays;
+    for (final item in occupiedIndexes)
+      if (item['position'] == index)
+        return {'value': item['value'], 'id': item['id']};
+    return null;
   }
 
   @override
@@ -115,7 +181,7 @@ class _TicTacToeState extends State<TicTacToe> {
     // draggable widget sample to be moved around the drag targets
     Widget draggableWidget(Map<String, dynamic> data, {bool won}) {
       return AbsorbPointer(
-        absorbing: winPositions.isNotEmpty || !toPlay || data['id'] != id,
+        absorbing: winPositions.isNotEmpty || !toPlay || data['id'] != id || (diff().isNotEmpty && diff()[0]['value']!=data['value']),
         child: Draggable(
           data: data,
           onDraggableCanceled: (v, o) {
@@ -257,14 +323,9 @@ class _TicTacToeState extends State<TicTacToe> {
       }
     }
 
-    // check if position of dragTarget is occupied
-    Map<String, dynamic> positionIsUsed(index) {
-      //List<Map<String,dynamic>> plays = widget.tictactoeActivity==null?[]:widget.tictactoeActivity.plays;
-      for (final item in occupiedIndexes)
-        if (item['position'] == index)
-          return {'value': item['value'], 'id': item['id']};
-      return null;
-    }
+
+
+
 
     // dragTarget sample widget
     dragTargetBackground(int index) => AnimatedContainer(
@@ -296,12 +357,10 @@ class _TicTacToeState extends State<TicTacToe> {
                   : Container();
             },
             onWillAccept: (data) {
-              var plays = widget.tictactoeActivity==null?[]:widget.tictactoeActivity.plays;
-              print('${occupiedIndexes.length} $prevIndexesLength');
-              return plays
+              return occupiedIndexes
                   .where((element) => element['position'] == index)
                   .toList()
-                  .isEmpty && (occupiedIndexes.length-prevIndexesLength)==0;
+                  .isEmpty && diff().length<1;
             },
             onAccept: (data) {
               setState(() {
