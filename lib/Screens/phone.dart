@@ -4,6 +4,9 @@ import 'package:weave/Util/colors.dart';
 import 'package:weave/Util/helper_functions.dart';
 
 class AddPhone extends StatefulWidget {
+  final String phone;
+
+  const AddPhone({Key key, this.phone}) : super(key: key);
   @override
   _AddPhoneState createState() => _AddPhoneState();
 }
@@ -17,6 +20,7 @@ class _AddPhoneState extends State<AddPhone> {
   @override
   void initState() {
     super.initState();
+    phoneController.text=widget.phone.substring(4)??'';
     phoneController.addListener(() {
       if (phoneController.text.isNotEmpty && !textEntered) {
         setState(() {
@@ -75,6 +79,13 @@ class _AddPhoneState extends State<AddPhone> {
       if(stripNumber().isEmpty){
         return;
       }else{
+        if(widget.phone!=null && widget.phone==stripNumber()){
+          showSnackBar(
+              key: _scaffoldKey,
+              message: 'This is your current phone number',
+              type: SnackBarType.warning);
+          return;
+        }
         setState(() {
           loading = true;
         });

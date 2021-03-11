@@ -5,6 +5,7 @@ import 'package:weave/Controllers/streams_controller.dart';
 import 'package:weave/Controllers/user_controller.dart';
 import 'package:weave/Screens/home.dart';
 import 'package:weave/Screens/new_game.dart';
+import 'package:weave/Screens/profile.dart';
 import 'package:weave/Util/colors.dart';
 import 'package:weave/Widgets/customBottomBar.dart';
 import 'package:flutter_riverpod/all.dart';
@@ -55,9 +56,10 @@ class _DashboardState extends State<Dashboard> {
                 context: (context),
                 builder: (_) => NewGame()));
           if(index==2){
-            await UserController().signOut();
-            Navigator.pushReplacementNamed(context, 'auth');
-          };
+            setState(() {
+              currentTab = Profile();
+            });
+          }
         },
       ),
     );

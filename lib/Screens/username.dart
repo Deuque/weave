@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:weave/Controllers/user_controller.dart';
 import 'package:weave/Util/colors.dart';
 import 'package:weave/Util/helper_functions.dart';
 
 class ChooseUsername extends StatefulWidget {
+  final String username;
+
+  const ChooseUsername({Key key, this.username}) : super(key: key);
   @override
   _ChooseUsernameState createState() => _ChooseUsernameState();
 }
@@ -20,6 +24,7 @@ class _ChooseUsernameState extends State<ChooseUsername> {
   @override
   void initState() {
     super.initState();
+    usernameController.text=widget.username??'';
     usernameController.addListener(() {
       if (usernameController.text != username && usernameExists != null)
         setState(() {
@@ -49,6 +54,13 @@ class _ChooseUsernameState extends State<ChooseUsername> {
   }
 
   performSearch() async {
+    if(widget.username!=null && widget.username==stripUsername()){
+      showSnackBar(
+          key: _scaffoldKey,
+          message: 'This is your current username',
+          type: SnackBarType.warning);
+      return;
+    }
     setState(() {
       checkingUsername = true;
     });
@@ -87,7 +99,7 @@ class _ChooseUsernameState extends State<ChooseUsername> {
             message: response['error'],
             type: SnackBarType.error);
       } else {
-        Navigator.pushNamed(context, 'dash');
+        widget.username!=null? Navigator.pop(context):Navigator.pushNamed(context, 'dash');
       }
       setState(() {
         loading = false;
@@ -116,6 +128,13 @@ class _ChooseUsernameState extends State<ChooseUsername> {
 
     return Scaffold(
       key: _scaffoldKey,
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        elevation: 0,
+        leading: backButton(
+            onPressed: () => Navigator.pop(context),
+            color: Theme.of(context).secondaryHeaderColor.withOpacity(.8)),
+      ),
       body: Padding(
         padding: EdgeInsets.symmetric(
             horizontal: width * .08, vertical: width * .15),
@@ -149,7 +168,7 @@ class _ChooseUsernameState extends State<ChooseUsername> {
                   children: [
                     Image.asset(
                       'assets/images/email.png',
-                      height: 14,
+                      height: 14,color: Theme.of(context).secondaryHeaderColor.withOpacity(.8),
                     ),
                   ],
                 ),

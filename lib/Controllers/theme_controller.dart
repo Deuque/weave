@@ -3,18 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/all.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:weave/Util/colors.dart';
 
 final themeProvider =
 StateNotifierProvider<DeviceTheme>((ref) => DeviceTheme());
 
 class DeviceTheme extends StateNotifier<bool> {
-  DeviceTheme([bool darkMode]) : super(darkMode ?? false);
+  DeviceTheme([bool darkMode]) : super(darkMode ?? true);
 
   bool darkMode()=>state;
 
   void toggle(){
     state = !state;
-    setCurrentStatusNavigationBarColor();
+    //setCurrentStatusNavigationBarColor();
     saveDarkModeState();
   }
 
@@ -24,7 +25,7 @@ class DeviceTheme extends StateNotifier<bool> {
         //statusBarColor: Colors.transparent,
         statusBarBrightness: Brightness.light,
         //statusBarIconBrightness: Brightness.dark,
-        systemNavigationBarColor: Color(0xFFFFFFFF),
+        systemNavigationBarColor: white,
         systemNavigationBarIconBrightness: Brightness.dark,
       ));
     } else {
@@ -32,7 +33,7 @@ class DeviceTheme extends StateNotifier<bool> {
         //statusBarColor: Colors.transparent,
         statusBarBrightness: Brightness.dark,
         //statusBarIconBrightness: Brightness.light,
-        systemNavigationBarColor: Color(0xFF090A1E),
+        systemNavigationBarColor: dark,
         systemNavigationBarIconBrightness: Brightness.light,
       ));
     }
@@ -40,7 +41,8 @@ class DeviceTheme extends StateNotifier<bool> {
 
   Future<void> getDarkModeState() async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    state = prefs.getBool('darkMode') ?? false;
+    state = prefs.getBool('darkMode') ?? true;
+   // setCurrentStatusNavigationBarColor();
   }
 
   saveDarkModeState() async{

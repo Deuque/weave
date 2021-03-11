@@ -246,20 +246,7 @@ class _PlayAreaState extends State<PlayArea>
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Container(
-                height: size.width * .05,
-                width: size.width * .05,
-                decoration: BoxDecoration(
-                  //borderRadius: BorderRadius.circular(15),
-                  shape: BoxShape.circle,
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                  image: DecorationImage(
-                      image: AssetImage(
-                        'assets/user_dummies/img${1 + Random().nextInt(7)}.jpg',
-                      ),
-                      fit: BoxFit.cover),
-                ),
-              ),
+              profileImage(widget.activity.opponent.photo, size.width * .05, context),
               SizedBox(
                 width: 10,
               ),

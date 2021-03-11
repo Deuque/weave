@@ -78,20 +78,7 @@ class _ActivityLayoutState extends State<ActivityLayout> with AutomaticKeepAlive
         child: ListTile(
           leading: Stack(
             children: [
-              Container(
-                height: size.width * .08,
-                width: size.width * .08,
-                decoration: BoxDecoration(
-                  //borderRadius: BorderRadius.circular(15),
-                  shape: BoxShape.circle,
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                  image: DecorationImage(
-                    image: AssetImage(
-                      'assets/user_dummies/img${1+Random().nextInt(7)}.jpg',
-                    ),
-                  ),
-                ),
-              ),
+              profileImage(opponent==null?'':opponent.photo, size.width * .075, context),
               //Positioned(bottom:0,right: 0,child: statusIndicator())
             ],
           ),

@@ -5,6 +5,7 @@
 // import 'package:flutter/material.dart';
 //
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:weave/Util/colors.dart';
@@ -298,3 +299,32 @@ void showSnackBar({@required GlobalKey<
 
   key.currentState.showSnackBar(snackBar);
 }
+
+Widget profileImage(String url, double size, BuildContext context, {double radius,double imagePadding})=>Container(
+  height: size,width: size,decoration: BoxDecoration(
+  color: Theme.of(context).scaffoldBackgroundColor,
+  borderRadius: BorderRadius.circular(radius??size)
+),
+child: ClipRRect(
+  borderRadius: BorderRadius.circular(radius??size),
+  child: url.isEmpty?Padding(
+    padding:  EdgeInsets.all(imagePadding??3.0),
+    child: Image.asset('assets/images/user.png',fit: BoxFit.cover,),
+  ):CachedNetworkImage(
+    imageUrl: url,
+    imageBuilder: (context, imageProvider) => Container(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+            image: imageProvider,
+            fit: BoxFit.cover),
+      ),
+    ),
+    placeholder: (context, url) => Padding(
+        padding:  EdgeInsets.all(imagePadding??3.0),child: Image.asset('assets/images/user.png',fit: BoxFit.cover,)),
+    errorWidget: (context, url, error) => Padding(
+      padding:  EdgeInsets.all(imagePadding??3.0),
+      child: Image.asset('assets/images/user.png',fit: BoxFit.cover,),
+    ),
+  ),
+),
+);

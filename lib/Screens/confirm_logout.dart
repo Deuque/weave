@@ -11,7 +11,7 @@ import 'package:weave/Util/colors.dart';
 import 'package:weave/Util/helper_functions.dart';
 import 'package:flutter_riverpod/all.dart';
 
-class RestartGame extends StatelessWidget {
+class ConfirmLogout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
@@ -34,7 +34,7 @@ class RestartGame extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Restart game',
+              Text('Logout',
                   style: TextStyle(
                       color: Theme.of(context).secondaryHeaderColor,
                       fontWeight: FontWeight.bold,
@@ -49,7 +49,7 @@ class RestartGame extends StatelessWidget {
             ],
           ),
           spacer2(),
-          Text('Are you sure you want to restart this game?',
+          Text('Are you sure you want to logout?',
               style: TextStyle(
                   color: Theme.of(context).secondaryHeaderColor,
                   fontSize: width * .035)),
@@ -69,8 +69,8 @@ class RestartGame extends StatelessWidget {
               FlatButton(
                   onPressed: () => Navigator.pop(context, true),
                   child: Text(
-                    'restart',
-                    style: TextStyle(color: accentColor),
+                    'logout',
+                    style: TextStyle(color: error),
                   ))
             ],
           )

@@ -61,11 +61,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(7),
               color: Theme.of(context).scaffoldBackgroundColor,
-              image: DecorationImage(
-                image: AssetImage(
-                  'assets/user_dummies/img5.jpg',
-                ),
-              ),
               boxShadow: [
                 BoxShadow(
                     color: Theme.of(context).backgroundColor,
@@ -73,6 +68,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     spreadRadius: 1.6,
                     blurRadius: 2)
               ]),
+      child: profileImage(context.read(userProvider.state).photo, size.width*.06, context,radius: 7),
         );
 
     Widget tabsUnreadCount({bool active, int count}) => Visibility(

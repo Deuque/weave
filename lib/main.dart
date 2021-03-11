@@ -1,6 +1,8 @@
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:weave/Controllers/theme_controller.dart';
@@ -26,9 +28,9 @@ class MyApp extends StatelessWidget {
           return MaterialApp(
             title: 'Weave',
             debugShowCheckedModeBanner: false,
-            themeMode: snapshot != null && snapshot
+            themeMode: snapshot == null || snapshot
                 ? ThemeMode.dark
-                : ThemeMode.system,
+                : ThemeMode.light,
             darkTheme: ThemeData(
               brightness: Brightness.dark,
               secondaryHeaderColor: white,
@@ -40,6 +42,7 @@ class MyApp extends StatelessWidget {
                   // Theme.of(context).textTheme,
                   ),
               appBarTheme: Theme.of(context).appBarTheme.copyWith(
+                  brightness: Brightness.dark,
                   textTheme: GoogleFonts.rubikTextTheme(),
                   color: dark,
                   iconTheme: IconThemeData(color: white)),
@@ -65,6 +68,7 @@ class MyApp extends StatelessWidget {
                   // Theme.of(context).textTheme,
                   ),
               appBarTheme: Theme.of(context).appBarTheme.copyWith(
+                brightness: Brightness.light,
                   textTheme: GoogleFonts.rubikTextTheme(),
                   color: white,
                   iconTheme: IconThemeData(color: dark)),

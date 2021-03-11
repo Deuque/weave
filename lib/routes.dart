@@ -21,9 +21,9 @@ class Routes {
       case 'auth':
         return CupertinoPageRoute(builder: (_) => Auth());
       case 'username':
-        return CupertinoPageRoute(builder: (_) => ChooseUsername());
+        return CupertinoPageRoute(builder: (_) => ChooseUsername(username: args,));
       case 'phone':
-        return CupertinoPageRoute(builder: (_) => AddPhone());
+        return CupertinoPageRoute(builder: (_) => AddPhone(phone: args,));
       case 'dash':
         return CupertinoPageRoute(builder: (_) => Dashboard());
       case 'playArea':
