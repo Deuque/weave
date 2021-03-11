@@ -77,6 +77,7 @@ class _PlayAreaState extends State<PlayArea>
         ..sender = context.read(userProvider.state).id
         ..timestamp = Timestamp.now());
     Fluttertoast.showToast(msg: 'Game restarted');
+
   }
 
   restartAnagramGame(List<AnagramActivity> anagrams, Invite invite) async {
@@ -286,8 +287,7 @@ class _PlayAreaState extends State<PlayArea>
               children: [
                 Consumer(builder: (context, watch, _) {
                   //setup game stream count, since this is the first tab
-                  Invite invite = context
-                      .read(userStreamsProvider)
+                  Invite invite = watch(userStreamsProvider)
                       .myInvites
                       .firstWhere((element) =>
                           element.parties

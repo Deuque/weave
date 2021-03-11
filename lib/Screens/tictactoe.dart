@@ -45,6 +45,7 @@ class _TicTacToeState extends State<TicTacToe> {
   List<int> winPositions = [];
   bool toPlay = false;
   int prevIndexesLength = 0;
+  String whoWon='';
 
   @override
   void initState() {
@@ -54,9 +55,7 @@ class _TicTacToeState extends State<TicTacToe> {
     if (widget.tictactoeActivity != null)
       occupiedIndexes.addAll(widget.tictactoeActivity.plays);
     id = context.read(userProvider.state).id;
-    toPlay = widget.tictactoeActivity == null
-        ? widget.invite.sender == id
-        : widget.tictactoeActivity.sender != id;
+
   }
 
   // check if user play is valid
@@ -153,6 +152,11 @@ class _TicTacToeState extends State<TicTacToe> {
     //double dragObjectWidth = width * .07;
     double imageWidth = width * .1;
 
+    winPositions=[];
+    toPlay = widget.tictactoeActivity == null
+        ? widget.invite.sender == id
+        : widget.tictactoeActivity.sender != id;
+
     Widget actionBar() => Container(
           padding: EdgeInsets.symmetric(horizontal: 15),
           child: Column(
@@ -195,7 +199,7 @@ class _TicTacToeState extends State<TicTacToe> {
     // draggable widget sample to be moved around the drag targets
     Widget draggableWidget(Map<String, dynamic> data, {bool won}) {
       return AbsorbPointer(
-        absorbing: winPositions.isNotEmpty ||
+        absorbing: (winPositions.isNotEmpty && toPlay && whoWon!=id)||
             !toPlay ||
             data['id'] != id ||
             (diff().isNotEmpty && diff()[0]['value'] != data['value']),
@@ -326,7 +330,9 @@ class _TicTacToeState extends State<TicTacToe> {
             myPositionIndexes[2] - myPositionIndexes[1]) &&
         resolvePositions(myPositionIndexes)) {
       winPositions = myPositionIndexes;
+      whoWon = id;
     } else {
+
       List oppPositions =
           occupiedIndexes.where((element) => element['id'] != id).toList();
       List<int> oppPositionIndexes =
@@ -337,6 +343,7 @@ class _TicTacToeState extends State<TicTacToe> {
               oppPositionIndexes[2] - oppPositionIndexes[1]) &&
           resolvePositions(oppPositionIndexes)) {
         winPositions = oppPositionIndexes;
+        whoWon = widget.opponent.id;
       }
     }
 
@@ -453,12 +460,33 @@ class _TicTacToeState extends State<TicTacToe> {
                 )),
           ),
         );
+    winWidget()=> Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset('assets/images/confetti.png',height: width*.06,),
+          SizedBox(width: 10,),
+          Text(
+            '${whoWon==id?'You':'@${widget.opponent.username}'} won',
+            style: TextStyle(
+                color: Theme
+                    .of(context)
+                    .secondaryHeaderColor
+                    .withOpacity(.8),
+                fontSize: width*.045),
+          )
+        ],
+        ),
+    );
+    
+    
 
     return ListView(
       physics: BouncingScrollPhysics(),
       children: [
         actionBar(),
-        turnWidget(toPlay),
+        if(winPositions.isEmpty || (winPositions.isNotEmpty && toPlay && whoWon==id))turnWidget(toPlay),
         Container(
           height: imageWidth + imageWidth,
           child: Row(
@@ -466,10 +494,11 @@ class _TicTacToeState extends State<TicTacToe> {
             children: selectionWidgets,
           ),
         ),
+        if(winPositions.isNotEmpty && (!toPlay || (toPlay && whoWon!=id)))winWidget(),
         Container(
           width: width * .7,
           padding: EdgeInsets.all(10),
-          margin: EdgeInsets.symmetric(horizontal: width*.15),
+          margin: EdgeInsets.symmetric(horizontal: width*.1),
           child: GridView.count(
             physics: NeverScrollableScrollPhysics(),
             crossAxisCount: 3,
@@ -477,11 +506,13 @@ class _TicTacToeState extends State<TicTacToe> {
             shrinkWrap: true,
           ),
         ),
-        Padding(
+
+        if(winPositions.isEmpty || (winPositions.isNotEmpty && toPlay && whoWon==id))Padding(
           padding: EdgeInsets.only(
-              left: width * .15, right: width * .15, bottom: 15,top: 10),
+              left: width * .1, right: width * .1, bottom: 15,top: 10),
           child: actionButton('PLAY', toPlay, false, uploadPlay, context),
-        )
+        ),
+
       ],
     );
   }
