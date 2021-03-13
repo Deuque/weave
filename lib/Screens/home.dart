@@ -273,6 +273,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                               .where((element) =>
                                   element.parties.contains(opponent))
                               .toList();
+                          print('messages: ${messages.length}');
                           int unreadMessages = activityMessages
                               .where((element) =>
                                   element.parties.contains(opponent) &&
@@ -352,7 +353,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                         });
 
                         activities
-                            .sort((b, a) => b.timestamp.compareTo(a.timestamp));
+                            .sort((a,b) => b.timestamp.compareTo(a.timestamp));
                         unreadActivities.sink.add(activities.fold(
                             0,
                             (previousValue, element) =>
@@ -368,6 +369,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                         invites = invites
                             .where((element) => element.accepted == false)
                             .toList();
+                        invites.sort((a,b)=>b.timestamp.compareTo(a.timestamp));
                         return TabBody(
                           items: invites,
                           tabIndex: 1,
@@ -396,6 +398,7 @@ class TabBody extends StatelessWidget {
         ? emptyWidget(image: 'assets/images/empty2.png', size: width * .2)
         : tabIndex == 0
             ? ListView(
+      key: Key(items[0].timestamp.toString()),
                 padding: EdgeInsets.only(top: 10),
                 physics: BouncingScrollPhysics(),
                 children: items
@@ -405,6 +408,7 @@ class TabBody extends StatelessWidget {
                     .toList(),
               )
             : ListView(
+      key: Key(items[0].timestamp.toString()),
                 padding: EdgeInsets.only(top: 10),
                 physics: BouncingScrollPhysics(),
                 children: items
