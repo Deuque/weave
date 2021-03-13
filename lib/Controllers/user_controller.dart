@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:weave/Models/anagram_activity.dart';
 import 'package:weave/Models/game.dart';
 import 'package:weave/Models/invite.dart';
 import 'package:weave/Models/message.dart';
@@ -97,11 +98,11 @@ class UserController {
     return repo.getChats();
   }
 
-  Future<void> addAnagramGame(Map<String,dynamic> game) async {
+  Future<void> addAnagramGame(AnagramActivity game) async {
     await repo.addOrEditAnagramGame(game);
   }
 
-  Future<void> editAnagramGame(Map<String,dynamic> game) async {
+  Future<void> editAnagramGame(AnagramActivity game) async {
     await repo.addOrEditAnagramGame(game, edit: true);
   }
 

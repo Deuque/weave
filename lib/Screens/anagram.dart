@@ -56,7 +56,7 @@ class Anagram extends StatelessWidget {
         activity.sender=context.read(userProvider.state).id;
         activity.index = anagrams.length;
         activity.parties = invite.parties;
-        UserController().addAnagramGame(activity.toJson());
+        UserController().addAnagramGame(activity);
     }
 
     onGuessWord(String id, String answer) {
@@ -64,7 +64,7 @@ class Anagram extends StatelessWidget {
       activity.opponentAnswer=answer;
       activity.answered=true;
 
-      UserController().editAnagramGame(activity.toJson());
+      UserController().editAnagramGame(activity);
     }
 
     Widget actionBar() => Container(

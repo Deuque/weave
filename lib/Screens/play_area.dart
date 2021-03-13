@@ -463,6 +463,10 @@ class _PlayAreaState extends State<PlayArea>
                         ..userIsSender =
                             e.sender == context.read(userProvider.state).id;
                     }).toList();
+
+                    if(anagramGames.isNotEmpty && anagramGames[0].sender!=context.read(userProvider.state).id && !anagramGames[0].seenByReceiver){
+                      UserController().editAnagramGame(anagramGames[0]..seenByReceiver=true);
+                    }
                   } else {
                     tttGames = watch(userStreamsProvider).myTttGames;
                     tttGames = tttGames
@@ -470,6 +474,9 @@ class _PlayAreaState extends State<PlayArea>
                             .contains(widget.activity.opponentId))
                         .toList();
                     tttGames.sort((a, b) => b.index.compareTo(a.index));
+                    if(tttGames.isNotEmpty && tttGames[0].sender!=context.read(userProvider.state).id && !tttGames[0].seenByReceiver){
+                      UserController().editTttGame(tttGames[0]..seenByReceiver=true);
+                    }
                   }
 
                   return invite.gameType == 0

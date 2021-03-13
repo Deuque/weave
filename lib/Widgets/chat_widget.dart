@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:weave/Controllers/current_user_controller.dart';
+import 'package:weave/Controllers/user_controller.dart';
 import 'package:weave/Models/message.dart';
 import 'package:weave/Util/colors.dart';
 import 'package:weave/Widgets/chat_clipper.dart';
+import 'package:flutter_riverpod/all.dart';
 
 class ChatLayout extends StatefulWidget {
   final Message message;
@@ -21,8 +24,14 @@ class _ChatLayoutState extends State<ChatLayout> {
     // TODO: implement initState
     super.initState();
     userIsSender = widget.message.userIsSender;
+    updateReceiverSeen();
   }
 
+  updateReceiverSeen()async{
+    if(widget.message.receiver==context.read(userProvider.state).id && !widget.message.seenByReceiver){
+      UserController().editMessage(widget.message..seenByReceiver=true);
+    }
+  }
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;

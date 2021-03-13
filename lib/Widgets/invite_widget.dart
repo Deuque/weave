@@ -31,6 +31,8 @@ class _InviteLayoutState extends State<InviteLayout>
     // TODO: implement initState
     super.initState();
     getInvitee();
+    updateReceiverSeen();
+
   }
 
   getInvitee() async {
@@ -41,6 +43,12 @@ class _InviteLayoutState extends State<InviteLayout>
         .then((value) => setState(() {
               invitee = User.fromMap(value.data())..id = value.id;
             }));
+  }
+
+  updateReceiverSeen()async{
+    if(widget.invite.receiver==context.read(userProvider.state).id && !widget.invite.seenByReceiver){
+      UserController().editInvite(widget.invite..seenByReceiver=true);
+    }
   }
 
   @override

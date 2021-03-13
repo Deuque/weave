@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:weave/Controllers/current_user_controller.dart';
+import 'package:weave/Controllers/user_controller.dart';
 import 'package:weave/Models/anagram_activity.dart';
 import 'package:weave/Screens/guess_word_anagram.dart';
 import 'package:weave/Screens/scramble_word_anagram.dart';
@@ -40,6 +41,8 @@ class _AnagramLayoutState extends State<AnagramLayout> {
     super.initState();
     userIsSender = widget.anagramActivity.userIsSender;
   }
+
+
 
   @override
   Widget build(BuildContext context) {

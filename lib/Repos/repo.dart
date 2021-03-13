@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:weave/Models/anagram_activity.dart';
 import 'package:weave/Models/game.dart';
 import 'package:weave/Models/invite.dart';
 import 'package:weave/Models/message.dart';
@@ -58,7 +59,7 @@ class Repo {
     return inviteDbInstance.where('parties',arrayContains: currentUserId()).snapshots();
   }
 
-  Future<DocumentReference> addOrEditMessage(Message message, {bool edit = false}){
+  Future<dynamic> addOrEditMessage(Message message, {bool edit = false}){
     if(!edit)
       return chatDbInstance.add(message.toJson());
     else
@@ -69,11 +70,11 @@ class Repo {
     return chatDbInstance.where('parties',arrayContains: currentUserId()).snapshots();
   }
 
-  Future<dynamic> addOrEditAnagramGame(Map<String,dynamic> game, {bool edit = false}){
+  Future<dynamic> addOrEditAnagramGame(AnagramActivity game, {bool edit = false}){
     if(!edit)
-      return anagramGameDbInstance.add(game);
+      return anagramGameDbInstance.add(game.toJson());
     else
-      return anagramGameDbInstance.doc(game['id']).update(game);
+      return anagramGameDbInstance.doc(game.id).update(game.toJson());
   }
 
   Future<void> deleteAnagramGame(String id){
