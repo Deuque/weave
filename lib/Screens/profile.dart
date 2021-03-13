@@ -1,5 +1,10 @@
+import 'dart:io';
+
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/all.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:weave/Controllers/current_user_controller.dart';
 import 'package:weave/Controllers/theme_controller.dart';
 import 'package:weave/Controllers/user_controller.dart';
@@ -13,19 +18,53 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
+  File selectedImage;
+  bool uploadingImage = false;
+
   @override
   void dispose() {
     // TODO: implement dispose
+    uploadImage();
     super.dispose();
   }
 
-  showLogoutConfirmSheet() async{
+  showLogoutConfirmSheet() async {
     var result = await showModalBottomSheet(
         shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top:Radius.circular(10))),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(10))),
         context: (context),
         builder: (_) => ConfirmLogout());
     return result;
+  }
+
+  selectImage() async {
+    final pickedFile =
+        await ImagePicker().getImage(source: ImageSource.gallery);
+    if (pickedFile != null)
+      setState(() {
+        selectedImage = File(pickedFile.path);
+      });
+  }
+
+  uploadImage() async{
+    if(selectedImage==null || uploadingImage)return;
+    setState(() {
+      uploadingImage=true;
+    });
+    var ref = FirebaseStorage.instance
+        .ref()
+        .child('ProfileImages')
+        .child(context.read(userProvider.state).id);
+    await ref.putFile(selectedImage).then((taskSnapshot) async{
+      String url = await taskSnapshot.ref.getDownloadURL();
+      await UserController().saveUserData({'photo': url});
+      setState(() {
+        selectedImage=null;
+      });
+    }).catchError((e)=>Fluttertoast.showToast(msg: e.toString()));
+    setState(() {
+      uploadingImage=false;
+    });
   }
 
   @override
@@ -41,47 +80,56 @@ class _ProfileState extends State<Profile> {
         );
 
     _profileImageWidget() => Center(
-          child: Container(
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                  boxShadow: [
-                    BoxShadow(
-                        color: Theme.of(context).backgroundColor,
-                        offset: Offset(2, 1.3),
-                        spreadRadius: 1.6,
-                        blurRadius: 2)
-                  ]),
-              child: profileImage(
-                  context.read(userProvider.state).photo, width * .3, context,
-                  radius: 20, imagePadding: 15)),
-        );
+          child: Stack(
+            children: [
+              GestureDetector(
+                onTap: selectImage,
+                child: Container(
+                  height:  width * .3,
+                    width:  width * .3,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: Theme.of(context).scaffoldBackgroundColor,
+                        boxShadow: [
+                          BoxShadow(
+                              color: Theme.of(context).backgroundColor,
+                              offset: Offset(2, 1.3),
+                              spreadRadius: 1.6,
+                              blurRadius: 2)
+                        ]),
+                    child: selectedImage != null
+                        ? ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                          child: Image.file(
+                              selectedImage,
+                              fit: BoxFit.cover,
+                            ),
+                        )
+                        : profileImage(context.read(userProvider.state).photo,
+                            width * .3, context,
+                            radius: 20, imagePadding: 15)),
+              ),
+              if(selectedImage!=null)
+                Positioned(
+                  bottom: 0,right: 0,
+                  child: Material(
+                    color: Theme.of(context).secondaryHeaderColor.withOpacity(.3),
+                    borderRadius: BorderRadius.only(topLeft: Radius.circular(20),bottomRight: Radius.circular(20)),
+                    child: InkWell(
+                      onTap: uploadImage,
+                      child: Padding(
+                        padding: EdgeInsets.all(10),
+                        child: uploadingImage?SizedBox(
+                          height: 16,width: 16,child: CircularProgressIndicator(
+                          strokeWidth: 2,valueColor: AlwaysStoppedAnimation(accentColor),
+                        ),
+                        ):Image.asset('assets/images/upload.png',height: 15,color: Theme.of(context).scaffoldBackgroundColor,),
 
-    _shareWeavWidget() => Container(
-          margin: EdgeInsets.all(10),
-          decoration: BoxDecoration(
-              color: accentColor.withOpacity(.1),
-              borderRadius: BorderRadius.circular(10)),
-          child: ListTile(
-            leading: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  'assets/images/share.png',
-                  color: Theme.of(context).secondaryHeaderColor,
-                  height: 16,
-                ),
-              ],
-            ),
-            title: Text(
-              'Share weave with friends',
-              style: TextStyle(
-                  color: Theme.of(context).secondaryHeaderColor, fontSize: 16),
-            ),
-            trailing: Icon(
-              Icons.chevron_right_outlined,
-              color: Theme.of(context).secondaryHeaderColor.withOpacity(.4),
-            ),
+                      ),
+                    ),
+                  ),
+                )
+            ],
           ),
         );
 
@@ -103,15 +151,18 @@ class _ProfileState extends State<Profile> {
           {
             'title': 'Change Username',
             'onClick': () => Navigator.pushNamed(context, 'username',
-                    arguments: context.read(userProvider.state).username)
+                arguments: context.read(userProvider.state).username)
           },
-          {'title': 'Add a phone number', 'onClick': () => Navigator.pushNamed(context, 'phone',
-              arguments: context.read(userProvider.state).phone)},
+          {
+            'title': 'Add a phone number',
+            'onClick': () => Navigator.pushNamed(context, 'phone',
+                arguments: context.read(userProvider.state).phone)
+          },
           {'title': 'Share weave with friends', 'onClick': () {}},
         ];
 
     infoWidget(String title, Function onClick, [Color color]) => ListTile(
-      onTap: onClick,
+          onTap: onClick,
           title: Text(
             title,
             style: TextStyle(
@@ -137,10 +188,14 @@ class _ProfileState extends State<Profile> {
           children: [
             _profileImageWidget(),
             spacer2(),
-            Text(
-              '@${context.read(userProvider.state).username}',
-              style: TextStyle(
-                  color: Theme.of(context).secondaryHeaderColor, fontSize: 16),
+            Consumer(
+              builder: (context, watch, _) {
+                return Text(
+                  '@${watch(userProvider.state).username}',
+                  style: TextStyle(
+                      color: Theme.of(context).secondaryHeaderColor, fontSize: 16),
+                );
+              }
             ),
             spacer(),
             // _shareWeaveWidget()
@@ -181,7 +236,7 @@ class _ProfileState extends State<Profile> {
               color: Theme.of(context).backgroundColor,
               child: infoWidget('Logout', () async {
                 var response = await showLogoutConfirmSheet();
-                if(response!=null && response){
+                if (response != null && response) {
                   await UserController().signOut();
                   Navigator.pushReplacementNamed(context, 'auth');
                 }

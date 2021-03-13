@@ -64,7 +64,7 @@ class _ChatState extends State<Chat> {
             elements: widget.messages,
             groupBy: (element) => element.date,
             groupSeparatorBuilder: (String groupByValue) => Align(
-              alignment: Alignment.topCenter,
+              alignment: Alignment.center,
               child: Material(
                   borderRadius: BorderRadius.circular(8),
                   color: Theme.of(context).scaffoldBackgroundColor,

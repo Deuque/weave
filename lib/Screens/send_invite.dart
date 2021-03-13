@@ -12,6 +12,9 @@ import 'package:weave/Util/helper_functions.dart';
 import 'package:flutter_riverpod/all.dart';
 
 class SendInvite extends StatefulWidget {
+  final List<User> invitees;
+
+  const SendInvite({Key key, this.invitees}) : super(key: key);
   @override
   _SendInviteState createState() => _SendInviteState();
 }
@@ -20,6 +23,13 @@ class _SendInviteState extends State<SendInvite> {
   int gameType = 0;
   List<User> invitees = [];
   bool loading = false;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    invitees=widget.invitees??[];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -128,7 +138,7 @@ class _SendInviteState extends State<SendInvite> {
                         arguments: [
                           SelectUserType.multiple,
                           invitees,
-                          'Select User'
+                          'Find an opponent'
                         ],
                       ).then((value) {
                         if(value!=null)setState(() => invitees = value);

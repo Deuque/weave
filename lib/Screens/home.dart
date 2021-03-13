@@ -12,6 +12,9 @@ import 'package:weave/Models/anagram_activity.dart';
 import 'package:weave/Models/invite.dart';
 import 'package:weave/Models/message.dart';
 import 'package:weave/Models/tictactoe_activity.dart';
+import 'package:weave/Models/user.dart';
+import 'package:weave/Screens/select_user.dart';
+import 'package:weave/Screens/send_invite.dart';
 import 'package:weave/Util/colors.dart';
 import 'package:weave/Util/helper_functions.dart';
 import 'package:weave/Widgets/activity_widget.dart';
@@ -68,7 +71,9 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     spreadRadius: 1.6,
                     blurRadius: 2)
               ]),
-      child: profileImage(context.read(userProvider.state).photo, size.width*.06, context,radius: 7),
+          child: profileImage(
+              context.read(userProvider.state).photo, size.width * .06, context,
+              radius: 7),
         );
 
     Widget tabsUnreadCount({bool active, int count}) => Visibility(
@@ -112,13 +117,31 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           actions: [
             Center(
                 child: IconButton(
-              icon: Image.asset(
-                'assets/images/search.png',
-                height: size.width * .04,
-                color: Theme.of(context).secondaryHeaderColor.withOpacity(.8),
-              ),
-              onPressed: () {},
-            )),
+                    icon: Image.asset(
+                      'assets/images/search.png',
+                      height: size.width * .04,
+                      color: Theme.of(context)
+                          .secondaryHeaderColor
+                          .withOpacity(.8),
+                    ),
+                    onPressed: () {
+                      Navigator.pushNamed(
+                        context,
+                        'selectUser',
+                        arguments: [SelectUserType.single, <User>[], 'Find an opponent'],
+                      ).then((value) {
+                        if (value != null && (value as List).isNotEmpty) {
+                          showModalBottomSheet(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.vertical(
+                                      top: Radius.circular(10))),
+                              context: (context),
+                              builder: (_) => SendInvite(
+                                    invitees: value,
+                                  ));
+                        }
+                      });
+                    })),
             Center(
               child: IconButton(
                 icon: userImage(),
@@ -137,6 +160,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             children: [
               TabBar(
                 isScrollable: true,
+
                 // onTap: (index) {
                 //   // Tab index when user select it, it start from zero
                 //   setState(() {
@@ -144,11 +168,14 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 //   });
                 // },
                 controller: _controller,
+
                 //indicatorPadding: EdgeInsets.all(10),
                 labelPadding: EdgeInsets.symmetric(
                   horizontal: 10,
                 ),
+
                 indicatorColor: Colors.transparent,
+
                 // indicator: MD2Indicator(
                 //   indicatorSize: MD2IndicatorSize.full,
                 //   indicatorHeight: 3.0,
@@ -158,8 +185,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 // unselectedLabelColor:
                 //     Theme.of(context).secondaryHeaderColor.withOpacity(.3),
                 labelColor: Theme.of(context).primaryColor,
+
                 unselectedLabelColor:
                     Theme.of(context).secondaryHeaderColor.withOpacity(.3),
+
                 tabs: [
                   StreamBuilder<int>(
                       stream: unreadActivities.stream,
@@ -205,7 +234,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     controller: _controller,
                     children: [
                       Consumer(builder: (context, watch, _) {
-                        
                         //stream of pending invites since this tab loads first
                         List<Invite> pendingInvites =
                             watch(userStreamsProvider).myInvites;
@@ -214,14 +242,13 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                             .toList();
                         int unread = pendingInvites
                             .where((element) =>
-                        !element.seenByReceiver &&
-                            element.receiver ==
-                                context.read(userProvider.state).id)
+                                !element.seenByReceiver &&
+                                element.receiver ==
+                                    context.read(userProvider.state).id)
                             .toList()
                             .length;
                         unreadInvites.sink.add(unread);
-                        
-                        
+
                         //stream of accepted invites
                         List<Invite> invites =
                             watch(userStreamsProvider).myInvites;
@@ -242,7 +269,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                   element !=
                                   context.read(userProvider.state).id);
                           //get messages of activity
-                          List<Message> activityMessages = messages.where((element) => element.parties.contains(opponent)).toList();
+                          List<Message> activityMessages = messages
+                              .where((element) =>
+                                  element.parties.contains(opponent))
+                              .toList();
                           int unreadMessages = activityMessages
                               .where((element) =>
                                   element.parties.contains(opponent) &&
@@ -255,49 +285,78 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                           // get games of activity
                           int unreadGame = 0;
                           Timestamp gamestamp;
-                          if(element.gameType==1){
-                            List<AnagramActivity> anagramGames=watch(userStreamsProvider).myAnagramGames;
+                          if (element.gameType == 1) {
+                            List<AnagramActivity> anagramGames =
+                                watch(userStreamsProvider).myAnagramGames;
                             anagramGames = anagramGames
                                 .where((element) =>
-                                element.parties.contains(opponent))
+                                    element.parties.contains(opponent))
                                 .toList();
-                            anagramGames.sort((a,b)=>b.index.compareTo(a.index));
-                            unreadGame = anagramGames.isEmpty?0:anagramGames[0].sender!=context.read(userProvider.state).id && !anagramGames[0].seenByReceiver?1:0;
-                            gamestamp = anagramGames.isEmpty?null:anagramGames[0].timestamp;
-                          }else{
-                            List<TictactoeActivity> tttGames = watch(userStreamsProvider)
-                                .myTttGames;
+                            anagramGames
+                                .sort((a, b) => b.index.compareTo(a.index));
+                            unreadGame = anagramGames.isEmpty
+                                ? 0
+                                : anagramGames[0].sender !=
+                                            context
+                                                .read(userProvider.state)
+                                                .id &&
+                                        !anagramGames[0].seenByReceiver
+                                    ? 1
+                                    : 0;
+                            gamestamp = anagramGames.isEmpty
+                                ? null
+                                : anagramGames[0].timestamp;
+                          } else {
+                            List<TictactoeActivity> tttGames =
+                                watch(userStreamsProvider).myTttGames;
                             tttGames = tttGames
                                 .where((element) =>
-                                element.parties.contains(
-                                    opponent))
+                                    element.parties.contains(opponent))
                                 .toList();
-                            tttGames.sort((a, b) =>
-                                b.index.compareTo(a.index));
-                            unreadGame = tttGames.isEmpty?0:tttGames[0].sender!=context.read(userProvider.state).id && !tttGames[0].seenByReceiver?1:0;
-                            gamestamp = tttGames.isEmpty?null:tttGames[0].timestamp;
-
+                            tttGames.sort((a, b) => b.index.compareTo(a.index));
+                            unreadGame = tttGames.isEmpty
+                                ? 0
+                                : tttGames[0].sender !=
+                                            context
+                                                .read(userProvider.state)
+                                                .id &&
+                                        !tttGames[0].seenByReceiver
+                                    ? 1
+                                    : 0;
+                            gamestamp =
+                                tttGames.isEmpty ? null : tttGames[0].timestamp;
                           }
 
                           //most recent time between invite and chat
                           int largestTime = activityMessages.isEmpty
                               ? element.timestamp.millisecondsSinceEpoch
-                              : max(element.timestamp.millisecondsSinceEpoch, activityMessages[0].timestamp.millisecondsSinceEpoch);
+                              : max(
+                                  element.timestamp.millisecondsSinceEpoch,
+                                  activityMessages[0]
+                                      .timestamp
+                                      .millisecondsSinceEpoch);
 
                           //most recent time between recent from above and game
-                          largestTime = gamestamp==null?largestTime:max(largestTime, gamestamp.millisecondsSinceEpoch);
+                          largestTime = gamestamp == null
+                              ? largestTime
+                              : max(largestTime,
+                                  gamestamp.millisecondsSinceEpoch);
 
                           Activity activity = Activity(
                               opponentId: opponent,
                               gameType: element.gameType,
-                              unreadChat: unreadMessages+unreadGame,
-                              timestamp: Timestamp.fromMillisecondsSinceEpoch(largestTime));
+                              unreadChat: unreadMessages + unreadGame,
+                              timestamp: Timestamp.fromMillisecondsSinceEpoch(
+                                  largestTime));
                           activities.add(activity);
                         });
 
                         activities
                             .sort((b, a) => b.timestamp.compareTo(a.timestamp));
-                        unreadActivities.sink.add(activities.fold(0, (previousValue, element) => previousValue+element.unreadChat));
+                        unreadActivities.sink.add(activities.fold(
+                            0,
+                            (previousValue, element) =>
+                                previousValue + element.unreadChat));
                         return TabBody(
                           items: activities,
                           tabIndex: 0,

@@ -3,8 +3,10 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/all.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:weave/Controllers/contacts_controller.dart';
 import 'package:weave/Controllers/current_user_controller.dart';
+import 'package:weave/Controllers/user_controller.dart';
 import 'package:weave/Models/user.dart';
 import 'package:weave/Util/colors.dart';
 import 'package:weave/Util/helper_functions.dart';
@@ -28,13 +30,34 @@ class _SelectUserState extends State<SelectUser> {
   StreamController<List<User>> selectedUsersHorizontalController =
       new StreamController();
   FocusNode searchFocusNode = new FocusNode();
+  bool textEntered=false;
+  List<User> weaveUsers=[];
+  List<User> filteredWeaveUsers=[];
+  TextEditingController searchController = new TextEditingController();
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    getWeaveUsers();
     selectedUsers = widget.selectedUsers;
     selectedUsersHorizontalController.sink.add(selectedUsers);
+    searchController.addListener(() {
+      if(searchController.text.isEmpty && textEntered){
+        setState(() {
+          textEntered=false;
+        });
+      }
+      if(searchController.text.isNotEmpty && !textEntered){
+        setState(() {
+          textEntered=true;
+        });
+      }
+
+      if(searchController.text.isNotEmpty){
+        performSearch(searchController.text);
+      }
+    });
   }
 
   @override
@@ -42,6 +65,26 @@ class _SelectUserState extends State<SelectUser> {
     // TODO: implement dispose
     selectedUsersHorizontalController.close();
     super.dispose();
+  }
+
+  performSearch(String text){
+    setState(() {
+      filteredWeaveUsers=[];
+    });
+    String ntext = text.replaceAll('@', '');
+    if(ntext.isEmpty)return;
+
+    filteredWeaveUsers = weaveUsers.where((element) => element.username.contains(ntext)).toList();
+    setState(() {
+    });
+  }
+
+  getWeaveUsers() async{
+   weaveUsers = await UserController().getUsers();
+   weaveUsers=weaveUsers.where((element) => element.id!=context.read(userProvider.state).id).toList();
+   setState(() {
+
+   });
   }
 
   @override
@@ -60,6 +103,7 @@ class _SelectUserState extends State<SelectUser> {
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: width * .02),
           child: TextField(
+            controller: searchController,
             focusNode: searchFocusNode,
             textAlign: TextAlign.start,
             textAlignVertical: TextAlignVertical.center,
@@ -110,11 +154,11 @@ class _SelectUserState extends State<SelectUser> {
                                 child: Stack(
                                   alignment: Alignment.bottomCenter,
                                   children: [
-                                    CircleAvatar(
-                                      backgroundColor:
-                                          Colors.grey.withOpacity(.08),
-                                      radius: width * .05,
-                                      backgroundImage: AssetImage(e.photo),
+                                    profileImage(
+                                      e.photo,
+                                      width * .1,
+                                      context,
+                                      imagePadding: 5
                                     ),
                                     Positioned(
                                       top: 0,
@@ -191,16 +235,12 @@ class _SelectUserState extends State<SelectUser> {
           elevation: 5,
           shadowColor: Theme.of(context).backgroundColor.withOpacity(.4),
           actions: [
-            GestureDetector(
-              onTap: () => Navigator.pop(context, selectedUsers),
-              child: Container(
-                color: Colors.transparent,
-                padding: const EdgeInsets.all(13.0),
-                child: Icon(
-                  Icons.clear,
-                  size: 16,
-                  color: Theme.of(context).secondaryHeaderColor.withOpacity(.6),
-                ),
+            IconButton(
+              onPressed: () => Navigator.pop(context, selectedUsers),
+              icon: Icon(
+                Icons.clear,
+                size: 16,
+                color: Theme.of(context).secondaryHeaderColor.withOpacity(.6),
               ),
             )
           ],
@@ -218,22 +258,47 @@ class _SelectUserState extends State<SelectUser> {
             children: [
               _selectedUsersHorizontalLayout(),
               _space(),
-              ContactsOnWeave(
+              textEntered ? UsersOnWeave(
+                key: Key(filteredWeaveUsers.toString()),
+                usersOnWeave: filteredWeaveUsers,
                 selected: (User user) => selectedUsers
                     .map((e) => e.username)
                     .contains(user.username),
                 onClick: (User user) {
-                  setState(() {
+                  widget.selectUserType == SelectUserType.single
+                      ? Navigator.pop(context, [user])
+                      : setState(() {
                     if (selectedUsers
                         .map((e) => e.username)
                         .toList()
                         .contains(user.username)) {
-                      selectedUsers
-                          .removeWhere((e) => e.username == user.username);
+                      selectedUsers.removeWhere(
+                              (e) => e.username == user.username);
                     } else {
                       selectedUsers.add(user);
                     }
                   });
+                  selectedUsersHorizontalController.sink.add(selectedUsers);
+                },
+                selectUserType: widget.selectUserType,
+              ):ContactsOnWeave(
+                selected: (User user) => selectedUsers
+                    .map((e) => e.username)
+                    .contains(user.username),
+                onClick: (User user) {
+                  widget.selectUserType == SelectUserType.single
+                      ? Navigator.pop(context, [user])
+                      : setState(() {
+                          if (selectedUsers
+                              .map((e) => e.username)
+                              .toList()
+                              .contains(user.username)) {
+                            selectedUsers.removeWhere(
+                                (e) => e.username == user.username);
+                          } else {
+                            selectedUsers.add(user);
+                          }
+                        });
                   selectedUsersHorizontalController.sink.add(selectedUsers);
                 },
                 selectUserType: widget.selectUserType,
@@ -278,11 +343,14 @@ class _ContactsOnWeaveState extends State<ContactsOnWeave> {
     super.dispose();
   }
 
-  Future<void> getAllUsers() {
-    context.read(contactsProvider).getContactsOnWeave().then((value){
+  Future<void> getAllUsers([bool refresh]) {
+    context.read(contactsProvider).getContactsOnWeave(refresh).then((value) {
       allUsersController.sink.add(value);
+      if(refresh!=null && refresh){
+        Fluttertoast.showToast(msg: 'Refreshed weave contacts');
+      }
     });
-   // allUsersController.sink.add(contacts);
+    // allUsersController.sink.add(contacts);
   }
 
   @override
@@ -320,7 +388,7 @@ class _ContactsOnWeaveState extends State<ContactsOnWeave> {
                   children: snapshot.data
                       .map(
                         (user) => UserWidget(
-                            user: user..photo='assets/user_dummies/img${1+Random().nextInt(7)}.jpg',
+                            user: user,
                             selected: widget.selected(user),
                             onClick: () => widget.onClick(user)),
                       )
@@ -368,9 +436,23 @@ class _ContactsOnWeaveState extends State<ContactsOnWeave> {
         mainAxisSize: MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Your Weave Contacts',
-            style: TextStyle(color: primary, fontSize: 15),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Your Weave Contacts',
+                style: TextStyle(color: primary, fontSize: 15),
+              ),
+              IconButton(
+                  icon: Image.asset(
+                    'assets/images/refresh.png',
+                    height: 14,
+                    color: Theme.of(context)
+                        .secondaryHeaderColor
+                        .withOpacity(.6),
+                  ),
+                  onPressed: ()=>getAllUsers(true)),
+            ],
           ),
           _space(),
           _allUsersLayout(),
@@ -383,6 +465,97 @@ class _ContactsOnWeaveState extends State<ContactsOnWeave> {
                     height: 0,
                   );
           })
+        ],
+      ),
+    );
+  }
+}
+
+class UsersOnWeave extends StatefulWidget {
+  List<User> usersOnWeave;
+  bool Function(User x) selected;
+  Function(User x) onClick;
+  SelectUserType selectUserType;
+
+  UsersOnWeave({Key key, this.usersOnWeave, this.selected, this.onClick, this.selectUserType})
+      : super(key: key);
+
+  @override
+  _UsersOnWeaveState createState() => _UsersOnWeaveState();
+}
+
+class _UsersOnWeaveState extends State<UsersOnWeave> {
+  StreamController<List<User>> allUsersController = new StreamController();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    allUsersController.sink.add(widget.usersOnWeave);
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    allUsersController.close();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+
+    _space() {
+      return SizedBox(
+        height: 20,
+      );
+    }
+
+    _allUsersLayout() {
+      return Expanded(
+        child: StreamBuilder<List<User>>(
+            stream: allUsersController.stream,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting)
+                return Center(
+                  child: SizedBox(
+                      height: 40,
+                      width: 40,
+                      child: CircularProgressIndicator(
+                        backgroundColor: lightGrey.withOpacity(.6),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                            primary.withOpacity(.87)),
+                        strokeWidth: 1.7,
+                      )),
+                );
+              if (snapshot.hasData && snapshot.data.isEmpty)
+                return emptyWidget(
+                    image: 'assets/images/emptySearch.png', size: width * .2);
+              return ListView(
+                  padding: EdgeInsets.zero,
+                  children: snapshot.data
+                      .map(
+                        (user) => UserWidget(
+                        user: user,
+                        selected: widget.selected(user),
+                        onClick: () => widget.onClick(user)),
+                  )
+                      .toList());
+            }),
+      );
+    }
+
+    return Expanded(
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Search results',
+            style: TextStyle(color: primary, fontSize: 15),
+          ),
+          _space(),
+          _allUsersLayout(),
         ],
       ),
     );
@@ -413,15 +586,7 @@ class UserWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(8)),
         child: ListTile(
           //onTap: ()=>Navigator.pop(context,user),
-          leading: ClipRRect(
-            borderRadius: BorderRadius.circular(35),
-            child: Image.asset(
-              user.photo,
-              height: size.width * .08,
-              width: size.width * .08,
-              fit: BoxFit.cover,
-            ),
-          ),
+          leading: profileImage(user.photo, size.width * .08, context),
           title: Text(
             '${user.username}',
             style: TextStyle(

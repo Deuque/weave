@@ -7,8 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:weave/Controllers/user_controller.dart';
 import 'package:weave/Models/user.dart';
 
-final contactsProvider =
-StateNotifierProvider<Contacts>((ref) => Contacts());
+final contactsProvider = StateNotifierProvider<Contacts>((ref) => Contacts());
 
 class Contacts extends StateNotifier<List<User>> {
   Contacts([List<User> users]) : super(users ?? []);
@@ -17,41 +16,38 @@ class Contacts extends StateNotifier<List<User>> {
     state = await getSavedContacts();
   }
 
-  Future<List<User>> getContactsOnWeave() async {
-    if (state.isNotEmpty) return Future.value(state);
+  Future<List<User>> getContactsOnWeave([bool refresh]) async {
+    if (refresh==null || !refresh) {
+      if (state.isNotEmpty) return Future.value(state);
+    }
     state = await processContactsOnDevice();
     saveContactsState();
     return state ?? [];
   }
 
-
   Future<List<User>> processContactsOnDevice() async {
     if (await askContactPermission() != PermissionStatus.granted) return [];
-    Iterable<Contact> contacts = await ContactsService.getContacts(
-        withThumbnails: false).catchError((e) => print(e.toString()));
+    Iterable<Contact> contacts =
+        await ContactsService.getContacts(withThumbnails: false)
+            .catchError((e) => print(e.toString()));
     List<User> dummyUsers = [];
     List<String> numbers = [];
 
     contacts.forEach((element1) {
       element1.phones.forEach((element2) {
-
         String number = element2.value.replaceAll(' ', '');
-        if(number.startsWith('0')) number = number.replaceFirst('0', '+234');
-        if(!numbers.contains(number)) numbers.add(number);
-
+        if (number.startsWith('0')) number = number.replaceFirst('0', '+234');
+        if (!numbers.contains(number)) numbers.add(number);
       });
     });
 
-    List<User> result  = await UserController().getUsers();
-    result.removeWhere((element) => element.id==UserController().currentUserId());
+    List<User> result = await UserController().getUsers();
+    result.removeWhere(
+        (element) => element.id == UserController().currentUserId());
     result.retainWhere((element) => numbers.contains(element.phone));
 
-
-    return result ?? state ;
-
+    return result ?? state;
   }
-
-
 
   Future<void> saveContactsState() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -64,7 +60,6 @@ class Contacts extends StateNotifier<List<User>> {
     return contacts.map((e) => User.fromMap(jsonDecode(e))).toList();
   }
 
-
   Future<PermissionStatus> askContactPermission() async {
     if (!(await Permission.contacts.isGranted) &&
         !(await Permission.contacts.isRestricted)) {
@@ -75,5 +70,4 @@ class Contacts extends StateNotifier<List<User>> {
     }
     return (await Permission.contacts.status);
   }
-
 }
