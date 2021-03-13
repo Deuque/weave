@@ -290,7 +290,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                           Activity activity = Activity(
                               opponentId: opponent,
                               gameType: element.gameType,
-                              unreadChat: unreadMessages,
+                              unreadChat: unreadMessages+unreadGame,
                               timestamp: Timestamp.fromMillisecondsSinceEpoch(largestTime));
                           activities.add(activity);
                         });

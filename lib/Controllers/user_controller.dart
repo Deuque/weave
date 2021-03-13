@@ -105,7 +105,7 @@ class UserController {
     await repo.addOrEditAnagramGame(game, edit: true);
   }
 
-  Future<void> startNewAnagramGame(List<String> anagramIds)async{
+  Future<void> deleteAnagramGame(List<String> anagramIds)async{
     for(final id in anagramIds.reversed)
       await repo.deleteAnagramGame(id);
   }
@@ -122,11 +122,13 @@ class UserController {
     await repo.addOrEditTttGame(game, edit: true);
   }
 
-  Future<void> startNewTttGame(String id)async{
+  Future<void> deleteTttGame(String id)async{
     await repo.deleteTttGame(id);
   }
 
   Stream<QuerySnapshot> getTttGames() {
     return repo.getTttGames();
   }
+
+
 }

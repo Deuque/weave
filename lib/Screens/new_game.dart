@@ -18,8 +18,6 @@ class NewGame extends StatefulWidget {
 
 class _NewGameState extends State<NewGame> {
   int gameType = 0;
-  List<User> invitees = [];
-  bool loading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -41,31 +39,6 @@ class _NewGameState extends State<NewGame> {
           height: height * .03,
         );
 
-    onDone() async{
-      setState(() {
-        loading=true;
-      });
-      for(User user in invitees){
-        List<Invite> prevInvites = context.read(userStreamsProvider).myInvites;
-        if(prevInvites.isNotEmpty && prevInvites.where((element) => element.parties.contains(user.id) && !element.declined).toList().isNotEmpty){
-          Fluttertoast.showToast(msg: 'you have a game with @${user.username}');
-          continue;
-        }
-        Invite invite = Invite(
-          sender: context.read(userProvider.state).id,
-          receiver: user.id,
-          parties: [context.read(userProvider.state).id, user.id],
-          gameType: gameType,
-          timestamp: Timestamp.now(),
-        );
-
-        await UserController().sendInvite(invite);
-      }
-      setState(() {
-        loading=false;
-      });
-      Navigator.pop(context);
-    }
 
     return Container(
       padding:
@@ -76,7 +49,7 @@ class _NewGameState extends State<NewGame> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Start a game',
+              Text('New game',
                   style: TextStyle(
                       color: Theme
                           .of(context)
@@ -115,53 +88,7 @@ class _NewGameState extends State<NewGame> {
                     )),
               )),
           spacer2(),
-          customFieldIdentifier(
-              label: 'Choose Opponent(s)',
-              context: context,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: FlatButton(
-                  onPressed: () =>
-                      Navigator.pushNamed(
-                        context,
-                        'selectUser',
-                        arguments: [
-                          SelectUserType.multiple,
-                          invitees,
-                          'Select User'
-                        ],
-                      ).then((value) {
-                        if(value!=null)setState(() => invitees = value);
-                      }),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        invitees.isEmpty
-                            ? 'Select user'
-                            : '${invitees.length} selected',
-                        style: TextStyle(
-                            color: Theme
-                                .of(context)
-                                .secondaryHeaderColor
-                                .withOpacity(.6),
-                            fontWeight: FontWeight.w100,
-                            fontSize: width * .033),
-                      ),
-                      Image.asset(
-                        'assets/images/addUser.png',
-                        height: width * .04,
-                        color: Theme
-                            .of(context)
-                            .secondaryHeaderColor
-                            .withOpacity(.7),
-                      )
-                    ],
-                  ),
-                ),
-              )),
-          spacer2(),
-          actionButton('SEND INVITE', invitees.isNotEmpty, loading, onDone, context),
+          actionButton('CONTINUE', true, false, ()=>Navigator.pop(context,gameType), context),
         ],
       ),
     );

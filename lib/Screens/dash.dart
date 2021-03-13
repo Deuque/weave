@@ -4,7 +4,7 @@ import 'package:weave/Controllers/current_user_controller.dart';
 import 'package:weave/Controllers/streams_controller.dart';
 import 'package:weave/Controllers/user_controller.dart';
 import 'package:weave/Screens/home.dart';
-import 'package:weave/Screens/new_game.dart';
+import 'package:weave/Screens/send_invite.dart';
 import 'package:weave/Screens/profile.dart';
 import 'package:weave/Util/colors.dart';
 import 'package:weave/Widgets/customBottomBar.dart';
@@ -54,7 +54,7 @@ class _DashboardState extends State<Dashboard> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.vertical(top:Radius.circular(10))),
                 context: (context),
-                builder: (_) => NewGame()));
+                builder: (_) => SendInvite()));
           if(index==2){
             setState(() {
               currentTab = Profile();

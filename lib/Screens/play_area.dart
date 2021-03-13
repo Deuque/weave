@@ -18,6 +18,7 @@ import 'package:weave/Models/tictactoe_activity.dart';
 import 'package:weave/Models/user.dart';
 import 'package:weave/Screens/anagram.dart';
 import 'package:weave/Screens/chat.dart';
+import 'package:weave/Screens/new_game.dart';
 import 'package:weave/Screens/restart_game.dart';
 import 'package:weave/Screens/tictactoe.dart';
 import 'package:weave/Util/colors.dart';
@@ -41,6 +42,10 @@ class _PlayAreaState extends State<PlayArea>
   bool fullScreen = false;
   StreamController<int> unreadMessages = new StreamController();
   StreamController<int> unreadGameTurn = new StreamController();
+  StreamController<List<AnagramActivity>> keepAnagramGames =
+      new StreamController();
+  StreamController<TictactoeActivity> keepTttGames = new StreamController();
+  StreamController<Invite> keepInvite = new StreamController();
 
   @override
   void initState() {
@@ -65,27 +70,29 @@ class _PlayAreaState extends State<PlayArea>
     // TODO: implement dispose
     unreadMessages?.close();
     unreadGameTurn?.close();
+    keepAnagramGames?.close();
+    keepTttGames?.close();
+    keepInvite?.close();
     super.dispose();
   }
 
   restartTttGame(TictactoeActivity game, Invite invite) async {
     var result = await showRestartConfirmSheet();
-    if(result==null || !result) return;
-    if (game != null) await UserController().startNewTttGame(game.id);
+    if (result == null || !result) return;
+    if (game != null) await UserController().deleteTttGame(game.id);
     if (invite.sender != context.read(userProvider.state).id)
       await UserController().editInvite(invite
         ..sender = context.read(userProvider.state).id
         ..timestamp = Timestamp.now());
     Fluttertoast.showToast(msg: 'Game restarted');
-
   }
 
   restartAnagramGame(List<AnagramActivity> anagrams, Invite invite) async {
     var result = await showRestartConfirmSheet();
-    if(result==null || !result) return;
+    if (result == null || !result) return;
     if (anagrams.isNotEmpty)
       await UserController()
-          .startNewAnagramGame(anagrams.map((e) => e.id).toList());
+          .deleteAnagramGame(anagrams.map((e) => e.id).toList());
     if (invite.sender != context.read(userProvider.state).id)
       await UserController().editInvite(invite
         ..sender = context.read(userProvider.state).id
@@ -93,13 +100,45 @@ class _PlayAreaState extends State<PlayArea>
     Fluttertoast.showToast(msg: 'Game restarted');
   }
 
-  showRestartConfirmSheet() async{
+  newGame(dynamic prevGame, Invite invite) async {
+    var result = await showNewGameSheet();
+    if (result == null) return;
+    if (prevGame != null) {
+      if (prevGame is TictactoeActivity) {
+        await UserController().deleteTttGame(prevGame.id);
+      } else {
+        await UserController().deleteAnagramGame(
+            (prevGame as List<AnagramActivity>).map((e) => e.id).toList());
+      }
+    }
+    await UserController().editInvite(invite
+      ..sender = context.read(userProvider.state).id
+      ..gameType = result
+      ..timestamp = Timestamp.now());
+  }
+
+  showRestartConfirmSheet() async {
     var result = await showModalBottomSheet(
         shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top:Radius.circular(10))),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(10))),
         context: (context),
         builder: (_) => RestartGame());
     return result;
+  }
+
+  showNewGameSheet() async {
+    var result = await showModalBottomSheet(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(10))),
+        context: (context),
+        builder: (_) => NewGame());
+    return result;
+  }
+
+  Invite getInvite() {
+    return context.read(userStreamsProvider).myInvites.firstWhere((element) =>
+        element.parties.contains(widget.activity.opponentId) &&
+        element.accepted == true);
   }
 
   @override
@@ -247,7 +286,8 @@ class _PlayAreaState extends State<PlayArea>
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              profileImage(widget.activity.opponent.photo, size.width * .05, context),
+              profileImage(
+                  widget.activity.opponent.photo, size.width * .05, context),
               SizedBox(
                 width: 10,
               ),
@@ -262,17 +302,60 @@ class _PlayAreaState extends State<PlayArea>
             ],
           ),
           actions: [
-            IconButton(
-                onPressed: () {},
-                icon: RotatedBox(
-                  quarterTurns: 1,
-                  child: Image.asset(
-                    'assets/images/more.png',
-                    height: 15,
-                    color:
-                        Theme.of(context).secondaryHeaderColor.withOpacity(.8),
+            PopupMenuButton<int>(
+              offset: Offset(0,16),
+              onSelected: (int result) async {
+                if (result == 0) {
+                  Invite invite = getInvite();
+
+                  if (invite.gameType == 1) {
+                    List<AnagramActivity> games =
+                        context.read(userStreamsProvider).myAnagramGames;
+                    games = games
+                        .where((element) => element.parties
+                            .contains(widget.activity.opponentId))
+                        .toList();
+                    games.sort((a, b) => b.index.compareTo(a.index));
+                    newGame(games, invite);
+                  } else {
+                    List<TictactoeActivity> games =
+                        context.read(userStreamsProvider).myTttGames;
+                    games = games
+                        .where((element) => element.parties
+                            .contains(widget.activity.opponentId))
+                        .toList();
+                    newGame(games.isEmpty ? null : games[0], invite);
+                  }
+                }
+              },
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
+                PopupMenuItem<int>(
+                  value: 0,
+                  height: size.width * .062,
+                  child: Text(
+                    'New game',
+                    style: TextStyle(
+                        color: Theme.of(context).secondaryHeaderColor,
+                        fontWeight: FontWeight.w500,
+                        fontSize: size.width * .031),
                   ),
-                ))
+                ),
+              ],
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6)),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 15),
+                  child: RotatedBox(
+                    quarterTurns: 1,
+                    child: Image.asset(
+                      'assets/images/more.png',
+                      height: 15,
+                      color: Theme.of(context)
+                          .secondaryHeaderColor
+                          .withOpacity(.8),
+                    ),
+                  )),
+            )
           ],
           centerTitle: true,
           elevation: 0,
@@ -287,12 +370,8 @@ class _PlayAreaState extends State<PlayArea>
               children: [
                 Consumer(builder: (context, watch, _) {
                   //setup game stream count, since this is the first tab
-                  Invite invite = watch(userStreamsProvider)
-                      .myInvites
-                      .firstWhere((element) =>
-                          element.parties
-                              .contains(widget.activity.opponentId) &&
-                          element.accepted == true);
+                  Invite invite = getInvite();
+
                   if (invite.gameType == 1) {
                     List<AnagramActivity> games =
                         watch(userStreamsProvider).myAnagramGames;
@@ -334,7 +413,9 @@ class _PlayAreaState extends State<PlayArea>
                       .where((element) =>
                           element.parties.contains(widget.activity.opponentId))
                       .toList();
-                  messages.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+                  messages.sort((a, b) => b.index == a.index
+                      ? b.timestamp.compareTo(a.timestamp)
+                      : b.index.compareTo(a.index));
                   messages.map((e) {
                     e.date = dateFormat2(DateTime.fromMillisecondsSinceEpoch(
                         e.timestamp.millisecondsSinceEpoch));
@@ -361,13 +442,8 @@ class _PlayAreaState extends State<PlayArea>
                   );
                 }),
                 Consumer(builder: (context, watch, _) {
-                  Invite invite = context
-                      .read(userStreamsProvider)
-                      .myInvites
-                      .firstWhere((element) =>
-                          element.parties
-                              .contains(widget.activity.opponentId) &&
-                          element.accepted == true);
+                  Invite invite = getInvite();
+
                   List<AnagramActivity> anagramGames = [];
                   List<TictactoeActivity> tttGames = [];
                   if (invite.gameType == 1) {
@@ -396,7 +472,7 @@ class _PlayAreaState extends State<PlayArea>
                     tttGames.sort((a, b) => b.index.compareTo(a.index));
                   }
 
-                  return widget.activity.gameType == 0
+                  return invite.gameType == 0
                       ? TicTacToe(
                           opponent: widget.activity.opponent,
                           key: tttGames.isEmpty

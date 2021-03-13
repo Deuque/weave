@@ -31,21 +31,24 @@ class _ChatState extends State<Chat> {
     } catch (e) {}
   }
 
+  onSendMessage(String text) {
+    if (text.isEmpty) return;
+    Message message = Message(
+        message: text,
+        sender: context.read(userProvider.state).id,
+        receiver: widget.opponentId,
+        parties: [context.read(userProvider.state).id, widget.opponentId],
+        timestamp: Timestamp.now(),
+        seenByReceiver: false,
+    index: widget.messages.length);
+    UserController().sendMessage(message);
+  }
+
   @override
   Widget build(BuildContext context) {
     ScrollController controller = new ScrollController();
 
-    onSendMessage(String text) {
-      if (text.isEmpty) return;
-      Message message = Message(
-          message: text,
-          sender: context.read(userProvider.state).id,
-          receiver: widget.opponentId,
-          parties: [context.read(userProvider.state).id, widget.opponentId],
-          timestamp: Timestamp.now(),
-          seenByReceiver: false);
-      UserController().sendMessage(message);
-    }
+
 
     return Column(
       children: [

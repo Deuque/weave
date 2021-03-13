@@ -6,9 +6,10 @@ class Message{
   bool userIsSender,seenByReceiver;
   List<String> parties;
   Timestamp timestamp;
+  int index;
 
 
-  Message({this.id, this.message, this.time, this.date, this.sender, this.receiver, this.replyId, this.replyMessage, this.userIsSender, this.parties, this.seenByReceiver, this.timestamp});
+  Message({this.id, this.message, this.time, this.date, this.sender, this.receiver, this.replyId, this.replyMessage, this.userIsSender, this.parties, this.seenByReceiver, this.timestamp,this.index});
 
   Map<String,dynamic> toJson()=>{
     'id':this.id,
@@ -19,7 +20,8 @@ class Message{
     'replyMessage':this.replyMessage,
     'seenByReceiver':this.seenByReceiver,
     'parties': this.parties,
-    'timestamp': this.timestamp
+    'timestamp': this.timestamp,
+    'index': this.index
   };
 
   factory Message.fromMap(Map<String,dynamic> data)=>Message(
@@ -31,7 +33,8 @@ class Message{
     replyMessage: data['replyMessage']??'',
     seenByReceiver: data['seenByReceiver'],
     parties: List<String>.from(data['parties']),
-    timestamp: data['timestamp']
+    timestamp: data['timestamp'],
+    index: data['index']
   );
 }
 
