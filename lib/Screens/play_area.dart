@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/all.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'package:keyboard_service/keyboard_service.dart';
 import 'package:weave/Controllers/current_user_controller.dart';
 import 'package:weave/Controllers/streams_controller.dart';
 import 'package:weave/Controllers/user_controller.dart';
@@ -303,7 +304,7 @@ class _PlayAreaState extends State<PlayArea>
           ),
           actions: [
             PopupMenuButton<int>(
-              offset: Offset(0,16),
+              offset: Offset(0, 16),
               onSelected: (int result) async {
                 if (result == 0) {
                   Invite invite = getInvite();
@@ -344,7 +345,7 @@ class _PlayAreaState extends State<PlayArea>
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(6)),
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 15),
+                  padding: EdgeInsets.symmetric(horizontal: 15),
                   child: RotatedBox(
                     quarterTurns: 1,
                     child: Image.asset(
@@ -366,7 +367,10 @@ class _PlayAreaState extends State<PlayArea>
             Expanded(
                 child: PageView(
               controller: pageController,
-              onPageChanged: (int page) => setState(() => currentTab = page),
+              onPageChanged: (int page) {
+                KeyboardService.dismiss();
+                setState(() => currentTab = page);
+              },
               children: [
                 Consumer(builder: (context, watch, _) {
                   //setup game stream count, since this is the first tab
@@ -464,8 +468,12 @@ class _PlayAreaState extends State<PlayArea>
                             e.sender == context.read(userProvider.state).id;
                     }).toList();
 
-                    if(anagramGames.isNotEmpty && anagramGames[0].sender!=context.read(userProvider.state).id && !anagramGames[0].seenByReceiver){
-                      UserController().editAnagramGame(anagramGames[0]..seenByReceiver=true);
+                    if (anagramGames.isNotEmpty &&
+                        anagramGames[0].sender !=
+                            context.read(userProvider.state).id &&
+                        !anagramGames[0].seenByReceiver) {
+                      UserController().editAnagramGame(
+                          anagramGames[0]..seenByReceiver = true);
                     }
                   } else {
                     tttGames = watch(userStreamsProvider).myTttGames;
@@ -474,8 +482,12 @@ class _PlayAreaState extends State<PlayArea>
                             .contains(widget.activity.opponentId))
                         .toList();
                     tttGames.sort((a, b) => b.index.compareTo(a.index));
-                    if(tttGames.isNotEmpty && tttGames[0].sender!=context.read(userProvider.state).id && !tttGames[0].seenByReceiver){
-                      UserController().editTttGame(tttGames[0]..seenByReceiver=true);
+                    if (tttGames.isNotEmpty &&
+                        tttGames[0].sender !=
+                            context.read(userProvider.state).id &&
+                        !tttGames[0].seenByReceiver) {
+                      UserController()
+                          .editTttGame(tttGames[0]..seenByReceiver = true);
                     }
                   }
 

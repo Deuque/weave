@@ -38,7 +38,7 @@ class _ChatLayoutState extends State<ChatLayout> {
     return Container(
       width: size.width*.7,
       alignment: userIsSender?Alignment.centerRight:Alignment.centerLeft,
-      margin: EdgeInsets.only(top: widget.previousIsSameSender?0:10,bottom: 2, left: 10,right: 10),
+      margin: EdgeInsets.only(top: widget.previousIsSameSender?0:10,bottom: 2, left: userIsSender?size.width*.15 : 10,right: userIsSender?10:size.width*.15),
       child: ClipPath(
           clipper: ChatClipper(leftSide: !userIsSender,clip: !widget.previousIsSameSender),
           child: Container(

@@ -74,7 +74,7 @@ class _SelectUserState extends State<SelectUser> {
     String ntext = text.replaceAll('@', '');
     if(ntext.isEmpty)return;
 
-    filteredWeaveUsers = weaveUsers.where((element) => element.username.contains(ntext)).toList();
+    filteredWeaveUsers = weaveUsers.where((element) => element.username.toLowerCase().contains(ntext.toLowerCase())).toList();
     setState(() {
     });
   }
@@ -114,7 +114,7 @@ class _SelectUserState extends State<SelectUser> {
             decoration: InputDecoration(
                 contentPadding:
                     EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-                hintText: 'Enter #Flipp username',
+                hintText: 'Enter @weave username',
                 prefixIcon: Icon(
                   Icons.search,
                   color: Theme.of(context).secondaryHeaderColor.withOpacity(.5),
@@ -390,6 +390,7 @@ class _ContactsOnWeaveState extends State<ContactsOnWeave> {
                         (user) => UserWidget(
                             user: user,
                             selected: widget.selected(user),
+                            showNumber: true,
                             onClick: () => widget.onClick(user)),
                       )
                       .toList());
@@ -564,43 +565,66 @@ class _UsersOnWeaveState extends State<UsersOnWeave> {
 
 class UserWidget extends StatelessWidget {
   final User user;
-  final bool selected;
+  final bool selected,showNumber;
   final Function onClick;
 
-  const UserWidget({Key key, this.user, this.selected = false, this.onClick})
+  const UserWidget({Key key, this.user, this.selected = false, this.showNumber=false, this.onClick})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
+    print(showNumber||!user.availableForInvite);
     return InkWell(
       customBorder:
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       onTap: () {
-        onClick();
+        !user.availableForInvite?Fluttertoast.showToast(msg: '@${user.username} is unavailable') : onClick();
       },
       child: Container(
         margin: EdgeInsets.only(bottom: 10),
+        padding: EdgeInsets.symmetric(vertical: 5),
         decoration: BoxDecoration(
             color: Theme.of(context).backgroundColor.withOpacity(.2),
             borderRadius: BorderRadius.circular(8)),
         child: ListTile(
           //onTap: ()=>Navigator.pop(context,user),
           leading: profileImage(user.photo, size.width * .08, context),
-          title: Text(
-            '${user.username}',
-            style: TextStyle(
-                color: Theme.of(context).secondaryHeaderColor,
-                fontSize: size.width * .035,
-                fontWeight: FontWeight.w500),
+          title: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '@${user.username}',
+                style: TextStyle(
+                    color: Theme.of(context).secondaryHeaderColor,
+                    fontSize: size.width * .035,
+                    fontWeight: FontWeight.w500),
+              ),
+            ],
           ),
-          subtitle: Text(
-            user.phone,
-            style: TextStyle(
-                color: Theme.of(context).secondaryHeaderColor.withOpacity(.5),
-                fontSize: size.width * .03,
-                fontWeight: FontWeight.w400),
-          ),
+          subtitle: showNumber||!user.availableForInvite ? Text.rich(
+            TextSpan(
+              children: [
+                if(showNumber)
+                  TextSpan(
+                    text: user.phone,
+                    style: TextStyle(
+                        color: Theme.of(context).secondaryHeaderColor.withOpacity(.6),
+                        fontSize: size.width * .03,
+                        fontWeight: FontWeight.w400),
+                  ),
+                TextSpan(
+                  text: user.availableForInvite?'':'Unavailable',
+                  style: TextStyle(
+                      color: Theme.of(context).secondaryHeaderColor.withOpacity(.4),
+                      fontStyle: FontStyle.italic,
+                      fontSize: size.width * .03,
+                      fontWeight: FontWeight.w300),
+                ),
+              ],
+            ),
+          ) : null,
           trailing: selected
               ? Icon(
                   Icons.check_circle,

@@ -20,7 +20,7 @@ class _AddPhoneState extends State<AddPhone> {
   @override
   void initState() {
     super.initState();
-    phoneController.text=widget.phone.substring(4)??'';
+    phoneController.text=widget.phone?.substring(4)??'';
     phoneController.addListener(() {
       if (phoneController.text.isNotEmpty && !textEntered) {
         setState(() {

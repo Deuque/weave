@@ -1,14 +1,16 @@
 class User{
   String id,email,phone, photo,username,token;
+  bool availableForInvite;
 
-  User({this.id, this.email, this.phone, this.photo, this.username,this.token});
+  User({this.id, this.email, this.phone, this.photo, this.username,this.token,this.availableForInvite});
   factory User.fromMap(data)=>User(
     id: data['id']??'',
     email: data['email']??'',
     phone: data['phone']??'',
     username: data['username']??'',
     token: data['token']??'',
-    photo: data['photo']??''
+    photo: data['photo']??'',
+    availableForInvite: data['availableForInvite']??true
   );
 
   toJson()=>{
@@ -17,7 +19,8 @@ class User{
     'phone': phone,
     'username': username,
     'token': token,
-    'photo': photo
+    'photo': photo,
+    'availableForInvite': availableForInvite
   };
 }
 

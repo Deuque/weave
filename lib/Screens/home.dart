@@ -273,7 +273,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                               .where((element) =>
                                   element.parties.contains(opponent))
                               .toList();
-                          print('messages: ${messages.length}');
+
                           int unreadMessages = activityMessages
                               .where((element) =>
                                   element.parties.contains(opponent) &&

@@ -19,7 +19,7 @@ class Chat extends StatefulWidget {
   _ChatState createState() => _ChatState();
 }
 
-class _ChatState extends State<Chat> {
+class _ChatState extends State<Chat>{
   ScrollController controller = new ScrollController();
 
   @override
@@ -30,6 +30,7 @@ class _ChatState extends State<Chat> {
       controller.jumpTo(0.0);
     } catch (e) {}
   }
+
 
   onSendMessage(String text) {
     if (text.isEmpty) return;
@@ -43,6 +44,7 @@ class _ChatState extends State<Chat> {
     index: widget.messages.length);
     UserController().sendMessage(message);
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -102,10 +104,9 @@ class _ChatState extends State<Chat> {
   }
 }
 
-class TypingArea extends StatefulWidget {
+class TypingArea extends StatefulWidget  {
   final Function(String x) onSend;
-
-  const TypingArea({Key key, this.onSend}) : super(key: key);
+  TypingArea({Key key, this.onSend}) : super(key: key);
 
   @override
   _TypingAreaState createState() => _TypingAreaState();
@@ -113,6 +114,12 @@ class TypingArea extends StatefulWidget {
 
 class _TypingAreaState extends State<TypingArea> {
   TextEditingController messageController = new TextEditingController();
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
 

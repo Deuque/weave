@@ -21,13 +21,6 @@ class _ProfileState extends State<Profile> {
   File selectedImage;
   bool uploadingImage = false;
 
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    uploadImage();
-    super.dispose();
-  }
-
   showLogoutConfirmSheet() async {
     var result = await showModalBottomSheet(
         shape: RoundedRectangleBorder(
@@ -111,20 +104,22 @@ class _ProfileState extends State<Profile> {
               ),
               if(selectedImage!=null)
                 Positioned(
-                  bottom: 0,right: 0,
-                  child: Material(
-                    color: Theme.of(context).secondaryHeaderColor.withOpacity(.3),
-                    borderRadius: BorderRadius.only(topLeft: Radius.circular(20),bottomRight: Radius.circular(20)),
+                  top: 0,right: 0,bottom: 0,left: 0,
+                  child: Center(
                     child: InkWell(
                       onTap: uploadImage,
-                      child: Padding(
-                        padding: EdgeInsets.all(10),
-                        child: uploadingImage?SizedBox(
-                          height: 16,width: 16,child: CircularProgressIndicator(
-                          strokeWidth: 2,valueColor: AlwaysStoppedAnimation(accentColor),
-                        ),
-                        ):Image.asset('assets/images/upload.png',height: 15,color: Theme.of(context).scaffoldBackgroundColor,),
+                      child: Material(
+                        color: Theme.of(context).scaffoldBackgroundColor.withOpacity(.7),
+                        borderRadius: BorderRadius.circular(20),
+                        child: Padding(
+                          padding: EdgeInsets.all(10),
+                          child: uploadingImage?SizedBox(
+                            height: 16,width: 16,child: CircularProgressIndicator(
+                            strokeWidth: 2,valueColor: AlwaysStoppedAnimation(accentColor),
+                          ),
+                          ):Image.asset('assets/images/upload.png',height: width * .05,color: Theme.of(context).secondaryHeaderColor,),
 
+                        ),
                       ),
                     ),
                   ),
@@ -143,8 +138,10 @@ class _ProfileState extends State<Profile> {
           {
             'title': 'Available for invites',
             'toggles': ['No', 'Yes'],
-            'selected': 1,
-            'onSelected': (int index) {}
+            'selected': context.read(userProvider.state).availableForInvite ? 1 :0,
+            'onSelected': (int index) {
+              UserController().saveUserData({'availableForInvite':index==1});
+            }
           },
         ];
     List<Map<String, dynamic>> userSettings() => [
@@ -178,6 +175,7 @@ class _ProfileState extends State<Profile> {
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         elevation: 0,
         toolbarHeight: 20,
       ),
