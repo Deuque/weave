@@ -27,8 +27,9 @@ class Anagram extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
+    String userId = context.read(userProvider.state).id;
     // if ((anagrams.isEmpty &&
-    //         widget.game.starter == context.read(userProvider.state).id) ||
+    //         widget.game.starter == userId) ||
     //     (!anagrams.last.userIsSender && anagrams.last.answered)) {
     //   anagrams.add(AnagramActivity(
     //       userIsSender: true,
@@ -37,13 +38,13 @@ class Anagram extends StatelessWidget {
     // }
 
 
-    if ((anagrams.isEmpty && invite.sender== context.read(userProvider.state).id) || (!anagrams.isEmpty && !anagrams[0].userIsSender && anagrams[0].answered)) {
+    if ((anagrams.isEmpty && invite.sender== userId) || (anagrams.isNotEmpty && !anagrams[0].userIsSender && anagrams[0].answered)) {
       anagrams.removeWhere((element) => element.type=='play');
       anagrams.insert(0,AnagramActivity(
           userIsSender: true,
           type: 'play',
           date: anagrams.isEmpty ? 'Today' : anagrams.last.date));
-    }else if(anagrams.isEmpty && invite.sender!= context.read(userProvider.state).id){
+    }else if(anagrams.isEmpty && invite.sender!= userId){
       anagrams.insert(0,AnagramActivity(
           userIsSender: false,
           type: 'play',
@@ -53,7 +54,7 @@ class Anagram extends StatelessWidget {
 
     onScrambleWord(AnagramActivity activity) async {
       //anagrams.removeWhere((element) => element.type=='play');
-        activity.sender=context.read(userProvider.state).id;
+        activity.sender=userId;
         activity.index = anagrams.length;
         activity.parties = invite.parties;
         UserController().addAnagramGame(activity);

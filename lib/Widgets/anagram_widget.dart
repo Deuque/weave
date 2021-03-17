@@ -93,7 +93,7 @@ class _AnagramLayoutState extends State<AnagramLayout> {
             padding: const EdgeInsets.all(2.0),
             child: Icon(
               widget.anagramActivity.isCorrect ? Icons.check : Icons.close,
-              size: 10,
+              size: 9,
               color: Theme.of(context).scaffoldBackgroundColor.withOpacity(.7),
             ),
           ),

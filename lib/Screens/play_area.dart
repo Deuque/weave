@@ -47,7 +47,7 @@ class _PlayAreaState extends State<PlayArea>
       new StreamController();
   StreamController<TictactoeActivity> keepTttGames = new StreamController();
   StreamController<Invite> keepInvite = new StreamController();
-
+  String userId = '';
   @override
   void initState() {
     // TODO: implement initState
@@ -64,6 +64,7 @@ class _PlayAreaState extends State<PlayArea>
     // });
     unreadMessages.sink.add(0);
     unreadGameTurn.sink.add(0);
+    userId = context.read(userProvider.state).id;
   }
 
   @override
@@ -81,9 +82,9 @@ class _PlayAreaState extends State<PlayArea>
     var result = await showRestartConfirmSheet();
     if (result == null || !result) return;
     if (game != null) await UserController().deleteTttGame(game.id);
-    if (invite.sender != context.read(userProvider.state).id)
+    if (invite.sender != userId)
       await UserController().editInvite(invite
-        ..sender = context.read(userProvider.state).id
+        ..sender = userId
         ..timestamp = Timestamp.now());
     Fluttertoast.showToast(msg: 'Game restarted');
   }
@@ -94,9 +95,9 @@ class _PlayAreaState extends State<PlayArea>
     if (anagrams.isNotEmpty)
       await UserController()
           .deleteAnagramGame(anagrams.map((e) => e.id).toList());
-    if (invite.sender != context.read(userProvider.state).id)
+    if (invite.sender != userId)
       await UserController().editInvite(invite
-        ..sender = context.read(userProvider.state).id
+        ..sender = userId
         ..timestamp = Timestamp.now());
     Fluttertoast.showToast(msg: 'Game restarted');
   }
@@ -113,9 +114,11 @@ class _PlayAreaState extends State<PlayArea>
       }
     }
     await UserController().editInvite(invite
-      ..sender = context.read(userProvider.state).id
+      ..sender = userId
       ..gameType = result
       ..timestamp = Timestamp.now());
+
+    await UserController().deleteMessages((getMessages()));
   }
 
   showRestartConfirmSheet() async {
@@ -142,9 +145,18 @@ class _PlayAreaState extends State<PlayArea>
         element.accepted == true);
   }
 
+  List<Message> getMessages([watch]){
+    List<Message> messages = watch==null? context.read(userStreamsProvider).myMessages
+        : watch(userStreamsProvider).myMessages;
+    return messages.where((element) =>
+        element.parties.contains(widget.activity.opponentId))
+        .toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
+
 
     bool showFullscreen = currentTab == 1 && fullScreen;
 
@@ -387,7 +399,7 @@ class _PlayAreaState extends State<PlayArea>
 
                     if (games.isNotEmpty) {
                       if (games[0].sender !=
-                              context.read(userProvider.state).id &&
+                              userId &&
                           !games[0].seenByReceiver) {
                         unreadGameTurn.sink.add(1);
                       }
@@ -403,7 +415,7 @@ class _PlayAreaState extends State<PlayArea>
 
                     if (games.isNotEmpty) {
                       if (games[0].sender !=
-                              context.read(userProvider.state).id &&
+                              userId &&
                           !games[0].seenByReceiver) {
                         unreadGameTurn.sink.add(1);
                       }
@@ -411,12 +423,8 @@ class _PlayAreaState extends State<PlayArea>
                   }
 
                   //setup chat stream
-                  List<Message> messages =
-                      watch(userStreamsProvider).myMessages;
-                  messages = messages
-                      .where((element) =>
-                          element.parties.contains(widget.activity.opponentId))
-                      .toList();
+                  List<Message> messages = getMessages(watch);
+
                   messages.sort((a, b) => b.index == a.index
                       ? b.timestamp.compareTo(a.timestamp)
                       : b.index.compareTo(a.index));
@@ -428,13 +436,13 @@ class _PlayAreaState extends State<PlayArea>
                             e.timestamp.millisecondsSinceEpoch))
                         .toLowerCase();
                     e.userIsSender =
-                        e.sender == context.read(userProvider.state).id;
+                        e.sender == userId;
                   }).toList();
 
                   int unread = messages
                       .where((element) =>
                           element.receiver ==
-                              context.read(userProvider.state).id &&
+                              userId &&
                           !element.seenByReceiver)
                       .toList()
                       .length;
@@ -465,12 +473,12 @@ class _PlayAreaState extends State<PlayArea>
                             DateTime.fromMillisecondsSinceEpoch(
                                 e.timestamp.millisecondsSinceEpoch))
                         ..userIsSender =
-                            e.sender == context.read(userProvider.state).id;
+                            e.sender == userId;
                     }).toList();
 
                     if (anagramGames.isNotEmpty &&
                         anagramGames[0].sender !=
-                            context.read(userProvider.state).id &&
+                            userId &&
                         !anagramGames[0].seenByReceiver) {
                       UserController().editAnagramGame(
                           anagramGames[0]..seenByReceiver = true);
@@ -484,7 +492,7 @@ class _PlayAreaState extends State<PlayArea>
                     tttGames.sort((a, b) => b.index.compareTo(a.index));
                     if (tttGames.isNotEmpty &&
                         tttGames[0].sender !=
-                            context.read(userProvider.state).id &&
+                            userId &&
                         !tttGames[0].seenByReceiver) {
                       UserController()
                           .editTttGame(tttGames[0]..seenByReceiver = true);

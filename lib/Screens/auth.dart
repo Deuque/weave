@@ -8,6 +8,7 @@ import 'package:weave/Controllers/current_user_controller.dart';
 import 'package:weave/Models/user.dart';
 import 'package:weave/Util/colors.dart';
 import 'package:weave/Util/helper_functions.dart';
+import 'package:weave/Widgets/my_text_field.dart';
 
 class Auth extends StatefulWidget {
   @override
@@ -194,7 +195,7 @@ class _AuthState extends State<Auth> {
                   Align(
                     alignment: Alignment.centerRight,
                     child: FlatButton(
-                      onPressed: () {},
+                      onPressed: () =>Navigator.pushNamed(context, 'forgotPassword'),
                       child: Text(
                         'Forgot password',
                         style: TextStyle(

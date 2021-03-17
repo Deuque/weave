@@ -32,6 +32,10 @@ class Repo {
     return authInstance.signOut();
   }
 
+  resetPassword(String email){
+    return authInstance.sendPasswordResetEmail(email: email);
+  }
+
   saveUserData(Map<String,dynamic> data){
     return  userDbInstance.doc(currentUserId()).set(data, SetOptions(merge: true));
   }
@@ -64,6 +68,10 @@ class Repo {
       return chatDbInstance.add(message.toJson());
     else
       return chatDbInstance.doc(message.id).update(message.toJson());
+  }
+
+  Future<void> deleteMessage(String id){
+    return chatDbInstance.doc(id).delete();
   }
 
   Stream<QuerySnapshot> getChats(){

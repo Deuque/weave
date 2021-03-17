@@ -9,15 +9,18 @@ import 'package:flutter_riverpod/all.dart';
 class ChatLayout extends StatefulWidget {
   final Message message;
   final bool previousIsSameSender;
+  final Function onWantToReply;
 
-  const ChatLayout({Key key, this.message, this.previousIsSameSender}) : super(key: key);
+  const ChatLayout({Key key, this.message, this.previousIsSameSender,this.onWantToReply}) : super(key: key);
 
   @override
   _ChatLayoutState createState() => _ChatLayoutState();
 }
 
-class _ChatLayoutState extends State<ChatLayout> {
+class _ChatLayoutState extends State<ChatLayout>{
   bool userIsSender;
+  Offset initialOffset=Offset(0, 0);
+  Offset dragOffset=Offset(0, 0);
 
   @override
   void initState() {
@@ -32,44 +35,94 @@ class _ChatLayoutState extends State<ChatLayout> {
       UserController().editMessage(widget.message..seenByReceiver=true);
     }
   }
+
+
+
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-    return Container(
-      width: size.width*.7,
-      alignment: userIsSender?Alignment.centerRight:Alignment.centerLeft,
-      margin: EdgeInsets.only(top: widget.previousIsSameSender?0:10,bottom: 2, left: userIsSender?size.width*.15 : 10,right: userIsSender?10:size.width*.15),
-      child: ClipPath(
-          clipper: ChatClipper(leftSide: !userIsSender,clip: !widget.previousIsSameSender),
-          child: Container(
-            color: userIsSender
-                ? primary.withOpacity(.8)
-                : lightGrey.withOpacity(.15),
-            padding: EdgeInsets.only(top: 7,bottom: 10,right: userIsSender?23:10,left: userIsSender?10:23),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: userIsSender
-                  ? CrossAxisAlignment.end
-                  : CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.message.time,
-                  style:
-                      TextStyle(fontSize: 11, color: Theme.of(context)
-                          .secondaryHeaderColor.withOpacity(.4)),
+
+    replyMessageWidget(){
+      return widget.message.replyMessage.isEmpty?SizedBox(height: 0,):null;
+    }
+
+    return GestureDetector(
+      onHorizontalDragUpdate: (details){
+      if(userIsSender)
+        if(details.delta.dx>0){
+          if(dragOffset.dx<0)
+            setState(() {
+              // dragOffset = Offset(details.localPosition.dx-size.width, 0);
+              dragOffset = Offset(dragOffset.dx+details.delta.distance, 0);
+            });
+        }else{
+          if(dragOffset.dx>-30)
+            setState(() {
+              // dragOffset = Offset(details.localPosition.dx-size.width, 0);
+              dragOffset = Offset(dragOffset.dx-details.delta.distance, 0);
+            });
+        }
+      else
+        if(details.delta.dx<0){
+          if(dragOffset.dx>0)
+            setState(() {
+              // dragOffset = Offset(details.localPosition.dx-size.width, 0);
+              dragOffset = Offset(dragOffset.dx-details.delta.distance, 0);
+            });
+        }else{
+          if(dragOffset.dx<30)
+            setState(() {
+              // dragOffset = Offset(details.localPosition.dx-size.width, 0);
+              dragOffset = Offset(dragOffset.dx+details.delta.distance, 0);
+            });
+        }
+
+      },
+      onHorizontalDragEnd: (details){
+            setState(() {
+              dragOffset = initialOffset;
+            });
+            widget.onWantToReply();
+      },
+      child: Transform.translate(
+        offset: dragOffset,
+        child: Container(
+          width: size.width*.7,
+          alignment: userIsSender?Alignment.centerRight:Alignment.centerLeft,
+          margin: EdgeInsets.only(top: widget.previousIsSameSender?0:10,bottom: 2, left: userIsSender?size.width*.15 : 10,right: userIsSender?10:size.width*.15),
+          child: ClipPath(
+              clipper: ChatClipper(leftSide: !userIsSender,clip: !widget.previousIsSameSender),
+              child: Container(
+                color: userIsSender
+                    ? primary.withOpacity(.9)
+                    : lightGrey.withOpacity(.15),
+                padding: EdgeInsets.only(top: 7,bottom: 10,right: userIsSender?23:10,left: userIsSender?10:23),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: userIsSender
+                      ? CrossAxisAlignment.end
+                      : CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.message.time,
+                      style:
+                          TextStyle(fontSize: 11, color: Theme.of(context)
+                              .secondaryHeaderColor.withOpacity(.5)),
+                    ),
+                    SizedBox(height: 4,),
+                    Text(
+                      widget.message.message,
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: Theme.of(context)
+                              .secondaryHeaderColor
+                              .withOpacity(.78)),
+                    ),
+                  ],
                 ),
-                SizedBox(height: 4,),
-                Text(
-                  widget.message.message,
-                  style: TextStyle(
-                      fontSize: 14,
-                      color: Theme.of(context)
-                          .secondaryHeaderColor
-                          .withOpacity(.78)),
-                ),
-              ],
-            ),
-          )),
+              )),
+        ),
+      ),
     );
   }
 }

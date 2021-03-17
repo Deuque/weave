@@ -39,6 +39,10 @@ class UserController {
     await repo.signOut();
   }
 
+  Future<void> forgotPassword(String email) async{
+    await repo.resetPassword(email);
+  }
+
   Future<Map<String, dynamic>> saveUserData(Map<String, dynamic> data) async {
     var responseData, error;
     await repo
@@ -92,6 +96,11 @@ class UserController {
 
   Future<void> editMessage(Message message) async {
     await repo.addOrEditMessage(message, edit: true);
+  }
+  Future<void> deleteMessages(List<Message> messages) async {
+    for(Message message in messages){
+      await repo.deleteMessage(message.id);
+    }
   }
 
   Stream<QuerySnapshot> getChats() {
