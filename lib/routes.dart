@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:weave/Screens/auth.dart';
 import 'package:weave/Screens/dash.dart';
 import 'package:weave/Screens/forgot_password.dart';
+import 'package:weave/Screens/notifications.dart';
 import 'package:weave/Screens/phone.dart';
 import 'package:weave/Screens/play_area.dart';
 import 'package:weave/Screens/select_user.dart';
@@ -27,6 +28,8 @@ class Routes {
         return CupertinoPageRoute(builder: (_) => ChooseUsername(username: args,));
       case 'phone':
         return CupertinoPageRoute(builder: (_) => AddPhone(phone: args,));
+      case 'notifications':
+        return CupertinoPageRoute(builder: (_) => Notifications());
       case 'dash':
         return CupertinoPageRoute(builder: (_) => Dashboard());
       case 'playArea':

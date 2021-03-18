@@ -1,8 +1,9 @@
 class User{
   String id,email,phone, photo,username,token;
   bool availableForInvite;
+  bool receiveInviteNotifications, receiveMessageNotifications, receiveGameNotifications;
 
-  User({this.id, this.email, this.phone, this.photo, this.username,this.token,this.availableForInvite});
+  User({this.id, this.email, this.phone, this.photo, this.username,this.token,this.availableForInvite,this.receiveGameNotifications,this.receiveInviteNotifications,this.receiveMessageNotifications});
   factory User.fromMap(data)=>User(
     id: data['id']??'',
     email: data['email']??'',
@@ -10,7 +11,11 @@ class User{
     username: data['username']??'',
     token: data['token']??'',
     photo: data['photo']??'',
-    availableForInvite: data['availableForInvite']??true
+    availableForInvite: data['availableForInvite']??true,
+    receiveInviteNotifications: data['receiveInviteNotifications']??true,
+    receiveGameNotifications: data['receiveGameNotifications']??true,
+    receiveMessageNotifications: data['receiveMessageNotifications']??true,
+
   );
 
   toJson()=>{
@@ -20,7 +25,10 @@ class User{
     'username': username,
     'token': token,
     'photo': photo,
-    'availableForInvite': availableForInvite
+    'availableForInvite': availableForInvite,
+    'receiveInviteNotifications': receiveInviteNotifications,
+    'receiveMessageNotifications': receiveMessageNotifications,
+    'receiveGameNotifications': receiveGameNotifications
   };
 }
 

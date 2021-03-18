@@ -11,6 +11,7 @@ import 'package:weave/Controllers/user_controller.dart';
 import 'package:weave/Screens/confirm_logout.dart';
 import 'package:weave/Util/colors.dart';
 import 'package:weave/Util/helper_functions.dart';
+import 'package:weave/Widgets/toggle.dart';
 
 class Profile extends StatefulWidget {
   @override
@@ -39,24 +40,24 @@ class _ProfileState extends State<Profile> {
       });
   }
 
-  uploadImage() async{
-    if(selectedImage==null || uploadingImage)return;
+  uploadImage() async {
+    if (selectedImage == null || uploadingImage) return;
     setState(() {
-      uploadingImage=true;
+      uploadingImage = true;
     });
     var ref = FirebaseStorage.instance
         .ref()
         .child('ProfileImages')
         .child(context.read(userProvider.state).id);
-    await ref.putFile(selectedImage).then((taskSnapshot) async{
+    await ref.putFile(selectedImage).then((taskSnapshot) async {
       String url = await taskSnapshot.ref.getDownloadURL();
       await UserController().saveUserData({'photo': url});
       setState(() {
-        selectedImage=null;
+        selectedImage = null;
       });
-    }).catchError((e)=>Fluttertoast.showToast(msg: e.toString()));
+    }).catchError((e) => Fluttertoast.showToast(msg: e.toString()));
     setState(() {
-      uploadingImage=false;
+      uploadingImage = false;
     });
   }
 
@@ -78,8 +79,8 @@ class _ProfileState extends State<Profile> {
               GestureDetector(
                 onTap: selectImage,
                 child: Container(
-                  height:  width * .3,
-                    width:  width * .3,
+                    height: width * .3,
+                    width: width * .3,
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
                         color: Theme.of(context).scaffoldBackgroundColor,
@@ -92,33 +93,47 @@ class _ProfileState extends State<Profile> {
                         ]),
                     child: selectedImage != null
                         ? ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                          child: Image.file(
+                            borderRadius: BorderRadius.circular(20),
+                            child: Image.file(
                               selectedImage,
                               fit: BoxFit.cover,
                             ),
-                        )
+                          )
                         : profileImage(context.read(userProvider.state).photo,
                             width * .3, context,
                             radius: 20, imagePadding: 15)),
               ),
-              if(selectedImage!=null)
+              if (selectedImage != null)
                 Positioned(
-                  top: 0,right: 0,bottom: 0,left: 0,
+                  top: 0,
+                  right: 0,
+                  bottom: 0,
+                  left: 0,
                   child: Center(
                     child: InkWell(
                       onTap: uploadImage,
                       child: Material(
-                        color: Theme.of(context).scaffoldBackgroundColor.withOpacity(.7),
+                        color: Theme.of(context)
+                            .scaffoldBackgroundColor
+                            .withOpacity(.7),
                         borderRadius: BorderRadius.circular(20),
                         child: Padding(
                           padding: EdgeInsets.all(10),
-                          child: uploadingImage?SizedBox(
-                            height: 16,width: 16,child: CircularProgressIndicator(
-                            strokeWidth: 2,valueColor: AlwaysStoppedAnimation(accentColor),
-                          ),
-                          ):Image.asset('assets/images/upload.png',height: width * .05,color: Theme.of(context).secondaryHeaderColor,),
-
+                          child: uploadingImage
+                              ? SizedBox(
+                                  height: 16,
+                                  width: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor:
+                                        AlwaysStoppedAnimation(accentColor),
+                                  ),
+                                )
+                              : Image.asset(
+                                  'assets/images/upload.png',
+                                  height: width * .05,
+                                  color: Theme.of(context).secondaryHeaderColor,
+                                ),
                         ),
                       ),
                     ),
@@ -138,9 +153,10 @@ class _ProfileState extends State<Profile> {
           {
             'title': 'Available for invites',
             'toggles': ['No', 'Yes'],
-            'selected': context.read(userProvider.state).availableForInvite ? 1 :0,
+            'selected':
+                context.read(userProvider.state).availableForInvite ? 1 : 0,
             'onSelected': (int index) {
-              UserController().saveUserData({'availableForInvite':index==1});
+              UserController().saveUserData({'availableForInvite': index == 1});
             }
           },
         ];
@@ -154,6 +170,10 @@ class _ProfileState extends State<Profile> {
             'title': 'Add a phone number',
             'onClick': () => Navigator.pushNamed(context, 'phone',
                 arguments: context.read(userProvider.state).phone)
+          },
+          {
+            'title': 'Notifications',
+            'onClick': () => Navigator.pushNamed(context, 'notifications')
           },
           {'title': 'Share weave with friends', 'onClick': () {}},
         ];
@@ -186,15 +206,14 @@ class _ProfileState extends State<Profile> {
           children: [
             _profileImageWidget(),
             spacer2(),
-            Consumer(
-              builder: (context, watch, _) {
-                return Text(
-                  '@${watch(userProvider.state).username}',
-                  style: TextStyle(
-                      color: Theme.of(context).secondaryHeaderColor, fontSize: 16),
-                );
-              }
-            ),
+            Consumer(builder: (context, watch, _) {
+              return Text(
+                '@${watch(userProvider.state).username}',
+                style: TextStyle(
+                    color: Theme.of(context).secondaryHeaderColor,
+                    fontSize: 16),
+              );
+            }),
             spacer(),
             // _shareWeaveWidget()
             Material(
@@ -241,93 +260,6 @@ class _ProfileState extends State<Profile> {
               }, error),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class Toggle extends StatefulWidget {
-  final String title;
-  final List<String> toggles;
-  final int selected;
-  final Function(int index) onSelected;
-
-  const Toggle(
-      {Key key, this.title, this.toggles, this.selected, this.onSelected})
-      : super(key: key);
-
-  @override
-  _ToggleState createState() => _ToggleState();
-}
-
-class _ToggleState extends State<Toggle> {
-  int index;
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    index = widget.selected;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(
-        widget.title,
-        style: TextStyle(
-            color: Theme.of(context).secondaryHeaderColor.withOpacity(.8),
-            fontSize: 14),
-      ),
-      trailing: GestureDetector(
-        onTap: () {
-          setState(() => index = index == 0 ? 1 : 0);
-          widget.onSelected(index);
-        },
-        child: Container(
-          width: 30,
-          height: 22,
-          //alignment: Alignment.center,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              AnimatedContainer(
-                duration: Duration(milliseconds: 400),
-                curve: Curves.easeInOutCirc,
-                width: double.infinity,
-                height: 13,
-                decoration: BoxDecoration(
-                  color: index == 1
-                      ? accentColor.withOpacity(.2)
-                      : Theme.of(context).scaffoldBackgroundColor,
-                  borderRadius: BorderRadius.circular(15),
-                ),
-              ),
-              Positioned(
-                top: 0,
-                right: 0,
-                left: 0,
-                bottom: 0,
-                child: AnimatedAlign(
-                  duration: Duration(milliseconds: 400),
-                  curve: Curves.easeInOutCirc,
-                  alignment:
-                      index == 0 ? Alignment.centerLeft : Alignment.centerRight,
-                  child: Container(
-                    width: 18,
-                    height: 18,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: index == 1
-                          ? accentColor.withOpacity(.7)
-                          : lightGrey.withOpacity(.8),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );

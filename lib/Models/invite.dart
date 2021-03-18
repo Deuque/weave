@@ -7,7 +7,9 @@ class Invite {
   bool accepted,declined,seenByReceiver;
   Timestamp timestamp;
 
-  Invite({this.id, this.sender, this.receiver, this.gameType, this.date, this.parties, this.accepted, this.declined, this.seenByReceiver, this.timestamp});
+
+
+  Invite({this.id, this.sender, this.receiver, this.gameType, this.date, this.parties, this.accepted, this.declined, this.seenByReceiver, this.timestamp,});
 
   Map<String,dynamic> toJson()=>{
     'id': this.id,
@@ -18,7 +20,8 @@ class Invite {
     'timestamp': this.timestamp,
     'accepted': this.accepted,
     'declined': this.declined,
-    'seenByReceiver': this.seenByReceiver
+    'seenByReceiver': this.seenByReceiver,
+
   };
 
   factory Invite.fromMap(Map<String,dynamic> data)=>Invite(
@@ -30,7 +33,7 @@ class Invite {
     timestamp: data['timestamp'],
     accepted: data['accepted']??false,
     declined: data['declined']??false,
-    seenByReceiver: data['seenByReceiver']??false
+    seenByReceiver: data['seenByReceiver']??false,
   );
 }
 
