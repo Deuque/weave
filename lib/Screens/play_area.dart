@@ -543,14 +543,14 @@ class _PlayAreaState extends State<PlayArea>
                         e.sender == userId;
                   }).toList();
 
-                  int unread = messages
-                      .where((element) =>
-                  element.receiver ==
-                      userId &&
-                      !element.seenByReceiver)
-                      .toList()
-                      .length;
-                  unreadMessages.sink.add(unread);
+                  // int unread = messages
+                  //     .where((element) =>
+                  // element.receiver ==
+                  //     userId &&
+                  //     !element.seenByReceiver)
+                  //     .toList()
+                  //     .length;
+                  // unreadMessages.sink.add(unread);
 
                   return Chat(
                     opponent: widget.activity.opponent,

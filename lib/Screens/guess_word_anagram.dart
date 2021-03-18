@@ -140,22 +140,22 @@ class _GuessWordState extends State<GuessWord> {
             bottom: height * .04 + MediaQuery.of(context).viewInsets.bottom),
         child: ListView(shrinkWrap: true, children: [
           Row(children: [
-            Container(
-              height: width * .07,
-              width: width * .07,
-              decoration: BoxDecoration(
-                //borderRadius: BorderRadius.circular(15),
-                shape: BoxShape.circle,
-                color: Theme.of(context).scaffoldBackgroundColor,
-                image: DecorationImage(
-                    image: AssetImage(
-                      widget.image,
-                    ),
-                    fit: BoxFit.cover),
-              ),
-            ),
+            // Container(
+            //   height: width * .07,
+            //   width: width * .07,
+            //   decoration: BoxDecoration(
+            //     //borderRadius: BorderRadius.circular(15),
+            //     shape: BoxShape.circle,
+            //     color: Theme.of(context).scaffoldBackgroundColor,
+            //     image: DecorationImage(
+            //         image: AssetImage(
+            //           widget.image,
+            //         ),
+            //         fit: BoxFit.cover),
+            //   ),
+            // ),
             Padding(
-              padding: const EdgeInsets.only(top: 7.0, left: 10),
+              padding: const EdgeInsets.only(top: 7.0),
               child: ClipPath(
                   clipper: ChatClipper(leftSide: true, clip: true),
                   child: Container(
