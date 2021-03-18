@@ -5,15 +5,16 @@ import 'package:grouped_list/grouped_list.dart';
 import 'package:weave/Controllers/current_user_controller.dart';
 import 'package:weave/Controllers/user_controller.dart';
 import 'package:weave/Models/message.dart';
+import 'package:weave/Models/user.dart';
 import 'package:weave/Util/colors.dart';
 import 'package:weave/Widgets/chat_widget.dart';
 import 'package:flutter_riverpod/all.dart';
 
 class Chat extends StatefulWidget {
-  final String opponentId;
+  final User opponent;
   List<Message> messages;
 
-  Chat({Key key, this.opponentId, this.messages}) : super(key: key);
+  Chat({Key key, this.opponent, this.messages}) : super(key: key);
 
   @override
   _ChatState createState() => _ChatState();
@@ -37,8 +38,8 @@ class _ChatState extends State<Chat> {
     Message message = Message(
       message: text,
       sender: context.read(userProvider.state).id,
-      receiver: widget.opponentId,
-      parties: [context.read(userProvider.state).id, widget.opponentId],
+      receiver: widget.opponent.id,
+      parties: [context.read(userProvider.state).id, widget.opponent.id],
       timestamp: Timestamp.now(),
       seenByReceiver: false,
       index: widget.messages.length,
@@ -100,6 +101,7 @@ class _ChatState extends State<Chat> {
                               element.date
                       : false,
               onWantToReply: () => onWantToReply(element),
+              replySenderName: element.replyMessage.isEmpty?'':element.replySender==widget.opponent.id?'@${widget.opponent.username}':'You',
             ),
             // useStickyGroupSeparators: true,
             // floatingHeader: true,

@@ -190,11 +190,10 @@ class _PlayAreaState extends State<PlayArea>
               Row(
                 children: [
                   {
-                    'title': 'Chat',
-                    'unseen': unreadMessages.stream,
+                    'title': 'Game',
+                    'unseen': unreadGameTurn.stream,
                     'active': currentTab == 0,
                     'onPressed': () {
-                      // setState(() => currentTab = 0);
                       pageController.animateToPage(
                         0,
                         curve: Curves.easeInOutCirc,
@@ -203,18 +202,18 @@ class _PlayAreaState extends State<PlayArea>
                     }
                   },
                   {
-                    'title': 'Game',
-                    'unseen': unreadGameTurn.stream,
+                    'title': 'Chat',
+                    'unseen': unreadMessages.stream,
                     'active': currentTab == 1,
                     'onPressed': () {
-                      //setState(() => currentTab = 1);
                       pageController.animateToPage(
                         1,
                         curve: Curves.easeInOutCirc,
                         duration: Duration(milliseconds: 400),
                       );
                     }
-                  }
+                  },
+
                 ]
                     .map((e) => Expanded(
                           child: GestureDetector(
@@ -266,7 +265,7 @@ class _PlayAreaState extends State<PlayArea>
                       borderRadius: BorderRadius.circular(11)),
                   alignment: Alignment.center,
                   child: Text(
-                    currentTab == 0 ? 'Chat' : 'Game',
+                    currentTab == 0 ? 'Game' : 'Chat',
                     style: TextStyle(
                         color: primary,
                         fontWeight: FontWeight.w500,
@@ -384,45 +383,9 @@ class _PlayAreaState extends State<PlayArea>
                 setState(() => currentTab = page);
               },
               children: [
+
                 Consumer(builder: (context, watch, _) {
-                  //setup game stream count, since this is the first tab
-                  Invite invite = getInvite();
-
-                  if (invite.gameType == 1) {
-                    List<AnagramActivity> games =
-                        watch(userStreamsProvider).myAnagramGames;
-                    games = games
-                        .where((element) => element.parties
-                            .contains(widget.activity.opponentId))
-                        .toList();
-                    games.sort((a, b) => b.index.compareTo(a.index));
-
-                    if (games.isNotEmpty) {
-                      if (games[0].sender !=
-                              userId &&
-                          !games[0].seenByReceiver) {
-                        unreadGameTurn.sink.add(1);
-                      }
-                    }
-                  } else {
-                    List<TictactoeActivity> games =
-                        watch(userStreamsProvider).myTttGames;
-                    games = games
-                        .where((element) => element.parties
-                            .contains(widget.activity.opponentId))
-                        .toList();
-                    games.sort((a, b) => b.index.compareTo(a.index));
-
-                    if (games.isNotEmpty) {
-                      if (games[0].sender !=
-                              userId &&
-                          !games[0].seenByReceiver) {
-                        unreadGameTurn.sink.add(1);
-                      }
-                    }
-                  }
-
-                  //setup chat stream
+                  //set up chat stream since this is the first tab
                   List<Message> messages = getMessages(watch);
 
                   messages.sort((a, b) => b.index == a.index
@@ -433,7 +396,7 @@ class _PlayAreaState extends State<PlayArea>
                         e.timestamp.millisecondsSinceEpoch));
                     e.time = DateFormat('HH:mma')
                         .format(DateTime.fromMillisecondsSinceEpoch(
-                            e.timestamp.millisecondsSinceEpoch))
+                        e.timestamp.millisecondsSinceEpoch))
                         .toLowerCase();
                     e.userIsSender =
                         e.sender == userId;
@@ -441,19 +404,15 @@ class _PlayAreaState extends State<PlayArea>
 
                   int unread = messages
                       .where((element) =>
-                          element.receiver ==
-                              userId &&
-                          !element.seenByReceiver)
+                  element.receiver ==
+                      userId &&
+                      !element.seenByReceiver)
                       .toList()
                       .length;
                   unreadMessages.sink.add(unread);
 
-                  return Chat(
-                    opponentId: widget.activity.opponentId,
-                    messages: messages,
-                  );
-                }),
-                Consumer(builder: (context, watch, _) {
+
+                  // set up game stream
                   Invite invite = getInvite();
 
                   List<AnagramActivity> anagramGames = [];
@@ -528,7 +487,76 @@ class _PlayAreaState extends State<PlayArea>
                             });
                           },
                         );
-                })
+                }),
+                Consumer(builder: (context, watch, _) {
+                  //setup game stream count, since this is the first tab
+                  // Invite invite = getInvite();
+                  //
+                  // if (invite.gameType == 1) {
+                  //   List<AnagramActivity> games =
+                  //       watch(userStreamsProvider).myAnagramGames;
+                  //   games = games
+                  //       .where((element) => element.parties
+                  //       .contains(widget.activity.opponentId))
+                  //       .toList();
+                  //   games.sort((a, b) => b.index.compareTo(a.index));
+                  //
+                  //   if (games.isNotEmpty) {
+                  //     if (games[0].sender !=
+                  //         userId &&
+                  //         !games[0].seenByReceiver) {
+                  //       unreadGameTurn.sink.add(1);
+                  //     }
+                  //   }
+                  // } else {
+                  //   List<TictactoeActivity> games =
+                  //       watch(userStreamsProvider).myTttGames;
+                  //   games = games
+                  //       .where((element) => element.parties
+                  //       .contains(widget.activity.opponentId))
+                  //       .toList();
+                  //   games.sort((a, b) => b.index.compareTo(a.index));
+                  //
+                  //   if (games.isNotEmpty) {
+                  //     if (games[0].sender !=
+                  //         userId &&
+                  //         !games[0].seenByReceiver) {
+                  //       unreadGameTurn.sink.add(1);
+                  //     }
+                  //   }
+                  // }
+
+                  //setup chat stream
+                  List<Message> messages = getMessages(watch);
+
+                  messages.sort((a, b) => b.index == a.index
+                      ? b.timestamp.compareTo(a.timestamp)
+                      : b.index.compareTo(a.index));
+                  messages.map((e) {
+                    e.date = dateFormat2(DateTime.fromMillisecondsSinceEpoch(
+                        e.timestamp.millisecondsSinceEpoch));
+                    e.time = DateFormat('HH:mma')
+                        .format(DateTime.fromMillisecondsSinceEpoch(
+                        e.timestamp.millisecondsSinceEpoch))
+                        .toLowerCase();
+                    e.userIsSender =
+                        e.sender == userId;
+                  }).toList();
+
+                  int unread = messages
+                      .where((element) =>
+                  element.receiver ==
+                      userId &&
+                      !element.seenByReceiver)
+                      .toList()
+                      .length;
+                  unreadMessages.sink.add(unread);
+
+                  return Chat(
+                    opponent: widget.activity.opponent,
+                    messages: messages,
+                  );
+                }),
               ],
             ))
           ],

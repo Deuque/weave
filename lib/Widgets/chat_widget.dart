@@ -10,8 +10,9 @@ class ChatLayout extends StatefulWidget {
   final Message message;
   final bool previousIsSameSender;
   final Function onWantToReply;
+  final String replySenderName;
 
-  const ChatLayout({Key key, this.message, this.previousIsSameSender,this.onWantToReply}) : super(key: key);
+  const ChatLayout({Key key, this.message, this.previousIsSameSender,this.onWantToReply,this.replySenderName}) : super(key: key);
 
   @override
   _ChatLayoutState createState() => _ChatLayoutState();
@@ -43,14 +44,49 @@ class _ChatLayoutState extends State<ChatLayout>{
     var size = MediaQuery.of(context).size;
 
     replyMessageWidget(){
-      return widget.message.replyMessage.isEmpty?SizedBox(height: 0,):null;
+      return widget.message.replyMessage.isEmpty?SizedBox(height: 0,):Padding(
+        padding: const EdgeInsets.only(bottom: 4.0),
+        child: Material(
+          color: dark.withOpacity(.05),
+          borderRadius: BorderRadius.circular(8),
+          child: Padding(
+            padding: const EdgeInsets.all(7.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.replySenderName,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context)
+                          .secondaryHeaderColor
+                          .withOpacity(.78)),
+                ),
+                Text(
+                  widget.message.replyMessage,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                      fontSize: 13,
+                      color: Theme.of(context)
+                          .secondaryHeaderColor
+                          .withOpacity(.75)),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
     }
 
     return GestureDetector(
       onHorizontalDragUpdate: (details){
       if(userIsSender)
         if(details.delta.dx>0){
-          if(dragOffset.dx<0)
+          if(dragOffset.dx<30)
             setState(() {
               // dragOffset = Offset(details.localPosition.dx-size.width, 0);
               dragOffset = Offset(dragOffset.dx+details.delta.distance, 0);
@@ -64,7 +100,7 @@ class _ChatLayoutState extends State<ChatLayout>{
         }
       else
         if(details.delta.dx<0){
-          if(dragOffset.dx>0)
+          if(dragOffset.dx>-30)
             setState(() {
               // dragOffset = Offset(details.localPosition.dx-size.width, 0);
               dragOffset = Offset(dragOffset.dx-details.delta.distance, 0);
@@ -94,7 +130,7 @@ class _ChatLayoutState extends State<ChatLayout>{
               clipper: ChatClipper(leftSide: !userIsSender,clip: !widget.previousIsSameSender),
               child: Container(
                 color: userIsSender
-                    ? primary.withOpacity(.9)
+                    ? primary.withOpacity(.85)
                     : lightGrey.withOpacity(.15),
                 padding: EdgeInsets.only(top: 7,bottom: 10,right: userIsSender?23:10,left: userIsSender?10:23),
                 child: Column(
@@ -110,6 +146,7 @@ class _ChatLayoutState extends State<ChatLayout>{
                               .secondaryHeaderColor.withOpacity(.5)),
                     ),
                     SizedBox(height: 4,),
+                    replyMessageWidget(),
                     Text(
                       widget.message.message,
                       style: TextStyle(
