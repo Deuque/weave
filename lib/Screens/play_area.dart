@@ -490,41 +490,41 @@ class _PlayAreaState extends State<PlayArea>
                 }),
                 Consumer(builder: (context, watch, _) {
                   //setup game stream count, since this is the first tab
-                  // Invite invite = getInvite();
-                  //
-                  // if (invite.gameType == 1) {
-                  //   List<AnagramActivity> games =
-                  //       watch(userStreamsProvider).myAnagramGames;
-                  //   games = games
-                  //       .where((element) => element.parties
-                  //       .contains(widget.activity.opponentId))
-                  //       .toList();
-                  //   games.sort((a, b) => b.index.compareTo(a.index));
-                  //
-                  //   if (games.isNotEmpty) {
-                  //     if (games[0].sender !=
-                  //         userId &&
-                  //         !games[0].seenByReceiver) {
-                  //       unreadGameTurn.sink.add(1);
-                  //     }
-                  //   }
-                  // } else {
-                  //   List<TictactoeActivity> games =
-                  //       watch(userStreamsProvider).myTttGames;
-                  //   games = games
-                  //       .where((element) => element.parties
-                  //       .contains(widget.activity.opponentId))
-                  //       .toList();
-                  //   games.sort((a, b) => b.index.compareTo(a.index));
-                  //
-                  //   if (games.isNotEmpty) {
-                  //     if (games[0].sender !=
-                  //         userId &&
-                  //         !games[0].seenByReceiver) {
-                  //       unreadGameTurn.sink.add(1);
-                  //     }
-                  //   }
-                  // }
+                  Invite invite = getInvite();
+
+                  if (invite.gameType == 1) {
+                    List<AnagramActivity> games =
+                        watch(userStreamsProvider).myAnagramGames;
+                    games = games
+                        .where((element) => element.parties
+                        .contains(widget.activity.opponentId))
+                        .toList();
+                    games.sort((a, b) => b.index.compareTo(a.index));
+
+                    if (games.isNotEmpty) {
+                      if (games[0].sender !=
+                          userId &&
+                          !games[0].seenByReceiver) {
+                        unreadGameTurn.sink.add(1);
+                      }
+                    }
+                  } else {
+                    List<TictactoeActivity> games =
+                        watch(userStreamsProvider).myTttGames;
+                    games = games
+                        .where((element) => element.parties
+                        .contains(widget.activity.opponentId))
+                        .toList();
+                    games.sort((a, b) => b.index.compareTo(a.index));
+
+                    if (games.isNotEmpty) {
+                      if (games[0].sender !=
+                          userId &&
+                          !games[0].seenByReceiver) {
+                        unreadGameTurn.sink.add(1);
+                      }
+                    }
+                  }
 
                   //setup chat stream
                   List<Message> messages = getMessages(watch);
