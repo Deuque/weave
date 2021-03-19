@@ -15,6 +15,7 @@ class SendInvite extends StatefulWidget {
   final List<User> invitees;
 
   const SendInvite({Key key, this.invitees}) : super(key: key);
+
   @override
   _SendInviteState createState() => _SendInviteState();
 }
@@ -28,36 +29,33 @@ class _SendInviteState extends State<SendInvite> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    invitees=widget.invitees??[];
+    invitees = widget.invitees ?? [];
   }
 
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery
-        .of(context)
-        .size
-        .height;
-    final width = MediaQuery
-        .of(context)
-        .size
-        .width;
+    final height = MediaQuery.of(context).size.height;
+    final width = MediaQuery.of(context).size.width;
 
-    spacer() =>
-        SizedBox(
+    spacer() => SizedBox(
           height: height * .05,
         );
-    spacer2() =>
-        SizedBox(
+    spacer2() => SizedBox(
           height: height * .03,
         );
 
-    onDone() async{
+    onDone() async {
       setState(() {
-        loading=true;
+        loading = true;
       });
-      for(User user in invitees){
+      for (User user in invitees) {
         List<Invite> prevInvites = context.read(userStreamsProvider).myInvites;
-        if(prevInvites.isNotEmpty && prevInvites.where((element) => element.parties.contains(user.id) && !element.declined).toList().isNotEmpty){
+        if (prevInvites.isNotEmpty &&
+            prevInvites
+                .where((element) =>
+                    element.parties.contains(user.id) && !element.declined)
+                .toList()
+                .isNotEmpty) {
           Fluttertoast.showToast(msg: 'you have a game with @${user.username}');
           continue;
         }
@@ -70,16 +68,24 @@ class _SendInviteState extends State<SendInvite> {
         );
 
         await UserController().sendInvite(invite);
+        if (user.receiveInviteNotifications && user.token.isNotEmpty)
+          await UserController().sendNotification(
+              title: '${gameType == 0 ? 'TicTacToe' : 'Anagram'} Invite',
+              body: '@${context.read(userProvider.state).username} sent you an invite',
+              token: user.token,
+              id: 'invite',
+              extraData: user.id,
+              imageUrl: context.read(userProvider.state).photo.isEmpty?UserController().defUserImage():context.read(userProvider.state).photo);
       }
       setState(() {
-        loading=false;
+        loading = false;
       });
       Navigator.pop(context);
     }
 
     return Container(
       padding:
-      EdgeInsets.symmetric(horizontal: width * .07, vertical: height * .04),
+          EdgeInsets.symmetric(horizontal: width * .07, vertical: height * .04),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -88,9 +94,7 @@ class _SendInviteState extends State<SendInvite> {
             children: [
               Text('Start a game',
                   style: TextStyle(
-                      color: Theme
-                          .of(context)
-                          .secondaryHeaderColor,
+                      color: Theme.of(context).secondaryHeaderColor,
                       fontWeight: FontWeight.bold,
                       fontSize: width * .06)),
               IconButton(
@@ -108,41 +112,39 @@ class _SendInviteState extends State<SendInvite> {
               context: context,
               child: Padding(
                 padding:
-                const EdgeInsets.symmetric(horizontal: 15, vertical: 7.0),
+                    const EdgeInsets.symmetric(horizontal: 15, vertical: 7.0),
                 child: DropdownButtonHideUnderline(
                     child: DropdownButton(
-                      isExpanded: true,
-                      items: [0, 1]
-                          .map((e) =>
-                          DropdownMenuItem<int>(
+                  isExpanded: true,
+                  items: [0, 1]
+                      .map((e) => DropdownMenuItem<int>(
                             value: e,
                             child: gameTypeWidget(
                                 type: e, size: width * .033, context: context),
                           ))
-                          .toList(),
-                      value: gameType,
-                      onChanged: (val) => setState(() => gameType = val),
-                    )),
+                      .toList(),
+                  value: gameType,
+                  onChanged: (val) => setState(() => gameType = val),
+                )),
               )),
           spacer2(),
           customFieldIdentifier(
-              label: 'Choose Opponent(s)',
+              label: 'Choose Opponents',
               context: context,
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: FlatButton(
-                  onPressed: () =>
-                      Navigator.pushNamed(
-                        context,
-                        'selectUser',
-                        arguments: [
-                          SelectUserType.multiple,
-                          invitees,
-                          'Find an opponent'
-                        ],
-                      ).then((value) {
-                        if(value!=null)setState(() => invitees = value);
-                      }),
+                  onPressed: () => Navigator.pushNamed(
+                    context,
+                    'selectUser',
+                    arguments: [
+                      SelectUserType.multiple,
+                      invitees,
+                      'Find an opponent'
+                    ],
+                  ).then((value) {
+                    if (value != null) setState(() => invitees = value);
+                  }),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -151,8 +153,7 @@ class _SendInviteState extends State<SendInvite> {
                             ? 'Select user'
                             : '${invitees.length} selected',
                         style: TextStyle(
-                            color: Theme
-                                .of(context)
+                            color: Theme.of(context)
                                 .secondaryHeaderColor
                                 .withOpacity(.6),
                             fontWeight: FontWeight.w100,
@@ -161,8 +162,7 @@ class _SendInviteState extends State<SendInvite> {
                       Image.asset(
                         'assets/images/addUser.png',
                         height: width * .04,
-                        color: Theme
-                            .of(context)
+                        color: Theme.of(context)
                             .secondaryHeaderColor
                             .withOpacity(.7),
                       )
@@ -171,7 +171,8 @@ class _SendInviteState extends State<SendInvite> {
                 ),
               )),
           spacer2(),
-          actionButton('SEND INVITE', invitees.isNotEmpty, loading, onDone, context),
+          actionButton(
+              'SEND INVITE', invitees.isNotEmpty, loading, onDone, context),
         ],
       ),
     );

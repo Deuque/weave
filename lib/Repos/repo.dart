@@ -8,6 +8,10 @@ import 'package:weave/Models/message.dart';
 import 'package:weave/Models/tictactoe_activity.dart';
 
 class Repo {
+  static const fcm_key = 'AAAAQ5EsAiY:APA91bG0H1YTsFNipaGBEfmFa2zi_R2KYYhigtjPyQMDLtkJ0LDspEWkzFdNXVRqI_ZfPUwIkd28rsEQAIXfIoAOi4nxaBg8C00B7ncVDORdmp7Ntzxla3b1ttOma3EwHMzgEz8WNZ6K';
+  static const defUserImage = 'https://firebasestorage.googleapis.com/v0/b/weave-4ee05.appspot.com/o/user.png?alt=media&token=aeee4727-60a1-44fd-94a3-2882d4d3a8c9';
+  static const anagramImage = 'https://firebasestorage.googleapis.com/v0/b/weave-4ee05.appspot.com/o/anagram.png?alt=media&token=e423d2a6-bb45-4be5-89a7-8678e57c08cc';
+  static const tttImage = 'https://firebasestorage.googleapis.com/v0/b/weave-4ee05.appspot.com/o/tictactoe.png?alt=media&token=e152018b-4d75-4861-970c-1197a62e72db';
   var authInstance = FirebaseAuth.instance;
   var userDbInstance = FirebaseFirestore.instance.collection('Users');
   var weaveDbInstance = FirebaseFirestore.instance.collection('Weaves');

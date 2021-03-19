@@ -1,4 +1,5 @@
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/all.dart';
@@ -24,5 +25,12 @@ class CurrentUser extends StateNotifier<User> {
     UserController().userStream(UserController().currentUserId()).listen((event) {
       state = User.fromMap(event.data())..id=event.id;
     });
+  }
+
+  startTokenCheck() async{
+    String token = await FirebaseMessaging().getToken();
+    if(state.token.isEmpty || state.token!=token){
+      UserController().saveUserData({'token':token});
+    }
   }
 }

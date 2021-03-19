@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:weave/Models/anagram_activity.dart';
@@ -7,11 +10,16 @@ import 'package:weave/Models/message.dart';
 import 'package:weave/Models/tictactoe_activity.dart';
 import 'package:weave/Models/user.dart';
 import 'package:weave/Repos/repo.dart';
+import 'package:http/http.dart' as http;
 
 class UserController {
   var repo = Repo();
 
   String currentUserId() => repo.currentUserId();
+
+  String defUserImage()=>Repo.defUserImage;
+  String anagramImage()=>Repo.anagramImage;
+  String tttImage()=>Repo.tttImage;
 
   Future<Map<String, dynamic>> registerUser(
       {@required email, @required password}) async {
@@ -140,5 +148,28 @@ class UserController {
     return repo.getTttGames();
   }
 
-
+  sendNotification({ String title,String body, String token, String id,  String extraData,String imageUrl}) async {
+    print(token);
+    final data = {
+      "notification": imageUrl==null?{"body": "$body", "title": "$title"}:{"body": "$body", "title": "$title","imageUrl":imageUrl},
+      "priority": "high",
+      "data": {"click_action": "FLUTTER_NOTIFICATION_CLICK", "id": id, "extraData":extraData, "status": "done"},
+      "to": token
+    };
+    final String url = 'https://fcm.googleapis.com/fcm/send';
+    final client = new http.Client();
+    final response = await client.post(
+      url,
+      headers: {
+        HttpHeaders.contentTypeHeader: 'application/json',
+        HttpHeaders.authorizationHeader: "key=${Repo.fcm_key}",
+      },
+      body: jsonEncode(data),
+    );
+    if (response.statusCode != 200) {
+      print('notification sending failed '+response.body);
+    }else{
+      print('sent');
+    }
+  }
 }

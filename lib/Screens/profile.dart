@@ -145,13 +145,13 @@ class _ProfileState extends State<Profile> {
 
     List<Map<String, dynamic>> toggleData() => [
           {
-            'title': 'Dark mode',
+            'title': 'Dark Mode',
             'toggles': ['Off', 'On'],
             'selected': context.read(themeProvider.state) ? 1 : 0,
             'onSelected': (int index) => context.read(themeProvider).toggle()
           },
           {
-            'title': 'Available for invites',
+            'title': 'Available for Invites',
             'toggles': ['No', 'Yes'],
             'selected':
                 context.read(userProvider.state).availableForInvite ? 1 : 0,
@@ -167,7 +167,7 @@ class _ProfileState extends State<Profile> {
                 arguments: context.read(userProvider.state).username)
           },
           {
-            'title': 'Add a phone number',
+            'title': 'Add a Phone Number',
             'onClick': () => Navigator.pushNamed(context, 'phone',
                 arguments: context.read(userProvider.state).phone)
           },

@@ -33,7 +33,7 @@ class _ChatState extends State<Chat> {
     } catch (e) {}
   }
 
-  onSendMessage(String text) {
+  onSendMessage(String text) async{
     if (text.isEmpty) return;
     Message message = Message(
       message: text,
@@ -47,7 +47,15 @@ class _ChatState extends State<Chat> {
       replySender: replying == null ? '' : replying.sender,
       replyId: replying == null ? '' : replying.id,
     );
-    UserController().sendMessage(message).then((value) =>setState(()=>replying=null));
+    await UserController().sendMessage(message).then((value) =>setState(()=>replying=null));
+    if (widget.opponent.receiveMessageNotifications && widget.opponent.token.isNotEmpty)
+      await UserController().sendNotification(
+          title: '@${context.read(userProvider.state).username}',
+          body: '${message.message}',
+          token: widget.opponent.token,
+          id: 'chat',
+          extraData: widget.opponent.id,
+      imageUrl: context.read(userProvider.state).photo.isEmpty?UserController().defUserImage():context.read(userProvider.state).photo);
   }
 
   onWantToReply(Message message) {

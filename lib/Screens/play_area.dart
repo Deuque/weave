@@ -86,6 +86,14 @@ class _PlayAreaState extends State<PlayArea>
       await UserController().editInvite(invite
         ..sender = userId
         ..timestamp = Timestamp.now());
+    if (widget.activity.opponent.receiveGameNotifications && widget.activity.opponent.token.isNotEmpty)
+      await UserController().sendNotification(
+          title: '@${context.read(userProvider.state).username} - TicTacToe',
+          body: 'Your game was restarted',
+          token: widget.activity.opponent.token,
+          id: 'game',
+          extraData: widget.activity.opponent.id,
+          imageUrl: UserController().tttImage());
     Fluttertoast.showToast(msg: 'Game restarted');
   }
 
@@ -99,18 +107,44 @@ class _PlayAreaState extends State<PlayArea>
       await UserController().editInvite(invite
         ..sender = userId
         ..timestamp = Timestamp.now());
+    if (widget.activity.opponent.receiveGameNotifications && widget.activity.opponent.token.isNotEmpty)
+      await UserController().sendNotification(
+          title: '@${context.read(userProvider.state).username} - Anagram',
+          body: 'Your game was restarted',
+          token: widget.activity.opponent.token,
+          id: 'game',
+          extraData: widget.activity.opponent.id,
+          imageUrl: UserController().anagramImage());
     Fluttertoast.showToast(msg: 'Game restarted');
   }
 
   newGame(dynamic prevGame, Invite invite) async {
     var result = await showNewGameSheet();
     if (result == null) return;
+    if(invite.gameType == result){
+      Fluttertoast.showToast(msg: 'Select a different game from your current');
+      return;
+    }
     if (prevGame != null) {
       if (prevGame is TictactoeActivity) {
         await UserController().deleteTttGame(prevGame.id);
+        if (widget.activity.opponent.receiveGameNotifications && widget.activity.opponent.token.isNotEmpty)
+          await UserController().sendNotification(
+              title: 'New Game',
+              body: '@${context.read(userProvider.state).username} changed your game to Anagram',
+              token: widget.activity.opponent.token,
+              id: 'game',
+              extraData: widget.activity.opponent.id);
       } else {
         await UserController().deleteAnagramGame(
             (prevGame as List<AnagramActivity>).map((e) => e.id).toList());
+        if (widget.activity.opponent.receiveGameNotifications && widget.activity.opponent.token.isNotEmpty)
+          await UserController().sendNotification(
+              title: 'New Game',
+              body: '@${context.read(userProvider.state).username} changed your game to TicTacToe',
+              token: widget.activity.opponent.token,
+              id: 'game',
+              extraData: widget.activity.opponent.id);
       }
     }
     await UserController().editInvite(invite

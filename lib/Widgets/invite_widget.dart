@@ -85,6 +85,14 @@ class _InviteLayoutState extends State<InviteLayout>
                 'onClick': () async {
                   await UserController()
                       .editInvite(widget.invite..declined = true);
+                  if (invitee!=null && invitee.receiveInviteNotifications && invitee.token.isNotEmpty)
+                    await UserController().sendNotification(
+                        title: '${widget.invite.gameType == 0 ? 'TicTacToe' : 'Anagram'} Invite',
+                        body: '@${context.read(userProvider.state).username} declined your invite😢',
+                        token: invitee.token,
+                        id: 'invite',
+                        extraData: invitee.id,
+                        imageUrl: context.read(userProvider.state).photo.isEmpty?UserController().defUserImage():context.read(userProvider.state).photo);
                 }
               },
               {},
@@ -94,6 +102,14 @@ class _InviteLayoutState extends State<InviteLayout>
                 'onClick': () async {
                   await UserController()
                       .editInvite(widget.invite..accepted = true);
+                  if (invitee!=null && invitee.receiveInviteNotifications && invitee.token.isNotEmpty)
+                    await UserController().sendNotification(
+                        title: '${widget.invite.gameType == 0 ? 'TicTacToe' : 'Anagram'} Invite',
+                        body: '@${context.read(userProvider.state).username} accepted your invite😀',
+                        token: invitee.token,
+                        id: 'invite',
+                        extraData: invitee.id,
+                        imageUrl: context.read(userProvider.state).photo.isEmpty?UserController().defUserImage():context.read(userProvider.state).photo);
                 }
               },
             ]

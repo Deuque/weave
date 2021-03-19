@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31,7 +32,59 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   TabController _controller;
   StreamController<int> unreadInvites = new StreamController();
   StreamController<int> unreadActivities = new StreamController();
+  String playAreaNotificationData='';
+  String inviteNotificationData='';
 
+  void configureFirebase() {
+    try {
+      FirebaseMessaging _firebaseMessaging = FirebaseMessaging()
+        ..requestNotificationPermissions(
+            const IosNotificationSettings(sound: true, badge: true, alert: true));
+
+      _firebaseMessaging.configure(
+        onMessage: (message) async {
+
+          print(message);
+          // showNotification(message['notification']['title'],
+          //     message['notification']['body']);
+        },
+        onLaunch: (message) async {
+          if(message['data']['id'] == 'chat' || message['data']['id'] == 'game') {
+            setState(() {
+              playAreaNotificationData = message['data']['extraData'];
+            });
+
+          }else if(message['data']['id'] == 'invite'){
+            setState(() {
+              inviteNotificationData = message['data']['extraData'];
+            });
+            // WidgetsBinding.instance.addPostFrameCallback((_) {
+            //   _controller.animateTo(1,duration: Duration(milliseconds: 200),curve: Curves.easeIn);
+            // });
+          }
+        },
+        onResume: (message) async {
+          if(message['data']['id'] == 'chat' || message['data']['id'] == 'game') {
+            setState(() {
+              playAreaNotificationData = message['data']['extraData'];
+            });
+
+          }else if(message['data']['id'] == 'invite'){
+            setState(() {
+              inviteNotificationData = message['data']['extraData'];
+            });
+            // WidgetsBinding.instance.addPostFrameCallback((_) {
+            //   _controller.animateTo(1,duration: Duration(milliseconds: 200),curve: Curves.easeIn);
+            // });
+          }
+        },
+      );
+      print('configured messaging successfully');
+    } catch (e) {
+      print('could not configure firebase messaging: ' + e.toString());
+    }
+  }
+  
   @override
   void initState() {
     super.initState();
@@ -42,9 +95,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           tabIndex = _controller.index;
         });
     });
-
+    
     unreadInvites.sink.add(0);
     unreadActivities.sink.add(0);
+    configureFirebase();
   }
 
   @override
@@ -361,6 +415,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                         return TabBody(
                           items: activities,
                           tabIndex: 0,
+                          notificationData: playAreaNotificationData,
                         );
                       }),
                       Consumer(builder: (context, watch, _) {
@@ -373,6 +428,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                         return TabBody(
                           items: invites,
                           tabIndex: 1,
+                          notificationData: inviteNotificationData,
                         );
                       }),
                     ]),
@@ -386,10 +442,11 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 }
 
 class TabBody extends StatelessWidget {
+  final String notificationData;
   final List items;
   final int tabIndex;
 
-  const TabBody({Key key, this.items, this.tabIndex}) : super(key: key);
+  const TabBody({Key key, this.items, this.tabIndex,this.notificationData}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -403,6 +460,7 @@ class TabBody extends StatelessWidget {
                 physics: BouncingScrollPhysics(),
                 children: items
                     .map((e) => ActivityLayout(
+                  notificationData: notificationData,
                           activity: e,
                         ))
                     .toList(),

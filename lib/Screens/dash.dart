@@ -24,6 +24,7 @@ class _DashboardState extends State<Dashboard> {
     context.read(userProvider).startCurrentUserStream();
     context.read(contactsProvider).initialSetup();
     context.read(userStreamsProvider).startStreams();
+    context.read(userProvider).startTokenCheck();
   }
 
   @override

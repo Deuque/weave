@@ -9,9 +9,10 @@ import 'package:weave/Util/colors.dart';
 import 'package:weave/Util/helper_functions.dart';
 
 class ActivityLayout extends StatefulWidget {
+  final String notificationData;
   final Activity activity;
 
-  const ActivityLayout({Key key, this.activity}) : super(key: key);
+  const ActivityLayout({Key key, this.activity,this.notificationData}) : super(key: key);
 
   @override
   _ActivityLayoutState createState() => _ActivityLayoutState();
@@ -34,6 +35,9 @@ class _ActivityLayoutState extends State<ActivityLayout> with AutomaticKeepAlive
     UserController().userStream(widget.activity.opponentId).listen((event) {
       if(mounted)setState(() {
         opponent = User.fromMap(event.data())..id=event.id;
+        if(widget.notificationData!=null && opponent.id==widget.notificationData){
+          Navigator.pushNamed(context, 'playArea', arguments: widget.activity..opponent=opponent);
+        }
       });
     });
   }

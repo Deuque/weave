@@ -1,9 +1,4 @@
-// import 'package:flipp/Screens/Dashboard/welcome.dart';
-// import 'package:flipp/Screens/Funds/bank_transfer_details.dart';
-// import 'package:flipp/Screens/Funds/fund_wallet_options.dart';
-// import 'package:flipp/Screens/Funds/payment_options.dart';
-// import 'package:flutter/material.dart';
-//
+
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -249,3 +244,4 @@ child: ClipRRect(
   ),
 ),
 );
+

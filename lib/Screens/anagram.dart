@@ -57,15 +57,32 @@ class Anagram extends StatelessWidget {
         activity.sender=userId;
         activity.index = anagrams.length;
         activity.parties = invite.parties;
-        UserController().addAnagramGame(activity);
+        await UserController().addAnagramGame(activity);
+        if (opponent.receiveGameNotifications && opponent.token.isNotEmpty)
+          await UserController().sendNotification(
+              title: '@${context.read(userProvider.state).username} - Anagram',
+              body: '${activity.scrambledWord}',
+              token: opponent.token,
+              id: 'game',
+              extraData: opponent.id,
+          imageUrl: UserController().anagramImage());
     }
 
-    onGuessWord(String id, String answer) {
+    onGuessWord(String id, String answer) async {
       AnagramActivity activity = anagrams.firstWhere((element) => element.id==id);
       activity.opponentAnswer=answer;
       activity.answered=true;
 
-      UserController().editAnagramGame(activity);
+      await UserController().editAnagramGame(activity);
+      if (opponent.receiveGameNotifications && opponent.token.isNotEmpty)
+        await UserController().sendNotification(
+            title: '@${context.read(userProvider.state).username} - Anagram',
+            body: 'Your turn!',
+            token: opponent.token,
+            id: 'game',
+            extraData: opponent.id,
+            imageUrl: UserController().anagramImage());
+
     }
 
     Widget actionBar() => Container(

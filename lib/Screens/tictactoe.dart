@@ -100,7 +100,7 @@ class _TicTacToeState extends State<TicTacToe> {
   }
 
   // upload user play
-  uploadPlay() {
+  uploadPlay() async {
     if (!userPlayIsValid()) return;
     TictactoeActivity tictactoeActivity =
         widget.tictactoeActivity ?? TictactoeActivity()
@@ -111,8 +111,16 @@ class _TicTacToeState extends State<TicTacToe> {
           ..plays = occupiedIndexes
           ..timestamp = Timestamp.now();
     widget.tictactoeActivity == null
-        ? UserController().addTttGame(tictactoeActivity)
-        : UserController().editTttGame(tictactoeActivity);
+        ? await UserController().addTttGame(tictactoeActivity)
+        : await UserController().editTttGame(tictactoeActivity);
+    if (widget.opponent.receiveGameNotifications && widget.opponent.token.isNotEmpty)
+      await UserController().sendNotification(
+          title: '@${context.read(userProvider.state).username} - TicTacToe',
+          body: 'Your turn!',
+          token: widget.opponent.token,
+          id: 'game',
+          extraData: widget.opponent.id,
+          imageUrl: UserController().tttImage());
   }
 
   //check difference between occupiedIndex and previous plays
