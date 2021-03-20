@@ -92,8 +92,7 @@ class _PlayAreaState extends State<PlayArea>
           body: 'Your game was restarted',
           token: widget.activity.opponent.token,
           id: 'game',
-          extraData: widget.activity.opponent.id,
-          imageUrl: UserController().tttImage());
+          extraData: context.read(userProvider.state).id,);
     Fluttertoast.showToast(msg: 'Game restarted');
   }
 
@@ -113,8 +112,7 @@ class _PlayAreaState extends State<PlayArea>
           body: 'Your game was restarted',
           token: widget.activity.opponent.token,
           id: 'game',
-          extraData: widget.activity.opponent.id,
-          imageUrl: UserController().anagramImage());
+          extraData: context.read(userProvider.state).id,);
     Fluttertoast.showToast(msg: 'Game restarted');
   }
 
@@ -134,7 +132,7 @@ class _PlayAreaState extends State<PlayArea>
               body: '@${context.read(userProvider.state).username} changed your game to Anagram',
               token: widget.activity.opponent.token,
               id: 'game',
-              extraData: widget.activity.opponent.id);
+              extraData: context.read(userProvider.state).id);
       } else {
         await UserController().deleteAnagramGame(
             (prevGame as List<AnagramActivity>).map((e) => e.id).toList());
@@ -144,7 +142,7 @@ class _PlayAreaState extends State<PlayArea>
               body: '@${context.read(userProvider.state).username} changed your game to TicTacToe',
               token: widget.activity.opponent.token,
               id: 'game',
-              extraData: widget.activity.opponent.id);
+              extraData: context.read(userProvider.state).id);
       }
     }
     await UserController().editInvite(invite
@@ -495,6 +493,7 @@ class _PlayAreaState extends State<PlayArea>
                   return invite.gameType == 0
                       ? TicTacToe(
                           opponent: widget.activity.opponent,
+                          currentUser: context.read(userProvider.state),
                           key: tttGames.isEmpty
                               ? Key('key')
                               : Key(tttGames[0].timestamp.toString()),
@@ -523,7 +522,7 @@ class _PlayAreaState extends State<PlayArea>
                         );
                 }),
                 Consumer(builder: (context, watch, _) {
-                  //setup game stream count, since this is the first tab
+
                   Invite invite = getInvite();
 
                   if (invite.gameType == 1) {

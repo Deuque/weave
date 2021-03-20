@@ -10,8 +10,9 @@ import 'package:weave/Util/helper_functions.dart';
 
 class InviteLayout extends StatefulWidget {
   final Invite invite;
+  final User currentUser;
 
-  const InviteLayout({Key key, this.invite}) : super(key: key);
+  const InviteLayout({Key key, this.invite,this.currentUser}) : super(key: key);
 
   @override
   _InviteLayoutState createState() => _InviteLayoutState();
@@ -88,11 +89,11 @@ class _InviteLayoutState extends State<InviteLayout>
                   if (invitee!=null && invitee.receiveInviteNotifications && invitee.token.isNotEmpty)
                     await UserController().sendNotification(
                         title: '${widget.invite.gameType == 0 ? 'TicTacToe' : 'Anagram'} Invite',
-                        body: '@${context.read(userProvider.state).username} declined your invite😢',
+                        body: '@${widget.currentUser.username} declined your invite😢',
                         token: invitee.token,
                         id: 'invite',
-                        extraData: invitee.id,
-                        imageUrl: context.read(userProvider.state).photo.isEmpty?UserController().defUserImage():context.read(userProvider.state).photo);
+                        extraData: widget.currentUser.id,
+                        imageUrl: widget.currentUser.photo.isEmpty?UserController().defUserImage():widget.currentUser.photo);
                 }
               },
               {},
@@ -105,11 +106,11 @@ class _InviteLayoutState extends State<InviteLayout>
                   if (invitee!=null && invitee.receiveInviteNotifications && invitee.token.isNotEmpty)
                     await UserController().sendNotification(
                         title: '${widget.invite.gameType == 0 ? 'TicTacToe' : 'Anagram'} Invite',
-                        body: '@${context.read(userProvider.state).username} accepted your invite😀',
+                        body: '@${widget.currentUser.username} accepted your invite😀',
                         token: invitee.token,
                         id: 'invite',
-                        extraData: invitee.id,
-                        imageUrl: context.read(userProvider.state).photo.isEmpty?UserController().defUserImage():context.read(userProvider.state).photo);
+                        extraData: widget.currentUser.id,
+                        imageUrl: widget.currentUser.photo.isEmpty?UserController().defUserImage():widget.currentUser.photo);
                 }
               },
             ]
@@ -117,10 +118,10 @@ class _InviteLayoutState extends State<InviteLayout>
                     ? VerticalDivider()
                     : Expanded(
                         child: FlatButton(
-                          onPressed: () {
+                          onPressed: () async{
                             setState(() => currentAction = e['text']);
-                            e['onClick']();
-                            setState(() => currentAction = '');
+                            await e['onClick']();
+                            if(mounted)setState(() => currentAction = '');
                           },
                           //color: e['color'],
                           shape: RoundedRectangleBorder(

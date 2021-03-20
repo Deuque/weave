@@ -54,7 +54,7 @@ class _ChatState extends State<Chat> {
           body: '${message.message}',
           token: widget.opponent.token,
           id: 'chat',
-          extraData: widget.opponent.id,
+          extraData: context.read(userProvider.state).id,
       imageUrl: context.read(userProvider.state).photo.isEmpty?UserController().defUserImage():context.read(userProvider.state).photo);
   }
 

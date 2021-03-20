@@ -30,7 +30,11 @@ class CurrentUser extends StateNotifier<User> {
   startTokenCheck() async{
     String token = await FirebaseMessaging().getToken();
     if(state.token.isEmpty || state.token!=token){
-      UserController().saveUserData({'token':token});
+      if(token.isNotEmpty)UserController().saveUserData({'token':token});
     }
   }
+
+
+
+
 }

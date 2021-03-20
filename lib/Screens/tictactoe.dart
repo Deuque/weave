@@ -18,7 +18,7 @@ import 'package:weave/Widgets/chat_clipper.dart';
 class TicTacToe extends StatefulWidget {
   final Invite invite;
   final TictactoeActivity tictactoeActivity;
-  final User opponent;
+  final User opponent,currentUser;
   final Function onFullScreen;
   final Function onRestartGame;
 
@@ -28,7 +28,7 @@ class TicTacToe extends StatefulWidget {
         this.onRestartGame,
       this.invite,
       this.tictactoeActivity,
-      this.opponent})
+      this.opponent,this.currentUser})
       : super(key: key);
 
   @override
@@ -115,11 +115,11 @@ class _TicTacToeState extends State<TicTacToe> {
         : await UserController().editTttGame(tictactoeActivity);
     if (widget.opponent.receiveGameNotifications && widget.opponent.token.isNotEmpty)
       await UserController().sendNotification(
-          title: '@${context.read(userProvider.state).username} - TicTacToe',
+          title: '@${widget.currentUser.username} - TicTacToe',
           body: 'Your turn!',
           token: widget.opponent.token,
           id: 'game',
-          extraData: widget.opponent.id,
+          extraData: widget.currentUser.id,
           imageUrl: UserController().tttImage());
   }
 

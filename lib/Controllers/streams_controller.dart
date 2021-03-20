@@ -3,12 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:weave/Controllers/user_controller.dart';
 import 'package:weave/Models/anagram_activity.dart';
-import 'package:weave/Models/game.dart';
 import 'package:weave/Models/invite.dart';
 import 'package:weave/Models/message.dart';
 import 'package:weave/Models/tictactoe_activity.dart';
-import 'package:weave/Models/user.dart';
-import 'package:weave/Repos/repo.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final userStreamsProvider = ChangeNotifierProvider<UserStreams>((
     ref) => new UserStreams());
@@ -49,6 +47,22 @@ class UserStreams extends ChangeNotifier {
         ..id = e.id).toList();
       notifyListeners();
     });
+  }
+
+  alreadySeenNotification(String newNotification)async{
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String notification = prefs.getString('notification')??'';
+    if(newNotification!=notification){
+      saveCurrentNotification(newNotification);
+    }
+    print(newNotification==notification);
+    return newNotification == notification;
+  }
+
+  saveCurrentNotification(String newNotification)async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('notification', newNotification);
   }
 
 }

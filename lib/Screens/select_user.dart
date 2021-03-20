@@ -384,7 +384,7 @@ class _ContactsOnWeaveState extends State<ContactsOnWeave> {
                 return emptyWidget(
                     image: 'assets/images/emptySearch.png', size: width * .2);
               return ListView(
-                  padding: EdgeInsets.zero,
+                  padding: EdgeInsets.only(top: 20),
                   children: snapshot.data
                       .map(
                         (user) => UserWidget(
@@ -455,7 +455,6 @@ class _ContactsOnWeaveState extends State<ContactsOnWeave> {
                   onPressed: ()=>getAllUsers(true)),
             ],
           ),
-          _space(),
           _allUsersLayout(),
           _space(),
           Consumer(builder: (context, watch, _) {

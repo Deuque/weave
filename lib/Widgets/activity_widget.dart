@@ -1,18 +1,19 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:weave/Controllers/user_controller.dart';
 import 'package:weave/Models/activity.dart';
 import 'package:weave/Models/user.dart';
 import 'package:weave/Util/colors.dart';
 import 'package:weave/Util/helper_functions.dart';
+import 'package:flutter_riverpod/all.dart';
+import 'package:weave/Controllers/streams_controller.dart';
 
 class ActivityLayout extends StatefulWidget {
-  final String notificationData;
+  final String notificationData,notificationStamp;
   final Activity activity;
 
-  const ActivityLayout({Key key, this.activity,this.notificationData}) : super(key: key);
+  const ActivityLayout({Key key, this.activity,this.notificationData,this.notificationStamp}) : super(key: key);
 
   @override
   _ActivityLayoutState createState() => _ActivityLayoutState();
@@ -28,17 +29,25 @@ class _ActivityLayoutState extends State<ActivityLayout> with AutomaticKeepAlive
   void initState() {
     // TODO: implement initState
     super.initState();
+    print('extra: '+widget.notificationData);
     startOpponentStream();
   }
 
   startOpponentStream(){
-    UserController().userStream(widget.activity.opponentId).listen((event) {
+    UserController().userStream(widget.activity.opponentId).listen((event) async{
       if(mounted)setState(() {
         opponent = User.fromMap(event.data())..id=event.id;
-        if(widget.notificationData!=null && opponent.id==widget.notificationData){
-          Navigator.pushNamed(context, 'playArea', arguments: widget.activity..opponent=opponent);
-        }
+        print('nav true '+opponent.id);
+        print('nav  true2 '+widget.notificationData);
+
       });
+      if(widget.notificationData!=null && opponent.id==widget.notificationData){
+        if(!(await context.read(userStreamsProvider).alreadySeenNotification(widget.notificationStamp)))
+          {
+            if(!Navigator.canPop(context))
+              Navigator.pushNamed(context, 'playArea', arguments: widget.activity..opponent=opponent);
+          }
+      }
     });
   }
 

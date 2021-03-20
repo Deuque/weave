@@ -44,6 +44,7 @@ class UserController {
   }
 
   Future<void> signOut() async{
+    await saveUserData({'token':''});
     await repo.signOut();
   }
 
@@ -151,7 +152,7 @@ class UserController {
   sendNotification({ String title,String body, String token, String id,  String extraData,String imageUrl}) async {
     print(token);
     final data = {
-      "notification": imageUrl==null?{"body": "$body", "title": "$title"}:{"body": "$body", "title": "$title","imageUrl":imageUrl},
+      "notification": {"body": "$body", "title": "$title"},
       "priority": "high",
       "data": {"click_action": "FLUTTER_NOTIFICATION_CLICK", "id": id, "extraData":extraData, "status": "done"},
       "to": token

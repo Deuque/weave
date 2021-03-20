@@ -74,7 +74,7 @@ class _SendInviteState extends State<SendInvite> {
               body: '@${context.read(userProvider.state).username} sent you an invite',
               token: user.token,
               id: 'invite',
-              extraData: user.id,
+              extraData: context.read(userProvider.state).id,
               imageUrl: context.read(userProvider.state).photo.isEmpty?UserController().defUserImage():context.read(userProvider.state).photo);
       }
       setState(() {

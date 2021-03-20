@@ -33,6 +33,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   StreamController<int> unreadInvites = new StreamController();
   StreamController<int> unreadActivities = new StreamController();
   String playAreaNotificationData='';
+  String playAreaNotificationStamp='';
   String inviteNotificationData='';
 
   void configureFirebase() {
@@ -50,29 +51,37 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         },
         onLaunch: (message) async {
           if(message['data']['id'] == 'chat' || message['data']['id'] == 'game') {
-            setState(() {
-              playAreaNotificationData = message['data']['extraData'];
-            });
+
+              setState(() {
+                playAreaNotificationData = message['data']['extraData'];
+                playAreaNotificationStamp = message['data']['google.sent_time'].toString();
+              });
 
           }else if(message['data']['id'] == 'invite'){
-            setState(() {
-              inviteNotificationData = message['data']['extraData'];
-            });
+
+              setState(() {
+                inviteNotificationData = message['data']['extraData'];
+                //playAreaNotificationStamp = message['data']['google.sent_time'].toString();
+              });
             // WidgetsBinding.instance.addPostFrameCallback((_) {
             //   _controller.animateTo(1,duration: Duration(milliseconds: 200),curve: Curves.easeIn);
             // });
           }
         },
         onResume: (message) async {
+
           if(message['data']['id'] == 'chat' || message['data']['id'] == 'game') {
-            setState(() {
-              playAreaNotificationData = message['data']['extraData'];
-            });
+
+              setState(() {
+                playAreaNotificationData = message['data']['extraData'];
+                playAreaNotificationStamp = message['data']['google.sent_time'].toString();
+              });
 
           }else if(message['data']['id'] == 'invite'){
-            setState(() {
-              inviteNotificationData = message['data']['extraData'];
-            });
+
+              setState(() {
+                inviteNotificationData = message['data']['extraData'];
+              });
             // WidgetsBinding.instance.addPostFrameCallback((_) {
             //   _controller.animateTo(1,duration: Duration(milliseconds: 200),curve: Curves.easeIn);
             // });
@@ -84,7 +93,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       print('could not configure firebase messaging: ' + e.toString());
     }
   }
-  
+
   @override
   void initState() {
     super.initState();
@@ -95,7 +104,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           tabIndex = _controller.index;
         });
     });
-    
+
     unreadInvites.sink.add(0);
     unreadActivities.sink.add(0);
     configureFirebase();
@@ -416,6 +425,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                           items: activities,
                           tabIndex: 0,
                           notificationData: playAreaNotificationData,
+                          notificationStamp: playAreaNotificationStamp,
                         );
                       }),
                       Consumer(builder: (context, watch, _) {
@@ -442,11 +452,11 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 }
 
 class TabBody extends StatelessWidget {
-  final String notificationData;
+  final String notificationData,notificationStamp;
   final List items;
   final int tabIndex;
 
-  const TabBody({Key key, this.items, this.tabIndex,this.notificationData}) : super(key: key);
+  const TabBody({Key key, this.items, this.tabIndex,this.notificationData,this.notificationStamp}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -461,6 +471,7 @@ class TabBody extends StatelessWidget {
                 children: items
                     .map((e) => ActivityLayout(
                   notificationData: notificationData,
+                          notificationStamp: notificationStamp,
                           activity: e,
                         ))
                     .toList(),
@@ -472,6 +483,7 @@ class TabBody extends StatelessWidget {
                 children: items
                     .map((e) => InviteLayout(
                           invite: e,
+                  currentUser: context.read(userProvider.state),
                         ))
                     .toList(),
               );

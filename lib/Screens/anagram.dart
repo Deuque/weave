@@ -61,10 +61,10 @@ class Anagram extends StatelessWidget {
         if (opponent.receiveGameNotifications && opponent.token.isNotEmpty)
           await UserController().sendNotification(
               title: '@${context.read(userProvider.state).username} - Anagram',
-              body: '${activity.scrambledWord}',
+              body: 'solve: ${activity.scrambledWord}',
               token: opponent.token,
               id: 'game',
-              extraData: opponent.id,
+              extraData: context.read(userProvider.state).id,
           imageUrl: UserController().anagramImage());
     }
 
@@ -74,14 +74,6 @@ class Anagram extends StatelessWidget {
       activity.answered=true;
 
       await UserController().editAnagramGame(activity);
-      if (opponent.receiveGameNotifications && opponent.token.isNotEmpty)
-        await UserController().sendNotification(
-            title: '@${context.read(userProvider.state).username} - Anagram',
-            body: 'Your turn!',
-            token: opponent.token,
-            id: 'game',
-            extraData: opponent.id,
-            imageUrl: UserController().anagramImage());
 
     }
 
