@@ -1,6 +1,9 @@
 # weave_mobile
 
-Play and assemble words together
+Play anagram and tic-tac-toe with friends
+
+Playstore link: 
+https://play.google.com/store/apps/details?id=com.dcdevs.weave_mobile
 
 ## Getting Started
 
