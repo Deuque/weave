@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -12,11 +11,9 @@ import 'package:weave/Controllers/streams_controller.dart';
 import 'package:weave/Controllers/user_controller.dart';
 import 'package:weave/Models/activity.dart';
 import 'package:weave/Models/anagram_activity.dart';
-import 'package:weave/Models/game.dart';
 import 'package:weave/Models/invite.dart';
 import 'package:weave/Models/message.dart';
 import 'package:weave/Models/tictactoe_activity.dart';
-import 'package:weave/Models/user.dart';
 import 'package:weave/Screens/anagram.dart';
 import 'package:weave/Screens/chat.dart';
 import 'package:weave/Screens/new_game.dart';
@@ -190,7 +187,7 @@ class _PlayAreaState extends State<PlayArea>
     var size = MediaQuery.of(context).size;
 
 
-    bool showFullscreen = currentTab == 1 && fullScreen;
+    bool showFullscreen = currentTab == 0 && fullScreen;
 
     Widget tabsUnreadCount({Color color, int count}) => Visibility(
           visible: count != 0,
