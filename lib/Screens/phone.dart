@@ -1,6 +1,7 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:weave/Controllers/user_controller.dart';
-import 'package:weave/Util/colors.dart';
 import 'package:weave/Util/helper_functions.dart';
 import 'package:weave/Widgets/my_text_field.dart';
 
@@ -8,6 +9,7 @@ class AddPhone extends StatefulWidget {
   final String phone;
 
   const AddPhone({Key key, this.phone}) : super(key: key);
+
   @override
   _AddPhoneState createState() => _AddPhoneState();
 }
@@ -21,7 +23,9 @@ class _AddPhoneState extends State<AddPhone> {
   @override
   void initState() {
     super.initState();
-    phoneController.text=widget.phone?.substring(4)??'';
+    phoneController.text = widget.phone == null || widget.phone.isEmpty
+        ? ''
+        : widget.phone?.substring(4) ?? '';
     phoneController.addListener(() {
       if (phoneController.text.isNotEmpty && !textEntered) {
         setState(() {
@@ -36,7 +40,6 @@ class _AddPhoneState extends State<AddPhone> {
     });
   }
 
-
   @override
   void dispose() {
     // TODO: implement dispose
@@ -46,41 +49,33 @@ class _AddPhoneState extends State<AddPhone> {
 
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery
-        .of(context)
-        .size
-        .height;
-    final width = MediaQuery
-        .of(context)
-        .size
-        .width;
+    final height = MediaQuery.of(context).size.height;
+    final width = MediaQuery.of(context).size.width;
 
-    spacer() =>
-        SizedBox(
+    spacer() => SizedBox(
           height: height * .05,
         );
-    spacer2() =>
-        SizedBox(
+    spacer2() => SizedBox(
           height: height * .03,
         );
 
     String stripNumber() {
       String text = phoneController.value.text;
-      if(text.length<10){
+      if (text.length < 10) {
         showSnackBar(
             key: _scaffoldKey,
             message: 'Enter a valid number',
             type: SnackBarType.warning);
         return '';
       }
-      return '+234'+text;
+      return '+234' + text;
     }
 
-    onDone() async{
-      if(stripNumber().isEmpty){
+    onDone() async {
+      if (stripNumber().isEmpty) {
         return;
-      }else{
-        if(widget.phone!=null && widget.phone==stripNumber()){
+      } else {
+        if (widget.phone != null && widget.phone == stripNumber()) {
           showSnackBar(
               key: _scaffoldKey,
               message: 'This is your current phone number',
@@ -90,8 +85,8 @@ class _AddPhoneState extends State<AddPhone> {
         setState(() {
           loading = true;
         });
-        var response = await UserController()
-            .saveUserData({'phone': stripNumber()});
+        var response =
+            await UserController().saveUserData({'phone': stripNumber()});
         if (response['error'] != null) {
           showSnackBar(
               key: _scaffoldKey,
@@ -118,7 +113,7 @@ class _AddPhoneState extends State<AddPhone> {
       ),
       body: Padding(
         padding: EdgeInsets.only(
-            left: width * .08, right:width * .08,bottom: width * .15),
+            left: width * .08, right: width * .08, bottom: width * .15),
         child: Align(
           alignment: Alignment.bottomCenter,
           child: ListView(
@@ -127,19 +122,14 @@ class _AddPhoneState extends State<AddPhone> {
               Text(
                 'Add a phone number,',
                 style: TextStyle(
-                    color: Theme
-                        .of(context)
-                        .secondaryHeaderColor,
+                    color: Theme.of(context).secondaryHeaderColor,
                     fontSize: 25,
                     fontWeight: FontWeight.bold),
               ),
               Text(
                 'Help your contacts see you',
                 style: TextStyle(
-                  color: Theme
-                      .of(context)
-                      .secondaryHeaderColor
-                      .withOpacity(.5),
+                  color: Theme.of(context).secondaryHeaderColor.withOpacity(.5),
                   fontSize: 14,
                 ),
               ),
@@ -147,14 +137,17 @@ class _AddPhoneState extends State<AddPhone> {
               MyTextField(
                 label: 'Phone number',
                 prefix: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 6.0,horizontal: 10),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 6.0, horizontal: 10),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('+234', style: TextStyle(
-                          color: Theme
-                              .of(context)
-                              .secondaryHeaderColor, fontSize: 14),),
+                      Text(
+                        '+234',
+                        style: TextStyle(
+                            color: Theme.of(context).secondaryHeaderColor,
+                            fontSize: 14),
+                      ),
                     ],
                   ),
                 ),
@@ -162,8 +155,7 @@ class _AddPhoneState extends State<AddPhone> {
                 controller: phoneController,
               ),
               spacer2(),
-              actionButton('CONTINUE', textEntered, loading,
-                      onDone, context),
+              actionButton('CONTINUE', textEntered, loading, onDone, context),
             ],
           ),
         ),
@@ -171,4 +163,3 @@ class _AddPhoneState extends State<AddPhone> {
     );
   }
 }
-

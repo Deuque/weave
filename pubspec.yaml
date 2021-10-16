@@ -26,7 +26,7 @@ dependencies:
   google_fonts: ^1.1.1
   intl: ^0.16.1
   shared_preferences: ^0.5.12+4
-  flutter_riverpod: ^0.12.1
+  flutter_riverpod: ^0.13.1
   grouped_list: ^3.7.1
   firebase_auth: ^0.20.1
   cloud_firestore: ^0.16.0+1
@@ -52,6 +52,9 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_launcher_icons: "^0.8.0"
+
+dependency_overrides:
+  path_provider: ^1.6.28
 
 flutter_icons:
   android: "launcher_icon"
